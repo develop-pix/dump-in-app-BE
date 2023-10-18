@@ -42,7 +42,7 @@ black = "^23.9.1"
 pre-commit = "^3.4.0"
 
 [tool.black]
-line-length = 120
+line-length = 140
 target-version = ['py311']
 force-exclude = 'migrations'
 
