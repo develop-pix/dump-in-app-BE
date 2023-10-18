@@ -29,7 +29,18 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run django poetry run flake8
 
       - name: Run mypy
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump-in/
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
 
       - name: Run tests
         run: docker compose -f github-actions.docker-compose.yml run django poetry run py.test
+
+      - name: action-slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: www-be
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          if_mention: failure,cancelled
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always()
