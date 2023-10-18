@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ "develop", "feature/*"]
+
+  pull_request:
+    branches: [ "develop", "main" ]
+
+jobs:
+  django-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build docker
+        run: docker compose -f github-actions.docker-compose.yml build
+
+      - name: Migration test database
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
+
+      - name: Run isort
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run isort dump-in/ --check
+
+      - name: Run black
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run black dump-in/ --check
+
+      - name: Run flake8
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run flake8
+
+      - name: Run mypy
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump-in/
+
+      - name: Run tests
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run py.test
