@@ -41,7 +41,7 @@ jobs:
         with:
           payload: |
             {
-              "channel": SLACK_CHANNEL_ID,
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
               "attachments": [
                 {
                   "color": "#36a64f",
@@ -76,7 +76,7 @@ jobs:
         with:
           payload: |
             {
-              "channel": SLACK_CHANNEL_ID,
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
               "attachments": [
                 {
                   "color": "#ff0000",
@@ -100,5 +100,4 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
