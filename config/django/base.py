@@ -74,7 +74,7 @@ if os.environ.get("GITHUB_WORKFLOW"):
             "NAME": "github_actions",
             "USER": "postgres",
             "PASSWORD": "password",
-            "HOST": "localhost",
+            "HOST": "postgres",
             "PORT": "5432",
         }
     }
