@@ -20,10 +20,10 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
 
       - name: Run isort
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run isort dump-in/ --check
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run isort dump_in/ --check
 
       - name: Run black
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run black dump-in/ --check
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run black dump_in/ --check
 
       - name: Run flake8
         run: docker compose -f github-actions.docker-compose.yml run django poetry run flake8

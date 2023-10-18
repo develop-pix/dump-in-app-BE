@@ -4,7 +4,7 @@ from config.env import env
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("POSTGRESQL_DATABASE", default="dump-in"),
+        "NAME": env("POSTGRESQL_DATABASE", default="dump_in"),
         "USER": env("POSTGRESQL_USER", default="postgres"),
         "PASSWORD": env("POSTGRESQL_PASSWORD", default="password"),
         "HOST": env("POSTGRESQL_HOST", default="localhost"),

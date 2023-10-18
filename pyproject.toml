@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dump-in"
+name = "dump_in"
 version = "0.1.0"
 description = ""
 authors = ["SaJH <wogur981208@gmail.com>"]
