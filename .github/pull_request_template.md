@@ -1,13 +1,3 @@
----
-name: PR template
-about: PR 작성 시 사용하는 템플릿입니다.
-title: "PR 리포트"
-labels:
-assignees:
-
----
-
-
 ## PR 체크리스트
 아래 항목을 확인해 주세요:
 
