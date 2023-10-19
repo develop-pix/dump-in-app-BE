@@ -56,7 +56,7 @@ jobs:
                   "color": "#36a64f",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action 성공",
+                  "text": "GitHub Action 성공 😄",
                   "fields": [
                     {
                       "title": "Repository",
