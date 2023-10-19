@@ -33,8 +33,9 @@ jobs:
 
       - name: Run tests
         run: docker compose -f github-actions.docker-compose.yml run django poetry run coverage run -m pytest --cov=dump_in tests/ &&
-            docker compose -f github-actions.docker-compose.yml run django poetry run coverage report &&
-            docker compose -f github-actions.docker-compose.yml run django poetry run coverage xml
+            docker compose -f github-actions.docker-compose.yml run django poetry run coverage report --fail-under=80 &&
+            docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-report=xml:coverage.xml tests/ &&
+
       - name: ls
         run: ls -al
 
