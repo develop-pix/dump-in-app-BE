@@ -41,6 +41,8 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
+          root: ./dump_in
+          files: ./coverage.xml
 
       - name: Notify Slack on Success
         if: success()
