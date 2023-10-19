@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [ "develop"]
+
+  pull_request:
+    branches: [ "develop", "main" ]
+
+jobs:
+  django-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build docker
+        run: docker compose -f github-actions.docker-compose.yml build
+
+      - name: Migration test database
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
+
+      - name: Run isort
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run isort dump_in/ --check
+
+      - name: Run black
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run black dump_in/ --check
+
+      - name: Run flake8
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run flake8
+
+      - name: Run mypy
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
+
+      - name: Run tests
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ &&
+              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/ &&
+              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ --cov-report=xml
+
+      - name: Report coverage to codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Notify Slack on Success
+        if: success()
+        id: slack-success
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "attachments": [
+                {
+                  "color": "#36a64f",
+                  "title": "${{ github.repository }}",
+                  "title_link": "https://github.com/${{github.repository}}",
+                  "text": "GitHub Action 성공 😄",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Tag",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+
+      - name: Notify Slack on Failure
+        if: failure()
+        id: slack-failure
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "attachments": [
+                {
+                  "color": "#ff0000",
+                  "title": "${{ github.repository }}",
+                  "title_link": "https://github.com/${{github.repository}}",
+                  "text": "GitHub Action 실패 😭",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Tag",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

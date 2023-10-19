@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dump-in"
+name = "dump_in"
 version = "0.1.0"
 description = ""
 authors = ["SaJH <wogur981208@gmail.com>"]
@@ -40,9 +40,11 @@ flake8 = "^6.1.0"
 isort = "^5.12.0"
 black = "^23.9.1"
 pre-commit = "^3.4.0"
+coverage = "^7.3.2"
+pytest-cov = "^4.1.0"
 
 [tool.black]
-line-length = 120
+line-length = 140
 target-version = ['py311']
 force-exclude = 'migrations'
 
