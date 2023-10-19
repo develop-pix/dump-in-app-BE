@@ -36,15 +36,11 @@ jobs:
               docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/ &&
               docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ --cov-report=xml
 
-      - name: Modify Coverage XML report
-        run: sed -i 's|<source>/app/dump_in</source>|<source>/dump_in</source>|' coverage.xml
-
       - name: Report coverage to codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          files: ./coverage.xml
 
       - name: Notify Slack on Success
         if: success()
