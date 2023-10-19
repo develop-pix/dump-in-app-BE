@@ -29,13 +29,13 @@ jobs:
         poetry install
 
     - name: Run isort
-      run: poetry run isort
+      run: poetry run isort .
 
     - name: Run black
-      run: poetry run black
+      run: poetry run black .
 
     - name: Run flake8
-      run: poetry run flake8
+      run: poetry run flakes8
 
     - name: Type check
       run: |
