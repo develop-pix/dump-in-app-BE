@@ -32,7 +32,7 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
 
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run py.test
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/
 
       - name: Notify Slack on Success
         if: success()
