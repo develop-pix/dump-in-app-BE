@@ -3,7 +3,7 @@ name: CD
 on:
   push:
     tags:
-      - "v*.*.*-alpha"
+      - "v*.*.*-dev"
 
 jobs:
   django-test:
@@ -46,7 +46,7 @@ jobs:
         poetry run pytest --cov=dump_in tests/ &&
         poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
 
-  docker-alpha-images-build:
+  docker-dev-images-build:
     needs: django-test
     runs-on: ubuntu-latest
     steps:
@@ -78,7 +78,7 @@ jobs:
         labels: ${{ steps.docker_meta.outputs.labels }}
 
   deploy-to-dev-ec2:
-    needs: docker-build
+    needs: docker-dev-images-build
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
