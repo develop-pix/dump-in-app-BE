@@ -12,6 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY pyproject.toml .
 
-RUN poetry install --no-local
+RUN poetry install --no-dev
 
 COPY . /app
