@@ -89,7 +89,7 @@ jobs:
                   "color": "#ff0000",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action 실패 :x:",
+                  "text": "GitHub Action 실패 😭",
                   "fields": [
                     {
                       "title": "Repository",
