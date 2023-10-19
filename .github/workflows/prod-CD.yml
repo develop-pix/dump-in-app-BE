@@ -35,7 +35,7 @@ jobs:
       run: poetry run black .
 
     - name: Run flake8
-      run: poetry run flakes8
+      run: poetry run flake8
 
     - name: Type check
       run: |
