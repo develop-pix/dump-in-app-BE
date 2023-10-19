@@ -46,7 +46,7 @@ jobs:
         poetry run pytest --cov=dump_in tests/ &&
         poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
 
-  docker-build:
+  docker-alpha-images-build:
     needs: django-test
     runs-on: ubuntu-latest
     steps:
@@ -77,16 +77,16 @@ jobs:
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
 
-  # deploy-to-ec2:
-  #   needs: docker-build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Deploy
-  #       uses: appleboy/ssh-action@v0.1.5
-  #       with:
-  #         key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         host: ${{ secrets.AWS_EC2_IP }}
-  #         username: ${{ secrets.AWS_EC2_NAME }}
-  #         port: ${{ secrets.AWS_EC2_PORT }}
-  #         script: |
-  #           sh deploy.sh
+  deploy-to-dev-ec2:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          key: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
+          host: ${{ secrets.AWS_DEV_EC2_IP }}
+          username: ${{ secrets.AWS_DEV_EC2_NAME }}
+          port: ${{ secrets.AWS_DEV_EC2_PORT }}
+          script: |
+            pwd
