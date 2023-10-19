@@ -32,17 +32,18 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
 
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run coverage run -m pytest --cov=dump_in tests/ &&
-            docker compose -f github-actions.docker-compose.yml run django poetry run coverage report --fail-under=80 &&
-            docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-report=xml:coverage.xml tests/
-
-      - name: ls
-        run: ls -al
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ &&
+              docker-compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/ &&
+              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ --cov-report=xml &&
+              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ --cov-report=html
 
       - name: Report coverage to codecov
         uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          directory: ./htmlcov/
+          files: ./coverage.xml
 
       - name: Notify Slack on Success
         if: success()
@@ -57,7 +58,7 @@ jobs:
                   "color": "#36a64f",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action 성공 😄",
+                  "text": "GitHub Action 성공",
                   "fields": [
                     {
                       "title": "Repository",
