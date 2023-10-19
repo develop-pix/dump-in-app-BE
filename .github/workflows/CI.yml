@@ -32,8 +32,11 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
 
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/
-
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run coverage run -m pytest --cov=dump_in tests/ &&
+            docker compose -f github-actions.docker-compose.yml run django poetry run coverage report &&
+            docker compose -f github-actions.docker-compose.yml run django poetry run coverage xml
+      - name: ls
+        run: ls -al
 
       - name: Report coverage to codecov
         uses: codecov/codecov-action@v3
