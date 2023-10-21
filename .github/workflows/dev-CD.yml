@@ -49,7 +49,7 @@ jobs:
   #       poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
 
   docker-dev-images-build:
-    # needs: django-test
+    needs: django-test
     runs-on: ubuntu-latest
     steps:
     # - name: Docker meta
