@@ -91,7 +91,7 @@ jobs:
       # env:
       #   IMAGE_TAG: ${{ github.sha }}
       run: |
-        aws s3 cp ./deploy/ s3://dump-in-deploy/--acl private --recursive
+        aws s3 cp ./deploy/ s3://dump-in-deploy/ --acl private --recursive
 
     # - name: upload to s3
     #   env:
