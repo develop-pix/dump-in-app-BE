@@ -79,7 +79,6 @@ jobs:
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
 
-
     - name: aws configure
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -87,11 +86,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-    - name: upload to s3
+    - name: pwd
+      run: pwd
+
+    # - name: upload to s3
       # env:
       #   IMAGE_TAG: ${{ github.sha }}
-      run: |
-        aws s3 cp ./deploy/ s3://dump-in-deploy/ --acl private --recursive
+      # run: |
+        # aws s3 cp ./ s3://dump-in-deploy/ --acl private --recursive
 
     # - name: upload to s3
     #   env:
