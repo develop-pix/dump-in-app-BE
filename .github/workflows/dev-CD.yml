@@ -22,12 +22,6 @@ jobs:
   #     with:
   #       python-version: ${{ matrix.python-version }}
 
-  #   - name: pwd
-  #     run: pwd
-
-  #   - name: ls -al
-  #     run: ls -al
-
   #   - name: Install Poetry
   #     run: |
   #       curl -sSL https://install.python-poetry.org | python -
@@ -57,8 +51,6 @@ jobs:
   docker-dev-images-build:
     # needs: django-test
     runs-on: ubuntu-latest
-
-
     steps:
     # - name: Docker meta
     #   id: docker_meta
@@ -86,7 +78,8 @@ jobs:
     #     push: true
     #     tags: ${{ steps.docker_meta.outputs.tags }}
     #     labels: ${{ steps.docker_meta.outputs.labels }}
-    - name: checkout
+
+    - name: github checkout
       uses: actions/checkout@v2
 
     - name: aws configure
@@ -96,25 +89,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-    - name: pwd
-      run: pwd
-
-    - name: ls -al
-      run: ls -al
-
     - name: upload to s3
       env:
-        IMAGE_TAG: ${{ github.sha }}
+        IMAGE_TAG: ${{ env.IMAGE_TAG }}
       run: |
         zip -r deploy-$IMAGE_TAG.zip ./deploy/*
         aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://dump-in-deploy/dev/
-
-    # - name: upload to s3
-    #   env:
-    #     IMAGE_TAG: ${{ github.sha }}
-    #   run: |
-    #     zip -r deploy-$IMAGE_TAG.zip ./scripts appspec.yml
-    #     aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://cs-broker-bucket
 
   # deploy-to-dev-ec2:
   #   needs: docker-dev-images-build
