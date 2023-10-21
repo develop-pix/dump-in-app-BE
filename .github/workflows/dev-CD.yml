@@ -91,6 +91,8 @@ jobs:
       env:
         IMAGE_TAG: ${{ github.ref }}
       run: |
+        echo "IMAGE_TAG: $IMAGE_TAG"
+        ls -l ./deploy
         zip -r deploy-$IMAGE_TAG.zip ./deploy/*
         aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://dump-in-deploy/dev/
 
