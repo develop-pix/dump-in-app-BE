@@ -2,10 +2,8 @@ name: CD
 
 on:
   push:
-    branches:
-      - feature/*
-    # tags:
-    #   - "v*.*.*-DEV"
+    tags:
+      - "v*.*.*-DEV"
 
 jobs:
   # django-test:
