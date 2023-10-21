@@ -106,7 +106,7 @@ jobs:
       env:
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        aws s3 cp --region ap-northeast-2 --acl private ./deploy/ s3://dump-in-deploy
+        aws s3 cp --region ap-northeast-2 --acl private ./deploy/ s3://dump-in-deploy/dev/
 
     # - name: upload to s3
     #   env:
