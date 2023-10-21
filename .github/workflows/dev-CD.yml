@@ -8,25 +8,25 @@ on:
     #   - "v*.*.*-DEV"
 
 jobs:
-  django-test:
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.11.5]
+  # django-test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     max-parallel: 4
+  #     matrix:
+  #       python-version: [3.11.5]
 
-    steps:
+  #   steps:
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
+  #   - name: Set up Python ${{ matrix.python-version }}
+  #     uses: actions/setup-python@v3
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
 
-    - name: pwd
-      run: pwd
+  #   - name: pwd
+  #     run: pwd
 
-    - name: ls -al
-      run: ls -al
+  #   - name: ls -al
+  #     run: ls -al
 
   #   - name: Install Poetry
   #     run: |
@@ -55,8 +55,10 @@ jobs:
   #       poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
 
   docker-dev-images-build:
-    needs: django-test
+    # needs: django-test
     runs-on: ubuntu-latest
+
+
     steps:
     # - name: Docker meta
     #   id: docker_meta
@@ -84,11 +86,8 @@ jobs:
     #     push: true
     #     tags: ${{ steps.docker_meta.outputs.tags }}
     #     labels: ${{ steps.docker_meta.outputs.labels }}
-    - name: pwd
-      run: pwd
-
-    - name: ls -al
-      run: ls -al
+    - name: checkout
+      uses: actions/checkout@v2
 
     - name: aws configure
       uses: aws-actions/configure-aws-credentials@v1
