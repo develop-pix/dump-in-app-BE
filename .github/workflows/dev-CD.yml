@@ -2,8 +2,10 @@ name: CD
 
 on:
   push:
-    tags:
-      - "v*.*.*-dev"
+    branches:
+      - feature/*
+    # tags:
+    #   - "v*.*.*-DEV"
 
 jobs:
   django-test:
@@ -77,16 +79,37 @@ jobs:
         tags: ${{ steps.docker_meta.outputs.tags }}
         labels: ${{ steps.docker_meta.outputs.labels }}
 
-  deploy-to-dev-ec2:
-    needs: docker-dev-images-build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          key: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
-          host: ${{ secrets.AWS_DEV_EC2_IP }}
-          username: ${{ secrets.AWS_DEV_EC2_NAME }}
-          port: ${{ secrets.AWS_DEV_EC2_PORT }}
-          script: |
-            pwd
+
+    - name: aws configure
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+    # - name: upload to s3
+    #   env:
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     aws s3 cp ./path/to/your/file s3://your-bucket-name/path/in/s3/ --acl public-read
+
+    # - name: upload to s3
+    #   env:
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     zip -r deploy-$IMAGE_TAG.zip ./scripts appspec.yml
+    #     aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://cs-broker-bucket
+
+  # deploy-to-dev-ec2:
+  #   needs: docker-dev-images-build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Deploy
+  #       uses: appleboy/ssh-action@v0.1.5
+  #       with:
+  #         key: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
+  #         host: ${{ secrets.AWS_DEV_EC2_IP }}
+  #         username: ${{ secrets.AWS_DEV_EC2_NAME }}
+  #         port: ${{ secrets.AWS_DEV_EC2_PORT }}
+  #         script: |
+  #           pwd
