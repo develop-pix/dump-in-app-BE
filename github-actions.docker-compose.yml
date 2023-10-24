@@ -1,7 +1,9 @@
-version: '3.9'
+version: "3.9"
 
 volumes:
   postgres: {}
+  prometheus_data: {}
+  grafana_data: {}
 
 services:
   postgres:
@@ -14,6 +16,8 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=github_actions
     restart: on-failure
+    networks:
+      - mynetwork
 
   django:
     container_name: django
@@ -29,4 +33,37 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
+      - prometheus
     restart: on-failure
+    networks:
+      - mynetwork
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    # network_mode: host
+    networks:
+      - mynetwork
+
+  grafana:
+    image: grafana/grafana
+    # environment:
+    #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
+    restart: 'no'
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus
+    # network_mode: host
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
