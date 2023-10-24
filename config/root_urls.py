@@ -5,7 +5,7 @@ from django.urls import include, path
 
 
 web_urlpatterns = [
-    path('', include('django_prometheus.urls')),
+    path("", include("django_prometheus.urls")),
 ]
 
 admin_urlpatterns = [
