@@ -76,13 +76,14 @@ jobs:
         sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./deploy/docker-compose.yml
         touch deploy/deploy.sh
         echo "#!/bin/bash" >> deploy/deploy.sh
+        echo "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY" >> deploy/deploy.sh
         echo "docker compose up -d" >> deploy/deploy.sh
 
     - name: upload to s3
       env:
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        zip -r deploy-$IMAGE_TAG.zip ./deploy/
+        zip -r deploy-$IMAGE_TAG.zip ./deploy appspec.yml
         aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://dump-in-deploy/dev/
 
     - name: start deploy
