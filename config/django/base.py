@@ -17,6 +17,7 @@ ALLOWED_HOSTS = ["*"]
 LOCAL_APPS = []
 
 THIRD_PARTY_APPS = [
+    "django_prometheus",
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
@@ -34,6 +35,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

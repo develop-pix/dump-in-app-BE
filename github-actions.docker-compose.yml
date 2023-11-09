@@ -1,7 +1,9 @@
-version: '3.9'
+version: "3.9"
 
 volumes:
   postgres: {}
+  prometheus_data: {}
+  grafana_data: {}
 
 services:
   postgres:
@@ -14,6 +16,8 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=github_actions
     restart: on-failure
+    networks:
+      - mynetwork
 
   django:
     container_name: django
@@ -29,4 +33,21 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
+      - prometheus
     restart: on-failure
+    networks:
+      - mynetwork
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
