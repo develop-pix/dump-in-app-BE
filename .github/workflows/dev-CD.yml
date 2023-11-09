@@ -75,8 +75,8 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./docker/dev.Dockerfile .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        sed -i "s%##IMAGE##%$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG%g" ./deploy/dev.docker-compose.yml
-        sed -i "s%##DJANGO_SETTINGS_MODULE##%config.django.dev%g" ./deploy/dev.docker-compose.yml
+        sed -i "s%##IMAGE##%$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG%g" ./deploy/docker-compose.yml
+        sed -i "s%##DJANGO_SETTINGS_MODULE##%config.django.dev%g" ./deploy/docker-compose.yml
         touch deploy/deploy.sh
         echo "#!/bin/bash" >> deploy/deploy.sh
         echo "docker compose -f .dev.docker-compose.yml up -d" >> deploy/deploy.sh
