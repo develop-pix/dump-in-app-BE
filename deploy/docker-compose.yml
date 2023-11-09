@@ -19,7 +19,7 @@ services:
 
   backend:
     container_name: backend
-    image: ==IMAGE== #shell script will replace this
+    image: <IMAGE> #shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8000"
     volumes:
       - ./backend/.env:/app/.env
@@ -29,4 +29,4 @@ services:
     expose:
       - 8000
     environment:
-      - DJANGO_SETTINGS_MODULE= ==DJANGO_SETTINGS_MODULE== #shell script will replace this
+      - DJANGO_SETTINGS_MODULE=<DJANGO_SETTINGS_MODULE> #shell script will replace this
