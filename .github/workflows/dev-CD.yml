@@ -45,7 +45,7 @@ jobs:
   #       poetry run pytest --cov=dump_in tests/ &&
   #       poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
 
-  docker-dev-images-build:
+  docker-image-build-and-deploy:
     # needs: django-test
     runs-on: ubuntu-latest
     steps:
@@ -91,5 +91,5 @@ jobs:
       run: |
         aws deploy create-deployment --application-name dump-in-deploy \
         --deployment-config-name CodeDeployDefault.OneAtATime \
-        --deployment-group-name dump-in-dev \
+        --deployment-group-name dev-deploy-group \
         --s3-location bucket=dump-in-deploy,bundleType=zip,key=dev/deploy-$IMAGE_TAG.zip
