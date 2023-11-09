@@ -89,14 +89,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-    - name: upload to s3
+    - name: Login to ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: build docker file and setting deploy files
       env:
-        IMAGE_TAG: ${{ github.ref_name }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: dump-in-dev
+        IMAGE_TAG: ${{ github.sha }}
       run: |
-        ls -al
-        echo $IMAGE_TAG
-        zip -r $IMAGE_TAG.zip ./deploy/*
-        aws s3 cp --region ap-northeast-2 --acl private ./$IMAGE_TAG.zip s3://dump-in-deploy/dev/
+         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    # - name: upload to s3
+    #   env:
+    #     IMAGE_TAG: ${{ github.ref_name }}
+    #   run: |
+    #     ls -al
+    #     echo $IMAGE_TAG
+    #     zip -r $IMAGE_TAG.zip ./deploy/*
+    #     aws s3 cp --region ap-northeast-2 --acl private ./$IMAGE_TAG.zip s3://dump-in-deploy/dev/
 
   # deploy-to-dev-ec2:
   #   needs: docker-dev-images-build
