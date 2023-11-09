@@ -19,7 +19,7 @@ services:
     container_name: django
     build:
       context: .
-      dockerfile: docker/local.Dockerfile
+      dockerfile: docker/dev.Dockerfile
     environment:
       - GITHUB_WORKFLOW=True
     command: poetry run python manage.py runserver 0.0.0.0:8000

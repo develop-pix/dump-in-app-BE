@@ -42,45 +42,20 @@ class SwaggerSetup:
         from drf_yasg.views import get_schema_view
         from rest_framework.permissions import AllowAny
 
-        # from config.settings.swagger.generators import WebAPISchemeGenerator, AdminAPISchemeGenerator
-
-        web_chema_view = get_schema_view(
+        schema_view = get_schema_view(
             openapi.Info(
-                title="Web API",
+                title="Dump-In App API",
                 default_version="v1",
-                description="",
+                description="Dump-In App API 문서입니다.",
                 terms_of_service="",
-                contact=openapi.Contact(email=""),
-                license=openapi.License(name=""),
+                contact=openapi.Contact(email="wogur981208@gmail.com"),
+                license=openapi.License(name="Pix Team"),
             ),
             public=True,
             permission_classes=(AllowAny,),
-            # urlconf="apps.api.v1.urls",
-            # generator_class=WebAPISchemeGenerator,
-        )
-
-        admin_schema_view = get_schema_view(
-            openapi.Info(
-                title="Admin API",
-                default_version="v1",
-                description="",
-                terms_of_service="",
-                contact=openapi.Contact(email=""),
-                license=openapi.License(name=""),
-            ),
-            public=True,
-            permission_classes=(AllowAny,),
-            # urlconf="apps.api.admin.urls",
-            # generator_class=AdminAPISchemeGenerator,
         )
 
         return urlpatterns + [
-            path("swagger/web/docs", web_chema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
-            path("swagger/web/redoc", web_chema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
-            path(
-                "swagger/admin/docs",
-                admin_schema_view.with_ui("swagger", cache_timeout=0),
-                name="schema-swagger-admin-ui",
-            ),
-            path("swagger/admin/redoc", admin_schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc-admin"),
+            path("swagger/docs", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
+            path("swagger/redoc", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
         ]

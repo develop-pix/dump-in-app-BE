@@ -95,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "users.User"
 
 # Internationalization
 LANGUAGE_CODE = "ko-kr"
@@ -170,6 +170,7 @@ LOGGING = {
 }
 
 from config.settings.cors import *  # noqa
+from config.settings.oauth import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa

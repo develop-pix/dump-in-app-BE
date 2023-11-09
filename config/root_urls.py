@@ -4,16 +4,10 @@ from django.conf.urls.static import static
 from django.urls import path
 
 
-web_urlpatterns = []
-
-admin_urlpatterns = [
-    path("admin/", admin.site.urls),
-]
-
 urlpatterns = [
+    # Admin
+    path("admin/", admin.site.urls),
     # API
-    *web_urlpatterns,
-    *admin_urlpatterns,
 ]
 
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
