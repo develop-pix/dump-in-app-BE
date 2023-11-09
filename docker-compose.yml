@@ -22,7 +22,6 @@ services:
     image: <IMAGE> #shell script will replace this
     entrypoint: sh -c "poetry run python manage.py collectstatic --no-input && poetry run python manage.py migrate && poetry run gunicorn config.wsgi --workers=5 -b 0.0.0.0:8000"
     volumes:
-      - ./backend/.env:/app/.env
       - /etc/localtime:/etc/localtime:ro
       - django_media:/app/media/
       - django_static:/app/static/
