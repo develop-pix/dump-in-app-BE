@@ -5,48 +5,47 @@ on:
     branches: [ "develop", "main" ]
 
 jobs:
-  # django-test:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     max-parallel: 4
-  #     matrix:
-  #       python-version: [3.11.5]
+  django-test:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.11.5]
 
-  #   steps:
+    steps:
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
 
-  #   - name: Set up Python ${{ matrix.python-version }}
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: ${{ matrix.python-version }}
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python -
 
-  #   - name: Install Poetry
-  #     run: |
-  #       curl -sSL https://install.python-poetry.org | python -
+    - name: Install Dependencies
+      run: |
+        poetry install
 
-  #   - name: Install Dependencies
-  #     run: |
-  #       poetry install
+    - name: Run isort
+      run: poetry run isort dump_in/
 
-  #   - name: Run isort
-  #     run: poetry run isort .
+    - name: Run black
+      run: poetry run black dump_in/
 
-  #   - name: Run black
-  #     run: poetry run black .
+    - name: Run flake8
+      run: poetry run flake8
 
-  #   - name: Run flake8
-  #     run: poetry run flake8
+    - name: Type check
+      run: |
+        poetry run mypy --config mypy.ini dump_in/
 
-  #   - name: Type check
-  #     run: |
-  #       poetry run mypy --config mypy.ini dump_in/
-
-  #   - name: Run tests
-  #     run: |
-  #       poetry run pytest --cov=dump_in tests/ &&
-  #       poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
+    - name: Run tests
+      run: |
+        poetry run pytest --cov=dump_in tests/ &&
+        poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
 
   docker-image-build-and-deploy:
-    # needs: django-test
+    needs: django-test
     runs-on: ubuntu-latest
     steps:
 
@@ -59,7 +58,6 @@ jobs:
       run: |
         touch .env.django
         echo "$DJANGO_DEV_ENV" >> .env.django
-        ls -al
 
     - name: AWS configure
       uses: aws-actions/configure-aws-credentials@v1
@@ -78,7 +76,6 @@ jobs:
         ECR_REPOSITORY: dump-in-dev
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        ls -al
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./docker/dev.Dockerfile .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         sed -i "s%<IMAGE>%$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG%g" ./docker-compose.yml
