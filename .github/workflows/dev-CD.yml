@@ -57,6 +57,7 @@ jobs:
       env:
         DJANGO_DEV_ENV: ${{ secrets.DJANGO_DEV_ENV }}
       run: |
+        ls -al
         echo "$DJANGO_DEV_ENV" >> .env
         ls -al
         cat "$DJANGO_DEV_ENV"
