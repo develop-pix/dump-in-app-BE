@@ -101,7 +101,7 @@ jobs:
       run: |
          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./docker/dev.Dockerfile .
          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-         sed -i 's/==IMAGE==/$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG/g' ./deploy/dev.docker-compose.yml
+         sed -i "s#==IMAGE==#$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG#g" ./deploy/dev.docker-compose.yml
          cat ./deploy/dev.docker-compose.yml
         #  mkdir scripts
         #  touch scripts/deploy.sh
