@@ -1,9 +1,11 @@
 name: CD
 
 on:
-  push:
-    tags:
-      - "v*.*.*-DEV"
+  # push:
+  #   tags:
+  #     - "v*.*.*-DEV"
+  pull_request:
+    branches: [ "develop", "main" ]
 
 jobs:
   # django-test:
