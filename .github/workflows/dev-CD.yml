@@ -59,6 +59,7 @@ jobs:
       run: |
         echo "$DJANGO_DEV_ENV" >> .env
         ls -al
+        cat "$DJANGO_DEV_ENV"
 
     - name: AWS configure
       uses: aws-actions/configure-aws-credentials@v1
