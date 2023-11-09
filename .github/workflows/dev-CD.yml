@@ -90,7 +90,7 @@ jobs:
       env:
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        aws deploy create-deployment --application-name dump-in-deploy \
+        aws deploy create-deployment --application-name dump-in-dev-deploy \
         --deployment-config-name CodeDeployDefault.OneAtATime \
         --deployment-group-name deploy-group \
         --s3-location bucket=dump-in-deploy,bundleType=zip,key=dev/deploy-$IMAGE_TAG.zip
