@@ -74,7 +74,6 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         sed -i "s%<IMAGE>%$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG%g" ./deploy/docker-compose.yml
         sed -i "s%<DJANGO_SETTINGS_MODULE>%config.django.dev%g" ./deploy/docker-compose.yml
-        cat ./deploy/docker-compose.yml
         touch deploy/deploy.sh
         echo "#!/bin/bash" >> deploy/deploy.sh
         echo "docker compose up -d" >> deploy/deploy.sh
@@ -86,16 +85,11 @@ jobs:
         zip -r deploy-$IMAGE_TAG.zip ./deploy/
         aws s3 cp --region ap-northeast-2 --acl private ./deploy-$IMAGE_TAG.zip s3://dump-in-deploy/dev/
 
-  # deploy-to-dev-ec2:
-  #   needs: docker-dev-images-build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Deploy
-  #       uses: appleboy/ssh-action@v0.1.5
-  #       with:
-  #         key: ${{ secrets.AWS_DEV_SECRET_ACCESS_KEY }}
-  #         host: ${{ secrets.AWS_DEV_EC2_IP }}
-  #         username: ${{ secrets.AWS_DEV_EC2_NAME }}
-  #         port: ${{ secrets.AWS_DEV_EC2_PORT }}
-  #         script: |
-  #           pwd
+    - name: start deploy
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        aws deploy create-deployment --application-name dump-in-deploy \
+        --deployment-config-name CodeDeployDefault.OneAtATime \
+        --deployment-group-name dump-in-dev \
+        --s3-location bucket=dump-in-deploy,bundleType=zip,key=dev/deploy-$IMAGE_TAG.zip
