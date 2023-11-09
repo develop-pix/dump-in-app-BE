@@ -57,10 +57,9 @@ jobs:
       env:
         DJANGO_DEV_ENV: ${{ secrets.DJANGO_DEV_ENV }}
       run: |
+        touch .env.django
+        echo "$DJANGO_DEV_ENV" >> .env.django
         ls -al
-        echo "$DJANGO_DEV_ENV" >> .env
-        ls -al
-        cat "$DJANGO_DEV_ENV"
 
     - name: AWS configure
       uses: aws-actions/configure-aws-credentials@v1
