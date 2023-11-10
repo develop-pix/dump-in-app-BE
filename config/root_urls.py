@@ -4,18 +4,12 @@ from django.conf.urls.static import static
 from django.urls import include, path
 
 
-web_urlpatterns = [
-    path("", include("django_prometheus.urls")),
-]
-
-admin_urlpatterns = [
-    path("admin/", admin.site.urls),
-]
-
 urlpatterns = [
+    # prometheus
+    path("", include("django_prometheus.urls")),
+    # Admin
+    path("admin/", admin.site.urls),
     # API
-    *web_urlpatterns,
-    *admin_urlpatterns,
 ]
 
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa

@@ -9,6 +9,12 @@ assignees:
 
 ##  이슈 내용
 > 이슈 내용 작성
+>
+- API 명세서
+
+|기능|Method|URL|Request|Response|
+|------|---|---|---|---|
+||||||
 
 <br>
 

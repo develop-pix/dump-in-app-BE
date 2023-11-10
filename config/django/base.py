@@ -3,7 +3,7 @@ import logging
 
 from config.env import BASE_DIR, APPS_DIR, env
 
-env.read_env(os.path.join(BASE_DIR, ".env"))
+env.read_env(os.path.join(BASE_DIR, ".env.django"))
 
 logger = logging.getLogger("django")
 
@@ -173,6 +173,7 @@ LOGGING = {
 }
 
 from config.settings.cors import *  # noqa
+from config.settings.oauth import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa

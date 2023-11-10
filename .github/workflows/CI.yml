@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [ "develop"]
-
   pull_request:
     branches: [ "develop", "main" ]
 
@@ -16,9 +13,6 @@ jobs:
       - name: Build docker
         run: docker compose -f github-actions.docker-compose.yml build
 
-      - name: Migration test database
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
-
       - name: Run isort
         run: docker compose -f github-actions.docker-compose.yml run django poetry run isort dump_in/ --check
 
@@ -30,6 +24,9 @@ jobs:
 
       - name: Run mypy
         run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
+
+      - name: Migration test database
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
 
       - name: Run tests
         run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ &&
@@ -55,7 +52,7 @@ jobs:
                   "color": "#36a64f",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action 성공 😄",
+                  "text": "GitHub Action CI 성공 😄",
                   "fields": [
                     {
                       "title": "Repository",
@@ -89,7 +86,7 @@ jobs:
                   "color": "#ff0000",
                   "title": "${{ github.repository }}",
                   "title_link": "https://github.com/${{github.repository}}",
-                  "text": "GitHub Action 실패 😭",
+                  "text": "GitHub Action CI 실패 😭",
                   "fields": [
                     {
                       "title": "Repository",
