@@ -3,6 +3,9 @@ version: '3.8'
 volumes:
   django_media: {}
   django_static: {}
+  prometheus_data: {}
+  grafana_data: {}
+
 
 services:
   nginx:

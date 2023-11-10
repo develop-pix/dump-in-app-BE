@@ -2,8 +2,6 @@ version: "3.9"
 
 volumes:
   postgres: {}
-  prometheus_data: {}
-  grafana_data: {}
 
 services:
   postgres:
