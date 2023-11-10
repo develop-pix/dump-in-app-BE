@@ -2,12 +2,9 @@ FROM nginx:1.23.2
 
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
-RUN nginx -V 2>&1 | grep -q -- --with-http_geoip_module \
-    || { \
-        apt-get update \
-        && apt-get install -y libnginx-mod-http-geoip geoip-database \
-        && rm -rf /var/lib/apt/lists/*; \
-    }
+RUN apt-get update && apt-get install -y --no-install-recommends libnginx-mod-http-geoip geoip-database \
+    && rm -rf /var/lib/apt/lists/* \
+    && nginx -V 2>&1 | grep -q -- --with-http_geoip_module || { apt-get remove -y nginx nginx-common && apt-get install -y nginx; }
 
 RUN [ -e /usr/share/GeoIP/GeoIP.dat ] || { \
         mkdir -p /usr/share/GeoIP \
