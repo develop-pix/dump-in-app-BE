@@ -11,24 +11,18 @@ volumes:
 services:
   nginx:
     container_name : nginx
-    image: nginx:1.23.2
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - nginx_log:/var/log/nginx
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - django_media:/media/
       - django_static:/static/
     restart: always
-    command: /bin/sh -c "\
-      apt-get update && \
-      apt-get install -y nginx-module-geoip && \
-      mkdir -p /etc/nginx/geoip && \
-      curl -O https://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz && \
-      gunzip GeoIP.dat.gz && \
-      mv GeoIP.dat /etc/nginx/geoip/"
     networks:
         - mynetwork
 
