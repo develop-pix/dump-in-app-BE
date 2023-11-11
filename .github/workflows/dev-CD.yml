@@ -1,12 +1,12 @@
 name: Dev-CD
 
 on:
+  pull_request:
+    branches:
+      - develop
   workflow_dispatch:
-    inputs:
-      name:
-        description: 'Person to greet'
-        required: true
-        default: 'Mona the Octocat'
+    branches:
+      - develop
 
 jobs:
   django-test:
