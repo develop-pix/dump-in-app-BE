@@ -1,9 +1,7 @@
 name: Dev-CD
 
 on:
-  push:
-    branches:
-      - develop
+  workflow_dispatch:
 
 jobs:
   django-test:
