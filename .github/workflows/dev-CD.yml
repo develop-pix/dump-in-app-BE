@@ -1,12 +1,7 @@
-name: Dev-CD
+name: DEV-CD
 
 on:
-  pull_request:
-    branches:
-      - develop
   workflow_dispatch:
-    branches:
-      - develop
 
 jobs:
   django-test:
