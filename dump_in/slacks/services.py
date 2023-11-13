@@ -1,7 +1,7 @@
 from attr import define
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from slack import WebClient
+from slack_sdk import WebClient
 
 
 @define

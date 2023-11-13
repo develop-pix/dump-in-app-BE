@@ -43,3 +43,13 @@ def inline_serializer(*, fields: dict, data: dict | None = None, **kwargs) -> se
         return serializer_class(data=data, **kwargs)
 
     return serializer_class(**kwargs)
+
+
+######################################################
+# Common utils
+######################################################
+def make_mock_object(**kwargs):
+    """
+    이 함수는 주어진 키워드 인자를 이용하여 새로운 오브젝트를 생성합니다.
+    """
+    return type("", (object,), kwargs)
