@@ -1,5 +1,6 @@
 from config.env import env
 
+from config.django.base import *  # noqa
 
 DATABASES = {
     "default": {
@@ -11,5 +12,3 @@ DATABASES = {
         "PORT": env("POSTGRESQL_PORT", default="5432"),
     }
 }
-
-SESSION_COOKIE_SECURE = True

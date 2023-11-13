@@ -14,10 +14,16 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
-LOCAL_APPS = []
+LOCAL_APPS = [
+    "dump_in.common.apps.CommonConfig",
+    "dump_in.tasks.apps.TasksConfig",
+    "dump_in.slacks.apps.SlacksConfig",
+]
 
 THIRD_PARTY_APPS = [
     "django_prometheus",
+    "django_celery_results",
+    "django_celery_beat",
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
@@ -122,7 +128,7 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("djangorestframework_camel_case.render.CamelCaseJSONRenderer",),
     "DEFAULT_PARSER_CLASSES": ("djangorestframework_camel_case.parser.CamelCaseJSONParser",),
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
-    # "EXCEPTION_HANDLER": "apps.api.exceptions_handlers.default_exception_handler",
+    "EXCEPTION_HANDLER": "dump_in.common.exception.exception_handler.default_exception_handler",
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
 }
 
@@ -174,6 +180,8 @@ LOGGING = {
 
 from config.settings.cors import *  # noqa
 from config.settings.oauth import *  # noqa
+from config.settings.celery import *  # noqa
+from config.settings.slack import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
