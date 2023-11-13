@@ -1,5 +1,5 @@
 [run]
 omit =
     dump_in/common/base/*
-    dump_in/common/exception/exceptions.py
+    dump_in/common/exception/*
     dump_in/tasks/*
