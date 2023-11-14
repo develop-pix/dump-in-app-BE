@@ -43,7 +43,7 @@ services:
     build:
       context: .
       dockerfile: docker/dev.Dockerfile
-    command: celery -A dump_in.tasks worker -l info --without-gossip --without-mingle --without-heartbeat
+    command: poetry run celery -A dump_in.tasks worker -l info --without-gossip --without-mingle --without-heartbeat
     environment:
       - GITHUB_WORKFLOW=True
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -58,7 +58,7 @@ services:
     build:
       context: .
       dockerfile: docker/dev.Dockerfile
-    command: celery -A dump_in.tasks beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: poetry run celery -A dump_in.tasks beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     environment:
       - GITHUB_WORKFLOW=True
       - CELERY_BROKER_URL=redis://redis:6379/0

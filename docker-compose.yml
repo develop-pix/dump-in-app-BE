@@ -57,7 +57,7 @@ services:
   celery:
     container_name: celery
     image: <IMAGE> #shell script will replace this
-    command: celery -A dump_in.tasks worker -l info --without-gossip --without-mingle --without-heartbeat
+    command: poetry run celery -A dump_in.tasks worker -l info --without-gossip --without-mingle --without-heartbeat
     environment:
       - DJANGO_SETTINGS_MODULE=<DJANGO_SETTINGS_MODULE> #shell script will replace this
     volumes:
@@ -69,7 +69,7 @@ services:
   beats:
     container_name: beats
     image: <IMAGE> #shell script will replace this
-    command: celery -A dump_in.tasks beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: poetry run celery -A dump_in.tasks beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     environment:
       - DJANGO_SETTINGS_MODULE=<DJANGO_SETTINGS_MODULE> #shell script will replace this
     volumes:
