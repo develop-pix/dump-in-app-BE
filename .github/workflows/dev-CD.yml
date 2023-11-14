@@ -15,23 +15,7 @@ on:
         - Zamoca42
 
 jobs:
-  django-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Build docker
-        run: docker compose -f github-actions.docker-compose.yml build
-
-      - name: Migration test database
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
-
-      - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ &&
-              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
-
-  django-fomat-lint:
+  django-test-and-fomat-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -52,10 +36,15 @@ jobs:
       - name: Run mypy
         run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
 
+      - name: Migration test database
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
+
+      - name: Run tests
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ &&
+              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
+
   docker-image-build-and-deploy:
-    needs: |
-      django-test
-      django-fomat-lint
+    needs: django-test-and-fomat-lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
