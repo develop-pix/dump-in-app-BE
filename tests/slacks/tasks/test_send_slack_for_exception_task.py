@@ -1,26 +1,24 @@
-from unittest.mock import MagicMock, patch
-
-from django.test import TestCase
+import pytest
 
 from dump_in.slacks.tasks import send_slack_for_exception_task
 
 
-class SendSlackForExceptionTaskTests(TestCase):
-    @patch("dump_in.slacks.services.SlackAPI")
-    def test_send_slack_for_exception_task_success(self, mock_slack_api):
-        mock_slack_instance = mock_slack_api.return_value
-        mock_slack_instance.send_slack_for_exception = MagicMock()
+def test_send_slack_for_exception_task_success(mocker):
+    mock_instance = mocker.Mock()
+    mocker.patch("dump_in.slacks.services.SlackAPI", return_value=mock_instance)
 
+    send_slack_for_exception_task(exc="TestException", context="TestContext")
+
+    assert mock_instance.send_slack_for_exception.called
+
+
+def test_send_slack_for_exception_task_with_exception(mocker):
+    mock_instance = mocker.Mock()
+    mocker.patch("dump_in.slacks.services.SlackAPI", return_value=mock_instance)
+
+    mocker.patch.object(mock_instance, "send_slack_for_exception", side_effect=Exception("Mocked exception"))
+
+    with pytest.raises(Exception, match="Mocked exception"):
         send_slack_for_exception_task(exc="TestException", context="TestContext")
 
-        self.assertTrue(mock_slack_instance.send_slack_for_exception.called)
-
-    @patch("dump_in.slacks.services.SlackAPI")
-    def test_send_slack_for_exception_task_retry_success(self, mock_slack_api):
-        mock_slack_instance = mock_slack_api.return_value
-        mock_slack_instance.send_slack_for_exception = MagicMock(side_effect=Exception)
-
-        with self.assertRaises(Exception):
-            send_slack_for_exception_task(exc="TestException", context="TestContext")
-
-        self.assertTrue(mock_slack_instance.send_slack_for_exception.called)
+    assert mock_instance.send_slack_for_exception.called

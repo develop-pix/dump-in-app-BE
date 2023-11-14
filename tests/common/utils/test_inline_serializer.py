@@ -1,68 +1,61 @@
-import unittest
 from datetime import datetime, timezone
 
+import pytest
 from rest_framework import serializers
 
 from dump_in.common.utils import inline_serializer, make_mock_object
 
 
-class InlineSerializerTests(unittest.TestCase):
-    def test_inline_serializer_creates_a_serializer(self):
-        dt = datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1, microsecond=1, tzinfo=timezone.utc)
-        expected_dt = "2021-01-01T10:01:01.000001+09:00"
+@pytest.fixture
+def mock_datetime():
+    return datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1, microsecond=1, tzinfo=timezone.utc)
 
-        obj = make_mock_object(foo=1, bar="bar", dt=dt)
 
-        serializer = inline_serializer(
-            fields={
-                "foo": serializers.IntegerField(),
-                "bar": serializers.CharField(),
-                "dt": serializers.DateTimeField(),
-            }
-        )
+@pytest.fixture
+def mock_object(mock_datetime):
+    return make_mock_object(foo=1, bar="bar", dt=mock_datetime)
 
-        with self.subTest("Output serialization"):
-            result = serializer.to_representation(obj)
-            expected = {"foo": 1, "bar": "bar", "dt": expected_dt}
 
-            self.assertEqual(expected, result)
+def test_inline_serializer_creates_a_serializer(mock_datetime, mock_object):
+    expected_dt = "2021-01-01T10:01:01.000001+09:00"
 
-        with self.subTest("Input serialization"):
-            payload = {"foo": 1, "bar": "bar", "dt": expected_dt}
+    serializer = inline_serializer(
+        fields={
+            "foo": serializers.IntegerField(),
+            "bar": serializers.CharField(),
+            "dt": serializers.DateTimeField(),
+        }
+    )
 
-            result = serializer.to_internal_value(payload)
-            expected = {"foo": 1, "bar": "bar", "dt": dt}
+    # Output
+    result = serializer.to_representation(mock_object)
+    expected = {"foo": 1, "bar": "bar", "dt": expected_dt}
+    assert expected == result
 
-            self.assertEqual(expected, result)
+    # Input
+    payload = {"foo": 1, "bar": "bar", "dt": expected_dt}
+    result = serializer.to_internal_value(payload)
+    expected = {"foo": 1, "bar": "bar", "dt": mock_datetime}
+    assert expected == result
 
-    def test_inline_serializer_passes_kwargs(self):
-        obj = make_mock_object(
-            foo=1,
-        )
 
-        serializer = inline_serializer(
-            many=True,
-            fields={
-                "foo": serializers.IntegerField(),
-            },
-        )
+def test_inline_serializer_passes_kwargs(mock_object):
+    serializer = inline_serializer(
+        many=True,
+        fields={
+            "foo": serializers.IntegerField(),
+        },
+    )
 
-        objects = [obj]
+    objects = [mock_object]
 
-        with self.subTest("Output serialization"):
-            result = serializer.to_representation(objects)
-            expected = [{"foo": 1}]
+    # Output
+    result = serializer.to_representation(objects)
+    expected = [{"foo": 1}]
+    assert expected == result
 
-            self.assertEqual(expected, result)
-
-        with self.subTest("Input serialization"):
-            payload = [
-                {
-                    "foo": 1,
-                }
-            ]
-
-            result = serializer.to_internal_value(payload)
-            expected = [{"foo": 1}]
-
-            self.assertEqual(expected, result)
+    # Input
+    payload = [{"foo": 1}]
+    result = serializer.to_internal_value(payload)
+    expected = [{"foo": 1}]
+    assert expected == result

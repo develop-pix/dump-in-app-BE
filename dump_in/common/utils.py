@@ -8,8 +8,7 @@ from rest_framework import serializers
 ######################################################
 def create_serializer_class(name: str, fields: dict) -> Type[serializers.Serializer]:
     """
-    이 함수는 시리얼라이저 클래스를 동적으로 생성합니다.. 주어진 이름과 필드에 기반하여
-    새로운 시리얼라이저 클래스를 생성합니다.
+    이 함수는 주어진 이름과 필드에 기반하여 시리얼라이저 클래스를 생성합니다.
     """
 
     class Meta:
