@@ -1,6 +1,12 @@
 import pytest
 
-from dump_in.common.constants import *
+from dump_in.common.constants import (
+    AUTH_GROUP_ADMIN,
+    AUTH_GROUP_NORMAL_USER,
+    AUTH_GROUP_SUPER_USER,
+    USER_SOCIAL_PROVIDER_EMAIL,
+    USER_SOCIAL_PROVIDER_KAKAO,
+)
 from dump_in.users.models import User
 
 pytestmark = pytest.mark.django_db

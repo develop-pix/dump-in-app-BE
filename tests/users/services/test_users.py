@@ -1,6 +1,6 @@
 import pytest
 
-from dump_in.common.constants import *
+from dump_in.common.constants import USER_SOCIAL_PROVIDER_KAKAO
 from dump_in.users.services.users import UserService
 
 pytestmark = pytest.mark.django_db

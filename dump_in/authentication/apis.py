@@ -12,7 +12,7 @@ from dump_in.authentication.services.auth import (
 )
 from dump_in.authentication.services.kakao_oauth import KakaoLoginFlowService
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
-from dump_in.common.constants import *
+from dump_in.common.constants import USER_SOCIAL_PROVIDER_KAKAO
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 from dump_in.common.response import create_response
 from dump_in.users.services.users import UserService
