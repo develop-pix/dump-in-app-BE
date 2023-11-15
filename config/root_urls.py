@@ -1,13 +1,15 @@
 from django.conf import settings
 from django.contrib import admin
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, include
 
 
 urlpatterns = [
     # Admin
     path("admin/", admin.site.urls),
     # API
+    path("api/auth/", include(("dump_in.authentication.urls", "api-auth"))),
+    path("api/users/", include(("dump_in.users.urls", "api-users"))),
 ]
 
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
