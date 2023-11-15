@@ -33,7 +33,7 @@ class TestAuthService:
 
         assert deleted_users.username == user.username
         assert not user.is_deleted
-        assert user.deleted_at == None
+        assert user.deleted_at is None
 
     def test_authenticate_user_fail_user_is_not_active(self, not_active_users):
         username = "test13"
