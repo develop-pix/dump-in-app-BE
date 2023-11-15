@@ -3,3 +3,7 @@ omit =
     dump_in/common/base/*
     dump_in/common/exception/*
     dump_in/tasks/*
+    */migrations/*
+    */urls.py
+    */models.py
+    */__init__.py
