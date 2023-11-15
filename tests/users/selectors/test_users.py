@@ -23,11 +23,6 @@ class TestUserSelector:
         user = self.user_selector.get_user_by_id(user_id)
         assert user is None
 
-    def test_get_user_by_id_fail_does_not_exist(self, deleted_users):
-        user_id = 12
-        user = self.user_selector.get_user_by_id(user_id)
-        assert user is None
-
     def test_get_user_by_username_for_auth_success(self, new_users):
         user_id = 1
         username = "test1"

@@ -16,6 +16,6 @@ class TestUserJWTRefreshAPI:
 
         assert response.status_code == 200
         assert response.data["code"] == 0
-        assert response.data["success"] == True
+        assert response.data["success"] is True
         assert response.data["message"] == "Request was successful."
         assert response.data["data"]["access_token"] is not None
