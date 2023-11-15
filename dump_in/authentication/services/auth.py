@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import jwt
 from django.conf import settings
 from rest_framework.request import Request
@@ -37,7 +39,7 @@ class AuthServices:
 
         return user
 
-    def set_refresh_token_cookie(self, response: Response, refresh_token: Token) -> Response:
+    def set_refresh_token_cookie(self, response: Response, refresh_token: Token):
         response.set_cookie(
             key=settings.SIMPLE_JWT["AUTH_COOKIE"],
             value=refresh_token,
@@ -47,14 +49,14 @@ class AuthServices:
             secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
         )
 
-    def delete_refresh_token(self, refresh_token: Token, response: Response) -> Response:
+    def delete_refresh_token(self, refresh_token: Token, response: Response):
         refresh_token = RefreshToken(refresh_token)
         refresh_token.blacklist()
         response.delete_cookie("refresh_token")
 
 
 class RefreshTokenAuthentication(JWTAuthentication):
-    def authenticate(self, request: Request):
+    def authenticate(self, request: Request) -> Tuple[User, str]:
         refresh_token = request.COOKIES.get(settings.SIMPLE_JWT["AUTH_COOKIE"]) or None
 
         if refresh_token is None:
@@ -71,7 +73,7 @@ class RefreshTokenAuthentication(JWTAuthentication):
 
         return user, refresh_token
 
-    def get_validated_refresh_token(self, refresh_token: bytes):
+    def get_validated_refresh_token(self, refresh_token: str):
         try:
             token_obj = RefreshToken(refresh_token)
             token_obj.check_blacklist()

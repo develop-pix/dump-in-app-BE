@@ -1,12 +1,6 @@
 import pytest
 
-from dump_in.common.constants import (
-    AUTH_GROUP_ADMIN,
-    AUTH_GROUP_NOMAL_USER,
-    AUTH_GROUP_SUPER_USER,
-    USER_SOCIAL_PROVIDER_EMAIL,
-    USER_SOCIAL_PROVIDER_KAKAO,
-)
+from dump_in.common.constants import *
 from dump_in.users.models import User
 
 pytestmark = pytest.mark.django_db
@@ -30,7 +24,7 @@ class TestUserManager:
         assert user.nickname == nickname
         assert user.username == social_id
         assert user.user_social_provider_id == USER_SOCIAL_PROVIDER_KAKAO
-        assert user.groups.first().id == AUTH_GROUP_NOMAL_USER
+        assert user.groups.first().id == AUTH_GROUP_NORMAL_USER
 
     def test_create_superuser_success(self, user_social_provider, group):
         email = "test1234@test.com"

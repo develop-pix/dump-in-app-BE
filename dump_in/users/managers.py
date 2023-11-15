@@ -1,11 +1,6 @@
 from django.contrib.auth.models import BaseUserManager
 
-from dump_in.common.constants import (
-    AUTH_GROUP_ADMIN,
-    AUTH_GROUP_NOMAL_USER,
-    AUTH_GROUP_SUPER_USER,
-    USER_SOCIAL_PROVIDER_EMAIL,
-)
+from dump_in.common.constants import *
 
 
 class UserManager(BaseUserManager):
@@ -20,7 +15,7 @@ class UserManager(BaseUserManager):
         )
         user.set_unusable_password()
         user.save(using=self._db)
-        user.groups.add(AUTH_GROUP_NOMAL_USER)
+        user.groups.add(AUTH_GROUP_NORMAL_USER)
         return user
 
     def create_superuser(self, email: str, username: str, password: str, nickname: str, **extra_fields):

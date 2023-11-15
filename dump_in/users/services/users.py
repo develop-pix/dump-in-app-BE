@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any, Optional
 
 import requests
 from django.db import transaction
@@ -9,9 +10,7 @@ from dump_in.users.selectors.users import UserSelector
 
 class UserService:
     @transaction.atomic
-    def get_or_create_social_user(
-        self, email: str | None, nickname: str, social_id: str, birth: str | None, gender: str | None, social_provider: str
-    ) -> User:
+    def get_or_create_social_user(self, email: str, nickname: str, social_id: str, birth: Any, gender: Optional[str], social_provider: int):
         user_selector = UserSelector()
         user = user_selector.get_user_by_username(social_id)
 
@@ -22,8 +21,8 @@ class UserService:
                     "https://nickname.hwanmoo.kr",
                     params={
                         "format": "json",
-                        "count": 1,
-                        "max_length": 10,
+                        "count": "1",
+                        "max_length": "10",
                     },
                 )
                 nickname = response.json()["words"][0]
@@ -35,10 +34,10 @@ class UserService:
                 gender = GenderChoices.MALE
 
             # birth datetime Convert
-            if birth:
+            if birth is not None:
                 birth = datetime.strptime(birth, "%Y%m%d")
 
-            user = User.objects.create_social_user(
+            user = User.objects.create_social_user(  # type: ignore
                 email=email,
                 nickname=nickname,
                 social_id=social_id,

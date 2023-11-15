@@ -1,12 +1,15 @@
 from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from dump_in.authentication.mixins import PublicAPIMixin, RefreshTokenAPIAuthMixin
-from dump_in.authentication.services.auth import AuthServices
+from dump_in.authentication.services.auth import (
+    AuthServices,
+    RefreshTokenAuthentication,
+)
 from dump_in.authentication.services.kakao_oauth import KakaoLoginFlowService
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.constants import *
@@ -15,7 +18,10 @@ from dump_in.common.response import create_response
 from dump_in.users.services.users import UserService
 
 
-class UserJWTRefreshAPI(RefreshTokenAPIAuthMixin, APIView):
+class UserJWTRefreshAPI(APIView):
+    authentication_classes = (RefreshTokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
 
@@ -37,12 +43,15 @@ class UserJWTRefreshAPI(RefreshTokenAPIAuthMixin, APIView):
         return create_response(data=access_token_data, status_code=status.HTTP_200_OK)
 
 
-class KakaoLoginRedirectAPI(PublicAPIMixin, APIView):
+class KakaoLoginRedirectAPI(APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
     @swagger_auto_schema(
         tags=["인증"],
         operation_summary="카카오 로그인 리다이렉트",
     )
-    def get(self, request: Request) -> redirect:
+    def get(self, request: Request):
         """
         카카오 로그인을 위한 리다이렉트 URL로 이동합니다.
         url: /api/auth/kakao/redirect
@@ -52,7 +61,10 @@ class KakaoLoginRedirectAPI(PublicAPIMixin, APIView):
         return redirect(authorization_url)
 
 
-class KakaoLoginAPI(PublicAPIMixin, APIView):
+class KakaoLoginAPI(APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
     class InputSerializer(BaseSerializer):
         code = serializers.CharField(required=False)
         error = serializers.CharField(required=False)
@@ -112,7 +124,7 @@ class KakaoLoginAPI(PublicAPIMixin, APIView):
 
         # User Authenticate & Generate Token
         auth_service = AuthServices()
-        auth_service.authenticate_user(user.username)
+        auth_service.authenticate_user(str(user.username))
         refresh_token, access_token = auth_service.generate_token(user)
         access_token_data = self.OutputSerializer({"access_token": access_token}).data
         response = create_response(data=access_token_data, status_code=status.HTTP_200_OK)
