@@ -12,7 +12,6 @@ def test_send_slack_for_exception_success(mocker):
     mocker.patch("dump_in.slacks.services.WebClient", return_value=mock_instance)
 
     slack_api_instance = SlackAPI()
-
     slack_api_instance.send_slack_for_exception("TestException", "TestContext")
 
     mock_instance.chat_postMessage.assert_called_once_with(
