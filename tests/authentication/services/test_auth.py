@@ -1,13 +1,13 @@
 import pytest
 
-from dump_in.authentication.services.auth import AuthServices
+from dump_in.authentication.services.auth import AuthService
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 from dump_in.common.response import create_response
 
 
 class TestAuthService:
     def setup_method(self):
-        self.auth_service = AuthServices()
+        self.auth_service = AuthService()
 
     def test_generate_token_success(self, new_users):
         refresh_token, access_token = self.auth_service.generate_token(new_users)
