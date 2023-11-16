@@ -47,8 +47,7 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
 
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ &&
-              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/
+        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/ -n 4
 
   docker-image-build-and-deploy:
     needs: django-test-and-fomat-lint

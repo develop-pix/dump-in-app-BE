@@ -1,12 +1,6 @@
 import pytest
 
-from dump_in.common.constants import (
-    AUTH_GROUP_ADMIN,
-    AUTH_GROUP_NORMAL_USER,
-    AUTH_GROUP_SUPER_USER,
-    USER_SOCIAL_PROVIDER_EMAIL,
-    USER_SOCIAL_PROVIDER_KAKAO,
-)
+from dump_in.common.enums import AuthGroup, UserProvider
 from dump_in.users.models import User
 
 pytestmark = pytest.mark.django_db
@@ -17,7 +11,7 @@ class TestUserManager:
         email = "test1234@test.com"
         nickname = "test1234"
         social_id = "test1234"
-        social_provider = USER_SOCIAL_PROVIDER_KAKAO
+        social_provider = UserProvider.KAKAO.value
 
         user = User.objects.create_social_user(
             email=email,
@@ -29,8 +23,8 @@ class TestUserManager:
         assert user.email == email
         assert user.nickname == nickname
         assert user.username == social_id
-        assert user.user_social_provider_id == USER_SOCIAL_PROVIDER_KAKAO
-        assert user.groups.first().id == AUTH_GROUP_NORMAL_USER
+        assert user.user_social_provider_id == UserProvider.KAKAO.value
+        assert user.groups.first().id == AuthGroup.NORMAL_USER.value
 
     def test_create_superuser_success(self, user_social_provider, group):
         email = "test1234@test.com"
@@ -48,8 +42,8 @@ class TestUserManager:
         assert user.email == email
         assert user.nickname == nickname
         assert user.username == username
-        assert user.user_social_provider_id == USER_SOCIAL_PROVIDER_EMAIL
-        assert user.groups.first().id == AUTH_GROUP_SUPER_USER
+        assert user.user_social_provider_id == UserProvider.EMAIL.value
+        assert user.groups.first().id == AuthGroup.SUPER_USER.value
 
     def test_create_admin_success(self, user_social_provider, group):
         email = "test1234@test.com"
@@ -67,5 +61,5 @@ class TestUserManager:
         assert user.email == email
         assert user.nickname == nickname
         assert user.username == username
-        assert user.user_social_provider_id == USER_SOCIAL_PROVIDER_EMAIL
-        assert user.groups.first().id == AUTH_GROUP_ADMIN
+        assert user.user_social_provider_id == UserProvider.EMAIL.value
+        assert user.groups.first().id == AuthGroup.ADMIN.value

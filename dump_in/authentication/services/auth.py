@@ -13,7 +13,7 @@ from dump_in.users.models import User
 from dump_in.users.selectors.users import UserSelector
 
 
-class AuthServices:
+class AuthService:
     def generate_token(self, user: User) -> Token:
         refresh_token = RefreshToken.for_user(user)
         return str(refresh_token), str(refresh_token.access_token)
@@ -88,5 +88,8 @@ class RefreshTokenAuthentication(JWTAuthentication):
 
         if not user.is_active:
             raise AuthenticationFailedException("User is not active")
+
+        if user.is_deleted:
+            raise AuthenticationFailedException("User is not found")
 
         return user

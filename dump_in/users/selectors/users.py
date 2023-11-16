@@ -1,10 +1,12 @@
-from typing import Optional
+from typing import Optional, Union
+
+from django.db.models import BigAutoField
 
 from dump_in.users.models import User
 
 
 class UserSelector:
-    def get_user_by_id(self, user_id: int) -> Optional[User]:
+    def get_user_by_id(self, user_id: Union[BigAutoField, str, int]) -> Optional[User]:
         try:
             return User.objects.filter(id=user_id, is_deleted=False, deleted_at__isnull=True).get()
         except User.DoesNotExist:
