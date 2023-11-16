@@ -7,10 +7,5 @@ logger = get_task_logger(__name__)
 
 @shared_task(bind=True)
 def flush_expired_tokens_task(self):
-    try:
-        call_command("flushexpiredtokens")
-        logger.info("Successfully flushed expired tokens")
-
-    except Exception as e:
-        logger.warning(f"Exception occurred while flushing expired tokens: {e}")
-        self.retry(exc=e, countdown=5)
+    call_command("flushexpiredtokens")
+    logger.info("Successfully flushed expired tokens")
