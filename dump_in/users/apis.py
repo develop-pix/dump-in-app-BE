@@ -33,8 +33,8 @@ class UserDetailAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        refresh token을 입력받아 access token을 발급합니다.
-        url: /api/auth/jwt/refresh
+        인증된 유저가 자신의 정보를 조회합니다.
+        url: /api/auth/users/detail
         """
         user_selector = UserSelector()
         user = user_selector.get_user_by_id(request.user.id)
@@ -50,6 +50,10 @@ class UserDetailAPI(APIView):
         request_body=InputSerializer,
     )
     def put(self, request: Request) -> Response:
+        """
+        인증된 유저가 자신의 정보를 수정합니다. (닉네임)
+        url: /api/auth/users/detail
+        """
         user_service = UserService()
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
@@ -65,6 +69,10 @@ class UserDetailAPI(APIView):
         },
     )
     def delete(self, request: Request) -> Response:
+        """
+        인증된 유저가 자신의 정보를 탈퇴합니다. (소프트 삭제)
+        url: /api/auth/users/detail
+        """
         user_service = UserService()
         user_service.delete_user(request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)

@@ -184,6 +184,16 @@ LOGGING = {
     },
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env.str("REDIS_URL", default="redis://localhost:6379"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
 from config.settings.cors import *  # noqa
 from config.settings.oauth import *  # noqa
 from config.settings.jwt import *  # noqa
