@@ -59,3 +59,10 @@ class TestUserSelector:
         nickname = "test1"
         is_exists = self.user_selector.check_is_exists_user_by_nickname(nickname)
         assert is_exists is True
+
+    def test_get_user_queryset_by_delated_at_lte_days_success(self, deleted_users):
+        users = self.user_selector.get_user_queryset_by_delated_at_lte_days(days=10)
+
+        assert users.count() == 1
+        assert users[0].is_deleted is True
+        assert users[0].deleted_at is not None

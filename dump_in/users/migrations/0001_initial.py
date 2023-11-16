@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254)),
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('username', models.CharField(max_length=128, unique=True)),
-                ('nickname', models.CharField(max_length=16)),
+                ('nickname', models.CharField(max_length=16, unique=True)),
                 ('is_active', models.BooleanField(default=True)),
                 ('is_deleted', models.BooleanField(default=False)),
                 ('is_admin', models.BooleanField(default=False)),
