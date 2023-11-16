@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 import pytest
 from django.contrib.auth.models import Group
+from django.utils import timezone
 from rest_framework.test import APIClient, APIRequestFactory
 
 from dump_in.users.models import User, UserSocialProvider
@@ -41,6 +44,7 @@ def deleted_users(db):
         username="test12",
         nickname="test12",
         is_deleted=True,
+        deleted_at=timezone.now() - timedelta(days=20),
     )
     return user
 

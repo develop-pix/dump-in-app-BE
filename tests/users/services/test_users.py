@@ -43,9 +43,15 @@ class TestUserService:
         assert e.value.detail == "Nickname already exists"
         assert e.value.status_code == 400
 
-    def test_delete_user_success(self, group, user_social_provider, new_users):
-        user = self.service.delete_user(
+    def test_soft_delete_user_success(self, group, user_social_provider, new_users):
+        user = self.service.soft_delete_user(
             user_id=11,
         )
         assert user.is_deleted is True
         assert user.deleted_at is not None
+
+    def test_hard_delete_user_success(self, group, user_social_provider, deleted_users):
+        user = self.service.hard_bulk_delete_users(
+            days=10,
+        )
+        assert user is None
