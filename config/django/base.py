@@ -18,14 +18,16 @@ LOCAL_APPS = [
     "dump_in.common.apps.CommonConfig",
     "dump_in.tasks.apps.TasksConfig",
     "dump_in.slacks.apps.SlacksConfig",
+    "dump_in.users.apps.UsersConfig",
+    "dump_in.authentication.apps.AuthenticationConfig",
 ]
 
 THIRD_PARTY_APPS = [
     "django_prometheus",
     "django_celery_results",
     "django_celery_beat",
-    "rest_framework",
     "corsheaders",
+    "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
 ]
 
@@ -104,7 +106,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AUTH_USER_MODEL = "users.User"
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+]
+
+AUTH_USER_MODEL = "users.User"
 
 # Internationalization
 LANGUAGE_CODE = "ko-kr"
@@ -180,6 +186,7 @@ LOGGING = {
 
 from config.settings.cors import *  # noqa
 from config.settings.oauth import *  # noqa
+from config.settings.jwt import *  # noqa
 from config.settings.celery import *  # noqa
 from config.settings.slack import *  # noqa
 
