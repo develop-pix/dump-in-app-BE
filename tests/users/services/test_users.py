@@ -1,6 +1,7 @@
 import pytest
 
-from dump_in.common.constants import USER_SOCIAL_PROVIDER_KAKAO
+from dump_in.common.enums import UserProvider
+from dump_in.common.exception.exceptions import ValidationException
 from dump_in.users.services.users import UserService
 
 pytestmark = pytest.mark.django_db
@@ -15,13 +16,36 @@ class TestUserService:
             email="test@test.com",
             nickname="test_nickname",
             social_id="test_social_id",
-            birth="20230101",
-            gender="female",
-            social_provider=USER_SOCIAL_PROVIDER_KAKAO,
+            birth="2023-01-01",
+            gender="F",
+            social_provider=UserProvider.KAKAO.value,
         )
         assert user.email == "test@test.com"
         assert user.nickname == "test_nickname"
         assert user.username == "test_social_id"
-        assert user.birth.strftime("%Y%m%d") == "20230101"
         assert user.gender == "F"
-        assert user.user_social_provider.id == USER_SOCIAL_PROVIDER_KAKAO
+        assert user.birth == "2023-01-01"
+
+    def test_get_and_update_user_success(self, group, user_social_provider, new_users):
+        user = self.service.get_and_update_user(
+            user_id=11,
+            nickname="test_nickname",
+        )
+        assert user.id == 11
+        assert user.nickname == "test_nickname"
+
+    def test_get_and_update_user_fail_exist_nickname(self, group, user_social_provider, new_users):
+        with pytest.raises(ValidationException) as e:
+            self.service.get_and_update_user(
+                user_id=12,
+                nickname="test11",
+            )
+        assert e.value.detail == "Nickname already exists"
+        assert e.value.status_code == 400
+
+    def test_delete_user_success(self, group, user_social_provider, new_users):
+        user = self.service.delete_user(
+            user_id=11,
+        )
+        assert user.is_deleted is True
+        assert user.deleted_at is not None
