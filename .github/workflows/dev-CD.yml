@@ -36,6 +36,13 @@ jobs:
       - name: Run mypy
         run: docker compose -f github-actions.docker-compose.yml run django poetry run mypy --config mypy.ini dump_in/
 
+      - name: Create env file
+        env:
+          DJANGO_TEST_ENV: ${{ secrets.DJANGO_TEST_ENV }}
+        run: |
+          touch .env.django
+          echo "$DJANGO_TEST_ENV" >> .env.django
+
       - name: Migration test database
         run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
 
