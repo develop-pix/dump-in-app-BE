@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from dump_in.common.exception.exceptions import ValidationException
 from dump_in.users.models import User
+from dump_in.users.models import GenderChoices, User
 from dump_in.users.selectors.users import UserSelector
 
 
@@ -59,3 +60,4 @@ class UserService:
         user.is_deleted = True
         user.save()
         return user
+     

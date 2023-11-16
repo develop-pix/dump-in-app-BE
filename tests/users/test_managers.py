@@ -61,4 +61,6 @@ class TestUserManager:
         assert user.email == email
         assert user.nickname == nickname
         assert user.username == username
+        assert user.user_social_provider_id == UserProvider.EMAIL.value
         assert user.groups.first().id == AuthGroup.ADMIN.value
+
