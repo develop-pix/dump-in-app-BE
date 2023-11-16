@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from dump_in.common.exception.exceptions import ValidationException
 from dump_in.users.models import User
-from dump_in.users.models import GenderChoices, User
 from dump_in.users.selectors.users import UserSelector
 
 
@@ -48,16 +47,19 @@ class UserService:
             raise ValidationException("Nickname already exists")
 
         user = user_selector.get_user_by_id(user_id)
-        user.nickname = nickname
-        user.save()
+
+        if user:
+            user.nickname = nickname
+            user.save()
         return user
 
     @transaction.atomic
-    def delete_user(self, user_id: BigAutoField):
+    def delete_user(self, user_id: BigAutoField) -> Optional[User]:
         user_selector = UserSelector()
         user = user_selector.get_user_by_id(user_id)
-        user.deleted_at = timezone.now()
-        user.is_deleted = True
-        user.save()
+
+        if user:
+            user.deleted_at = timezone.now()
+            user.is_deleted = True
+            user.save()
         return user
-     
