@@ -113,9 +113,8 @@ jobs:
         run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
 
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ &&
-              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/ &&
-              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ --cov-report=xml
+        run:  docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/ -n 4 &&
+              docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ --cov-report=xml -n 4
 
       - name: Report coverage to codecov
         uses: codecov/codecov-action@v3

@@ -1,11 +1,6 @@
 from django.contrib.auth.models import BaseUserManager
 
-from dump_in.common.constants import (
-    AUTH_GROUP_ADMIN,
-    AUTH_GROUP_NORMAL_USER,
-    AUTH_GROUP_SUPER_USER,
-    USER_SOCIAL_PROVIDER_EMAIL,
-)
+from dump_in.common.enums import AuthGroup, UserProvider
 
 
 class UserManager(BaseUserManager):
@@ -20,7 +15,7 @@ class UserManager(BaseUserManager):
         )
         user.set_unusable_password()
         user.save(using=self._db)
-        user.groups.add(AUTH_GROUP_NORMAL_USER)
+        user.groups.add(AuthGroup.NORMAL_USER.value)
         return user
 
     def create_superuser(self, email: str, username: str, password: str, nickname: str, **extra_fields):
@@ -31,12 +26,12 @@ class UserManager(BaseUserManager):
             nickname=nickname,
             is_superuser=True,
             is_admin=True,
-            user_social_provider_id=USER_SOCIAL_PROVIDER_EMAIL,
+            user_social_provider_id=UserProvider.EMAIL.value,
             **extra_fields,
         )
         user.set_password(password)
         user.save(using=self._db)
-        user.groups.add(AUTH_GROUP_SUPER_USER)
+        user.groups.add(AuthGroup.SUPER_USER.value)
         return user
 
     def create_admin(self, email: str, username: str, password: str, nickname: str, **extra_fields):
@@ -46,10 +41,10 @@ class UserManager(BaseUserManager):
             email=email,
             nickname=nickname,
             is_admin=True,
-            user_social_provider_id=USER_SOCIAL_PROVIDER_EMAIL,
+            user_social_provider_id=UserProvider.EMAIL.value,
             **extra_fields,
         )
         user.set_password(password)
         user.save(using=self._db)
-        user.groups.add(AUTH_GROUP_ADMIN)
+        user.groups.add(AuthGroup.ADMIN.value)
         return user
