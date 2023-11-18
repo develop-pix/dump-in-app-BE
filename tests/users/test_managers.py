@@ -1,6 +1,6 @@
 import pytest
 
-from dump_in.common.enums import AuthGroup, UserProvider
+from dump_in.users.enums import AuthGroup, UserProvider
 from dump_in.users.models import User
 
 pytestmark = pytest.mark.django_db

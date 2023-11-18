@@ -20,6 +20,7 @@ LOCAL_APPS = [
     "dump_in.slacks.apps.SlacksConfig",
     "dump_in.users.apps.UsersConfig",
     "dump_in.authentication.apps.AuthenticationConfig",
+    "dump_in.images.apps.ImagesConfig",
 ]
 
 THIRD_PARTY_APPS = [
@@ -199,6 +200,7 @@ from config.settings.oauth import *  # noqa
 from config.settings.jwt import *  # noqa
 from config.settings.celery import *  # noqa
 from config.settings.slack import *  # noqa
+from config.settings.images_and_storages import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
