@@ -43,7 +43,6 @@ class TestImageUploadService:
         with pytest.raises(Exception) as e:
             service.upload_image()
 
-        assert str(e.value) == "Invalid image type"
         assert e.value.status_code == 400
 
     def test_image_upload_fail_invalid_resource_type(self, new_users, mocker):

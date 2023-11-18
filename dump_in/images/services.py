@@ -26,8 +26,8 @@ class ImageUploadService:
             image = Image.open(self.image_obj)
             image.verify()
 
-        except:
-            raise ValidationException(f"Invalid image type")
+        except Exception as e:
+            raise ValidationException(f"Invalid image type: {e}")
 
     def _get_resource_path(self) -> str:
         id_path = str(self.resource_type_id)
