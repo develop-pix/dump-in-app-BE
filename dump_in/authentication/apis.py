@@ -11,10 +11,14 @@ from rest_framework.views import APIView
 from dump_in.authentication.services.auth import AuthService, RefreshTokenAuthentication
 from dump_in.authentication.services.kakao_oauth import KakaoLoginFlowService
 from dump_in.authentication.services.naver_oauth import NaverLoginFlowService
-from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
-from dump_in.common.enums import UserProvider
+from dump_in.common.base.serializers import (
+    BaseResponseExceptionSerializer,
+    BaseResponseSerializer,
+    BaseSerializer,
+)
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 from dump_in.common.response import create_response
+from dump_in.users.enums import UserProvider
 from dump_in.users.services.users import UserService
 
 
@@ -30,12 +34,13 @@ class UserJWTRefreshAPI(APIView):
         operation_summary="인증 토큰 재발급",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
     def get(self, request: Request) -> Response:
         """
         refresh token을 입력받아 access token을 발급합니다.
-        url: /api/auth/jwt/refresh
+        url: /app/api/auth/jwt/refresh
         """
         auth_service = AuthService()
         access_token = auth_service.generate_access_token(request.auth)
@@ -54,7 +59,7 @@ class KakaoLoginRedirectAPI(APIView):
     def get(self, request: Request):
         """
         카카오 로그인을 위한 리다이렉트 URL로 이동합니다.
-        url: /api/auth/kakao/redirect
+        url: /app/api/auth/kakao/redirect
         """
         kaka_login_flow = KakaoLoginFlowService()
         authorization_url = kaka_login_flow.get_authorization_url()
@@ -78,13 +83,14 @@ class KakaoLoginAPI(APIView):
         query_serializer=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
     def get(self, request: Request) -> Response:
         """
         카카오 로그인 콜백 API 입니다. 카카오 로그인을 완료하면, 카카오에서 전달받은 정보를 토대로
         앱 유저를 생성하고, 액세스 토큰을 발급하고 리프레쉬 토큰은 쿠키에 저장합니다.
-        url: /api/auth/kakao/callback
+        url: /app/api/auth/kakao/callback
         """
         input_serializer = self.InputSerializer(data=request.GET)
         input_serializer.is_valid(raise_exception=True)
@@ -143,7 +149,7 @@ class NaverLoginRedirectApi(APIView):
     def get(self, request: Request):
         """
         네이버 로그인을 위한 리다이렉트 URL로 이동합니다.
-        url: /api/auth/naver/redirect
+        url: /app/api/auth/naver/redirect
         """
         naver_login_flow = NaverLoginFlowService()
         authorization_url = naver_login_flow.get_authorization_url()
@@ -168,13 +174,14 @@ class NaverLoginApi(APIView):
         query_serializer=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(OutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
     def get(self, request: Request) -> Response:
         """
         네이버 로그인 콜백 API 입니다. 네이버 로그인을 완료하면, 네이버에서 전달받은 정보를 토대로
         앱 유저를 생성하고, 액세스 토큰을 발급하고 리프레쉬 토큰은 쿠키에 저장합니다.
-        url: /api/auth/naver/callback
+        url: /app/api/auth/naver/callback
         """
         input_serializer = self.InputSerializer(data=request.GET)
         input_serializer.is_valid(raise_exception=True)

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import BaseUserManager
 
-from dump_in.common.enums import AuthGroup, UserProvider
+from dump_in.users.enums import AuthGroup, UserProvider
 
 
 class UserManager(BaseUserManager):
