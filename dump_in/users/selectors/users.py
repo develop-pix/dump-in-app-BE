@@ -1,6 +1,9 @@
+from datetime import timedelta
 from typing import Optional, Union
 
 from django.db.models import BigAutoField
+from django.db.models.query import QuerySet
+from django.utils import timezone
 
 from dump_in.users.models import User
 
@@ -23,6 +26,9 @@ class UserSelector:
             return User.objects.filter(username=username, is_deleted=False, deleted_at__isnull=True).get()
         except User.DoesNotExist:
             return None
+
+    def get_user_queryset_by_delated_at_lte_days(self, days: int) -> QuerySet[User]:
+        return User.objects.filter(deleted_at__lte=timezone.now() - timedelta(days=days), is_deleted=True)
 
     def check_is_exists_user_by_nickname(self, nickname: str) -> bool:
         return User.objects.filter(nickname=nickname, is_deleted=False, deleted_at__isnull=True).exists()

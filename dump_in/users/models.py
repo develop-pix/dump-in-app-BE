@@ -13,7 +13,7 @@ class GenderChoices(models.TextChoices):
 class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     email = models.EmailField()
     username = models.CharField(max_length=128, unique=True)
-    nickname = models.CharField(max_length=16)
+    nickname = models.CharField(max_length=16, unique=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)

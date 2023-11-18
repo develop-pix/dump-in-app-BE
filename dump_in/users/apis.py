@@ -84,5 +84,5 @@ class UserDetailAPI(APIView):
         url: /app/api/auth/users/detail
         """
         user_service = UserService()
-        user_service.delete_user(request.user.id)
+        user_service.soft_delete_user(request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
