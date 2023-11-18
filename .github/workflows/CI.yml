@@ -14,6 +14,13 @@ jobs:
       - name: Build docker
         run: docker compose -f github-actions.docker-compose.yml build
 
+      - name: Create env file
+        env:
+          DJANGO_TEST_ENV: ${{ secrets.DJANGO_TEST_ENV }}
+        run: |
+          touch .env.django
+          echo "$DJANGO_TEST_ENV" >> .env.django
+
       - name: Run isort
         run: docker compose -f github-actions.docker-compose.yml run django poetry run isort dump_in/ --check
 
