@@ -29,7 +29,7 @@ class TestUserService:
     def test_get_and_update_user_success(self, group, user_social_provider, new_users):
         user = self.service.get_and_update_user(
             user_id=11,
-            nickname="Nickname is 16 characters or less",
+            nickname="test_nickname",
         )
         assert user.id == 11
         assert user.nickname == "test_nickname"
@@ -40,7 +40,7 @@ class TestUserService:
                 user_id=11,
                 nickname="test_nickname12345678910",
             )
-        assert e.value.detail == "Nickname is too long"
+        assert e.value.detail == "Nickname is 16 characters or less"
         assert e.value.status_code == 400
 
     def test_get_and_update_user_fail_exist_nickname(self, group, user_social_provider, new_users):
