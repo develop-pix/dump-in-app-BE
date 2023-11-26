@@ -10,9 +10,12 @@ class TestUserJWTRefreshAPI:
 
     def test_user_jwt_refresh_api_success(self, api_client, new_users):
         refresh = RefreshToken.for_user(new_users)
-        api_client.cookies["refresh_token"] = refresh
 
-        response = api_client.get(path=self.url)
+        response = api_client.post(
+            path=self.url,
+            data={"refresh": str(refresh)},
+            format="json",
+        )
 
         assert response.status_code == 200
         assert response.data["code"] == 0

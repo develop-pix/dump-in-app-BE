@@ -14,6 +14,7 @@ class UserManager(BaseUserManager):
             **extra_fields,
         )
         user.set_unusable_password()
+
         user.save(using=self._db)
         user.groups.add(AuthGroup.NORMAL_USER.value)
         return user
@@ -30,6 +31,7 @@ class UserManager(BaseUserManager):
             **extra_fields,
         )
         user.set_password(password)
+
         user.save(using=self._db)
         user.groups.add(AuthGroup.SUPER_USER.value)
         return user
@@ -45,6 +47,7 @@ class UserManager(BaseUserManager):
             **extra_fields,
         )
         user.set_password(password)
+
         user.save(using=self._db)
         user.groups.add(AuthGroup.ADMIN.value)
         return user

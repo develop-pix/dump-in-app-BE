@@ -51,7 +51,7 @@ class TestNaverLoginAPI:
         assert response.data["success"] is True
         assert response.data["message"] == "Request was successful."
         assert response.data["data"]["access_token"] is not None
-        assert response.cookies["refresh_token"] is not None
+        assert response.data["data"]["refresh_token"] is not None
 
     def test_kakao_login_api_fail_not_code_and_state(self, api_client):
         response = api_client.get(path=self.url)

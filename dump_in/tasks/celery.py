@@ -14,10 +14,6 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    "flush_expired_tokens": {
-        "task": "dump_in.authentication.tasks.flush_expired_tokens_task",
-        "schedule": crontab(minute="0", hour="4"),
-    },
     "hard_delete_users": {
         "task": "dump_in.users.tasks.hard_delete_users_task",
         "schedule": crontab(minute="0", hour="0"),
