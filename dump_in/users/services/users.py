@@ -24,7 +24,7 @@ class UserService:
         birth: Union[str, datetime, None],
         gender: Optional[str],
         social_provider: int,
-    ):
+    ) -> User:
         user = self.user_selector.get_user_by_username_for_auth(social_id)
 
         if not user:
@@ -51,25 +51,26 @@ class UserService:
         return user
 
     @transaction.atomic
-    def get_and_update_user(self, user_id: BigAutoField, nickname: str) -> Optional[User]:
+    def get_and_update_user(self, user_id: BigAutoField, nickname: str) -> User:
+        if len(nickname) > 16:
+            raise ValidationException("Nickname is 16 characters or less")
+
         if self.user_selector.check_is_exists_user_by_nickname(nickname):
             raise ValidationException("Nickname already exists")
 
         user = self.user_selector.get_user_by_id(user_id)
 
-        if user:
-            user.nickname = nickname
-            user.save()
+        user.nickname = nickname
+        user.save()
         return user
 
     @transaction.atomic
-    def soft_delete_user(self, user_id: BigAutoField) -> Optional[User]:
+    def soft_delete_user(self, user_id: BigAutoField) -> User:
         user = self.user_selector.get_user_by_id(user_id)
 
-        if user:
-            user.deleted_at = timezone.now()
-            user.is_deleted = True
-            user.save()
+        user.deleted_at = timezone.now()
+        user.is_deleted = True
+        user.save()
         return user
 
     @transaction.atomic()
