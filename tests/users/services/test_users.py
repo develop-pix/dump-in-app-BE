@@ -12,7 +12,7 @@ class TestUserService:
         self.service = UserService()
 
     def test_get_or_create_social_user_success(self, group, user_social_provider):
-        user = self.service.get_or_create_social_user(
+        user = self.service.get_and_create_social_user(
             email="test@test.com",
             nickname="test_nickname",
             social_id="test_social_id",
