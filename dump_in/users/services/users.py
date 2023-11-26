@@ -16,8 +16,14 @@ class UserService:
         self.user_selector = UserSelector()
 
     @transaction.atomic
-    def get_or_create_social_user(
-        self, email: str, nickname: str, social_id: str, birth: Union[str, datetime, None], gender: Optional[str], social_provider: int
+    def get_and_create_social_user(
+        self,
+        email: str,
+        nickname: str,
+        social_id: str,
+        birth: Union[str, datetime, None],
+        gender: Optional[str],
+        social_provider: int,
     ):
         user = self.user_selector.get_user_by_username_for_auth(social_id)
 

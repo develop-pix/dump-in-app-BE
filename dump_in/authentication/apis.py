@@ -3,12 +3,16 @@ from datetime import datetime
 from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.parsers import FormParser
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.views import TokenRefreshView
 
-from dump_in.authentication.services.auth import AuthService, RefreshTokenAuthentication
+from dump_in.authentication.services.apple_oauth import AppleLoginFlowService
+from dump_in.authentication.services.auth import AuthService
 from dump_in.authentication.services.kakao_oauth import KakaoLoginFlowService
 from dump_in.authentication.services.naver_oauth import NaverLoginFlowService
 from dump_in.common.base.serializers import (
@@ -22,10 +26,7 @@ from dump_in.users.enums import UserProvider
 from dump_in.users.services.users import UserService
 
 
-class UserJWTRefreshAPI(APIView):
-    authentication_classes = (RefreshTokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
+class UserJWTRefreshAPI(TokenRefreshView):
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
 
@@ -37,15 +38,20 @@ class UserJWTRefreshAPI(APIView):
             status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
-    def get(self, request: Request) -> Response:
+    def post(self, request: Request) -> Response:
         """
         refresh token을 입력받아 access token을 발급합니다.
         url: /app/api/auth/jwt/refresh
         """
-        auth_service = AuthService()
-        access_token = auth_service.generate_access_token(request.auth)
-        access_token_data = self.OutputSerializer({"access_token": access_token}).data
-        return create_response(data=access_token_data, status_code=status.HTTP_200_OK)
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        token_data = self.OutputSerializer({"access_token": serializer.validated_data["access"]}).data
+        return create_response(token_data, status_code=status.HTTP_200_OK)
 
 
 class KakaoLoginRedirectAPI(APIView):
@@ -76,6 +82,7 @@ class KakaoLoginAPI(APIView):
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
+        refresh_token = serializers.CharField()
 
     @swagger_auto_schema(
         tags=["인증"],
@@ -89,7 +96,7 @@ class KakaoLoginAPI(APIView):
     def get(self, request: Request) -> Response:
         """
         카카오 로그인 콜백 API 입니다. 카카오 로그인을 완료하면, 카카오에서 전달받은 정보를 토대로
-        앱 유저를 생성하고, 액세스 토큰을 발급하고 리프레쉬 토큰은 쿠키에 저장합니다.
+        앱 유저를 생성하고, 액세스 토큰과 리프레쉬 토큰을 발급합니다.
         url: /app/api/auth/kakao/callback
         """
         input_serializer = self.InputSerializer(data=request.GET)
@@ -119,7 +126,7 @@ class KakaoLoginAPI(APIView):
 
         # Create Social User
         user_service = UserService()
-        user = user_service.get_or_create_social_user(
+        user = user_service.get_and_create_social_user(
             social_id=user_info["id"],
             nickname=user_info["kakao_account"]["profile"]["nickname"],
             email=user_info["kakao_account"]["email"],
@@ -132,13 +139,11 @@ class KakaoLoginAPI(APIView):
         auth_service = AuthService()
         auth_service.authenticate_user(str(user.username))
         refresh_token, access_token = auth_service.generate_token(user)
-        access_token_data = self.OutputSerializer({"access_token": access_token}).data
-        response = create_response(data=access_token_data, status_code=status.HTTP_200_OK)
-        auth_service.set_refresh_token_cookie(response, refresh_token)
-        return response
+        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
+        return create_response(data=token_data, status_code=status.HTTP_200_OK)
 
 
-class NaverLoginRedirectApi(APIView):
+class NaverLoginRedirectAPI(APIView):
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
@@ -156,7 +161,7 @@ class NaverLoginRedirectApi(APIView):
         return redirect(authorization_url)
 
 
-class NaverLoginApi(APIView):
+class NaverLoginAPI(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = ()
 
@@ -167,6 +172,7 @@ class NaverLoginApi(APIView):
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
+        refresh_token = serializers.CharField()
 
     @swagger_auto_schema(
         tags=["인증"],
@@ -180,7 +186,7 @@ class NaverLoginApi(APIView):
     def get(self, request: Request) -> Response:
         """
         네이버 로그인 콜백 API 입니다. 네이버 로그인을 완료하면, 네이버에서 전달받은 정보를 토대로
-        앱 유저를 생성하고, 액세스 토큰을 발급하고 리프레쉬 토큰은 쿠키에 저장합니다.
+        앱 유저를 생성하고, 액세스 토큰과 리프레쉬 토큰을 발급합니다.
         url: /app/api/auth/naver/callback
         """
         input_serializer = self.InputSerializer(data=request.GET)
@@ -212,7 +218,7 @@ class NaverLoginApi(APIView):
 
         # Create Social User
         user_service = UserService()
-        user = user_service.get_or_create_social_user(
+        user = user_service.get_and_create_social_user(
             social_id=user_info["id"],
             nickname=user_info["nickname"],
             email=user_info["email"],
@@ -225,7 +231,85 @@ class NaverLoginApi(APIView):
         auth_service = AuthService()
         auth_service.authenticate_user(str(user.username))
         refresh_token, access_token = auth_service.generate_token(user)
-        access_token_data = self.OutputSerializer({"access_token": access_token}).data
-        response = create_response(data=access_token_data, status_code=status.HTTP_200_OK)
-        auth_service.set_refresh_token_cookie(response, refresh_token)
-        return response
+        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
+        return create_response(data=token_data, status_code=status.HTTP_200_OK)
+
+
+class AppleLoginRedirectAPI(APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    @swagger_auto_schema(
+        tags=["인증"],
+        operation_summary="애플 로그인 리다이렉트",
+    )
+    def get(self, request: Request):
+        """
+        애플 로그인을 위한 리다이렉트 URL로 이동합니다.
+        url: /app/api/auth/apple/redirect
+        """
+        apple_login_flow = AppleLoginFlowService()
+        authorization_url = apple_login_flow.get_authorization_url()
+        return redirect(authorization_url)
+
+
+class AppleLoginAPI(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    parser_classes = (FormParser,)
+
+    class InputSerializer(BaseSerializer):
+        code = serializers.CharField(required=False)
+
+    class OutputSerializer(BaseSerializer):
+        access_token = serializers.CharField()
+        refresh_token = serializers.CharField()
+
+    @swagger_auto_schema(
+        tags=["인증"],
+        operation_summary="애플 로그인 콜백",
+        request_body=InputSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(OutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
+        },
+    )
+    def post(self, request: Request) -> Response:
+        """
+        애플 로그인 콜백 API 입니다. 애플 로그인을 완료하면, 애플에서 전달받은 정보를 토대로
+        앱 유저를 생성하고, 액세스 토큰과 리프레쉬 토큰을 발급합니다.
+        url: /app/api/auth/apple/callback
+        """
+        input_serializer = self.InputSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        validated_data = input_serializer.validated_data
+
+        code = validated_data.get("code")
+
+        if code is None:
+            raise AuthenticationFailedException("Code is not provided")
+
+        # Apple Login Flow
+        apple_login_flow = AppleLoginFlowService()
+        token_decoded = apple_login_flow.get_id_token(code=code)
+
+        email = token_decoded.get("email", None)
+        nickname = email.split("@")[0] if email else None
+
+        # Create Social User
+        user_service = UserService()
+        user = user_service.get_and_create_social_user(
+            social_id=token_decoded["sub"],
+            nickname=nickname,
+            email=email,
+            birth=None,
+            gender=None,
+            social_provider=UserProvider.APPLE.value,
+        )
+
+        # User Authenticate & Generate Token
+        auth_service = AuthService()
+        auth_service.authenticate_user(str(user.username))
+        refresh_token, access_token = auth_service.generate_token(user)
+        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
+        return create_response(data=token_data, status_code=status.HTTP_200_OK)

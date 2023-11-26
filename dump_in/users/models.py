@@ -13,15 +13,15 @@ class GenderChoices(models.TextChoices):
 class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     email = models.EmailField()
     username = models.CharField(max_length=128, unique=True)
-    nickname = models.CharField(max_length=16, unique=True)
+    nickname = models.CharField(max_length=64, unique=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
-    deleted_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(blank=True)
     is_agree_privacy = models.BooleanField(default=True)
     is_agree_marketing = models.BooleanField(default=False)
-    gender = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True, null=True)
-    birth = models.DateField(null=True)
+    gender = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
+    birth = models.DateField(blank=True)
     user_social_provider = models.ForeignKey(
         "UserSocialProvider",
         on_delete=models.SET_NULL,
