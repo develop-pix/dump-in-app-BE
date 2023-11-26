@@ -17,11 +17,11 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
-    deleted_at = models.DateTimeField(blank=True)
+    deleted_at = models.DateTimeField(null=True)
     is_agree_privacy = models.BooleanField(default=True)
     is_agree_marketing = models.BooleanField(default=False)
-    gender = models.CharField(max_length=1, choices=GenderChoices.choices, blank=True)
-    birth = models.DateField(blank=True)
+    gender = models.CharField(max_length=1, choices=GenderChoices.choices, null=True, blank=True)
+    birth = models.DateField(null=True)
     user_social_provider = models.ForeignKey(
         "UserSocialProvider",
         on_delete=models.SET_NULL,

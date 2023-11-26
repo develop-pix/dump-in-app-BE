@@ -29,10 +29,19 @@ class TestUserService:
     def test_get_and_update_user_success(self, group, user_social_provider, new_users):
         user = self.service.get_and_update_user(
             user_id=11,
-            nickname="test_nickname",
+            nickname="Nickname is 16 characters or less",
         )
         assert user.id == 11
         assert user.nickname == "test_nickname"
+
+    def test_get_and_update_user_fail_nickname_is_too_long(self, group, user_social_provider, new_users):
+        with pytest.raises(ValidationException) as e:
+            self.service.get_and_update_user(
+                user_id=11,
+                nickname="test_nickname12345678910",
+            )
+        assert e.value.detail == "Nickname is too long"
+        assert e.value.status_code == 400
 
     def test_get_and_update_user_fail_exist_nickname(self, group, user_social_provider, new_users):
         with pytest.raises(ValidationException) as e:

@@ -22,7 +22,7 @@ class AuthService:
 
         if user.is_deleted is True:
             user.is_deleted = False
-            user.deleted_at = ""
+            user.deleted_at = None
             user.save()
 
         return user
