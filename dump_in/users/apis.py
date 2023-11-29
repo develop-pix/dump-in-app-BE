@@ -13,7 +13,9 @@ from dump_in.common.base.serializers import (
     BaseSerializer,
 )
 from dump_in.common.exception.exceptions import ValidationException
+from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
+from dump_in.reviews.selectors.reviews import ReviewSelector
 from dump_in.users.selectors.users import UserSelector
 from dump_in.users.services.users import UserService
 
@@ -66,7 +68,7 @@ class UserDetailAPI(APIView):
         user_service = UserService()
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
-        user = user_service.get_and_update_user(request.user.id, input_serializer.validated_data["nickname"])
+        user = user_service.update_user(request.user.id, input_serializer.validated_data["nickname"])
         user_data = self.OutputSerializer(user).data
         return create_response(data=user_data, status_code=status.HTTP_200_OK)
 
@@ -86,3 +88,87 @@ class UserDetailAPI(APIView):
         user_service = UserService()
         user_service.soft_delete_user(request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+class MyReviewAPI(APIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
+    class FilterSerializer(BaseSerializer):
+        limit = serializers.IntegerField(required=False)
+        offset = serializers.IntegerField(required=False)
+
+    class OutputSerializer(BaseSerializer):
+        review_id = serializers.IntegerField(source="id")
+        review_images = serializers.StringRelatedField(many=True)  # type: ignore
+        # photo_booth_location = serializers.CharField(source="photo_booth.location")
+
+    @swagger_auto_schema(
+        tags=["유저"],
+        operation_summary="내가 작성한 리뷰 조회",
+        query_serializer=FilterSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """
+        인증된 유저가 자신이 작성한 리뷰를 조회합니다.
+        url: /app/api/users/reviews
+        """
+        review_selector = ReviewSelector()
+        reviews = review_selector.get_review_queryset_with_photo_booth_by_user_id(request.user)
+        pagination_reviews_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=reviews,
+            request=request,
+            view=self,
+        )
+        return create_response(data=pagination_reviews_data, status_code=status.HTTP_200_OK)
+
+
+class MyReviewLikeAPI(APIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
+    class FilterSerializer(BaseSerializer):
+        limit = serializers.IntegerField(required=False)
+        offset = serializers.IntegerField(required=False)
+
+    class OutputSerializer(BaseSerializer):
+        review_id = serializers.IntegerField(source="id")
+        review_images = serializers.StringRelatedField(many=True)  # type: ignore
+        # photo_booth_location = serializers.CharField(source="photo_booth.location")
+
+    @swagger_auto_schema(
+        tags=["유저"],
+        operation_summary="내가 좋아요한 리뷰 조회",
+        query_serializer=FilterSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """
+        인증된 유저가 자신이 좋아요한 리뷰를 조회합니다.
+        url: /app/api/users/reviews/likes
+        """
+        review_selector = ReviewSelector()
+        reviews = review_selector.get_review_queryset_by_user_like(request.user)
+        pagination_reviews_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=reviews,
+            request=request,
+            view=self,
+        )
+        return create_response(data=pagination_reviews_data, status_code=status.HTTP_200_OK)

@@ -2,7 +2,7 @@ import pytest
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-class IdAuthenticateTestCase:
+class IsAuthenticateTestCase:
     @pytest.fixture(autouse=True)
     def set_up(self, api_client):
         self.client = api_client

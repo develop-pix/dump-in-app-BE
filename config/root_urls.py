@@ -3,14 +3,13 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import path, include
 
-
 urlpatterns = [
     # Admin
     path("app/admin/", admin.site.urls),
     # API
     path("app/api/auth/", include(("dump_in.authentication.urls", "api-auth"))),
     path("app/api/users/", include(("dump_in.users.urls", "api-users"))),
-    path("app/api/images/", include(("dump_in.images.urls", "api-images"))),
+    path("app/api/reviews/", include(("dump_in.reviews.urls", "api-reviews"))),
 ]
 
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa

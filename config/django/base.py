@@ -20,7 +20,8 @@ LOCAL_APPS = [
     "dump_in.slacks.apps.SlacksConfig",
     "dump_in.users.apps.UsersConfig",
     "dump_in.authentication.apps.AuthenticationConfig",
-    "dump_in.images.apps.ImagesConfig",
+    "dump_in.reviews.apps.ReviewsConfig",
+    "dump_in.photo_booths.apps.PhotoBoothsConfig",
 ]
 
 THIRD_PARTY_APPS = [
@@ -161,7 +162,7 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "filters": ["require_debug_true"],
             "formatter": "django.server",
@@ -180,7 +181,11 @@ LOGGING = {
         "django": {
             "handlers": ["console", "file"],
             "level": "INFO",
-        }
+        },
+        # "django.db.backends": {
+        #     "handlers": ["console",],
+        #     "level": "DEBUG",
+        # },
     },
 }
 

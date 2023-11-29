@@ -126,7 +126,7 @@ class KakaoLoginAPI(APIView):
 
         # Create Social User
         user_service = UserService()
-        user = user_service.get_and_create_social_user(
+        user = user_service.create_social_user(
             social_id=user_info["id"],
             nickname=user_info["kakao_account"]["profile"]["nickname"],
             email=user_info["kakao_account"]["email"],
@@ -218,7 +218,7 @@ class NaverLoginAPI(APIView):
 
         # Create Social User
         user_service = UserService()
-        user = user_service.get_and_create_social_user(
+        user = user_service.create_social_user(
             social_id=user_info["id"],
             nickname=user_info["nickname"],
             email=user_info["email"],
@@ -298,7 +298,7 @@ class AppleLoginAPI(APIView):
 
         # Create Social User
         user_service = UserService()
-        user = user_service.get_and_create_social_user(
+        user = user_service.create_social_user(
             social_id=token_decoded["sub"],
             nickname=nickname,
             email=email,

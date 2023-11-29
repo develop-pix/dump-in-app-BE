@@ -1,12 +1,12 @@
 import pytest
 from django.urls import reverse
 
-from tests.utils import IdAuthenticateTestCase
+from tests.utils import IsAuthenticateTestCase
 
 pytestmark = pytest.mark.django_db
 
 
-class TestUserDetailAPI(IdAuthenticateTestCase):
+class TestUserDetailAPI(IsAuthenticateTestCase):
     url = reverse("api-users:user-detail")
 
     def test_user_detail_get_success(self, new_users):

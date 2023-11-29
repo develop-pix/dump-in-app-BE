@@ -16,7 +16,7 @@ class UserService:
         self.user_selector = UserSelector()
 
     @transaction.atomic
-    def get_and_create_social_user(
+    def create_social_user(
         self,
         email: str,
         nickname: str,
@@ -51,7 +51,7 @@ class UserService:
         return user
 
     @transaction.atomic
-    def get_and_update_user(self, user_id: BigAutoField, nickname: str) -> User:
+    def update_user(self, user_id: BigAutoField, nickname: str) -> User:
         if len(nickname) > 16:
             raise ValidationException("Nickname is 16 characters or less")
 

@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ImagesConfig(AppConfig):
+class ReviewsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "dump_in.images"
+    name = "dump_in.reviews"
