@@ -1,16 +1,18 @@
 from datetime import timedelta
 
 import pytest
-from django.contrib.auth.models import Group
 from django.utils import timezone
-from rest_framework.test import APIClient, APIRequestFactory
+from rest_framework.test import APIClient
 
-from dump_in.users.models import User, UserSocialProvider
-
-
-@pytest.fixture
-def api_factory():
-    return APIRequestFactory()
+from dump_in.users.models import User
+from tests.factories import (
+    GroupFactory,
+    HashTagFactory,
+    PhotoBoothFactory,
+    ReviewFactory,
+    ReviewImageFactory,
+    UserSocialProviderFactory,
+)
 
 
 @pytest.fixture
@@ -63,37 +65,56 @@ def not_active_users(db):
 
 @pytest.fixture
 def user_social_provider(db):
-    kakao_provider = UserSocialProvider.objects.create(
-        id=1,
-        name="kakao",
-    )
-    naver_provider = UserSocialProvider.objects.create(
-        id=2,
-        name="naver",
-    )
-    apple_provider = UserSocialProvider.objects.create(
-        id=3,
-        name="apple",
-    )
-    email_provider = UserSocialProvider.objects.create(
-        id=4,
-        name="email",
-    )
-    return kakao_provider, naver_provider, apple_provider, email_provider
+    return UserSocialProviderFactory.create_batch(4)
 
 
 @pytest.fixture
 def group(db):
-    normal_group = Group.objects.create(
+    return GroupFactory.create_batch(3)
+
+
+@pytest.fixture
+def photo_booth(db):
+    return PhotoBoothFactory(
         id=1,
-        name="normal_user",
     )
-    admin_group = Group.objects.create(
-        id=2,
-        name="admin",
+
+
+@pytest.fixture()
+def review(db):
+    return ReviewFactory()
+
+
+@pytest.fixture()
+def review_list(db):
+    hashtag = HashTagFactory(
+        id=1,
+        name="test",
     )
-    super_group = Group.objects.create(
-        id=3,
-        name="super",
+
+    ReviewFactory.create_batch(
+        size=3,
+        frame_color="red",
+        participants="1",
+        camera_shot="red1",
+        hashtags=[hashtag],
     )
-    return admin_group, normal_group, super_group
+
+    ReviewFactory.create_batch(
+        size=4,
+        frame_color="blue",
+        participants="2",
+        camera_shot="blue2",
+    )
+
+
+@pytest.fixture()
+def review_image(db):
+    return ReviewImageFactory()
+
+
+@pytest.fixture()
+def hashtag(db):
+    return HashTagFactory(
+        id=1,
+    )
