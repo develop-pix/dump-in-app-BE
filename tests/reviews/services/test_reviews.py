@@ -45,7 +45,7 @@ class TestReviewService:
 
     def test_create_review_fail_image_urls_list_many(self, new_users, photo_booth, hashtag):
         with pytest.raises(ValidationException) as e:
-            review = self.review_service.create_review(
+            self.review_service.create_review(
                 image_urls=["test1", "test2", "test3", "test4", "test5", "test6"],
                 content="test_content",
                 photo_booth_id=photo_booth.id,
@@ -65,7 +65,7 @@ class TestReviewService:
 
     def test_create_review_fail_photo_booth_does_not_exist(self, new_users, hashtag):
         with pytest.raises(NotFoundException) as e:
-            review = self.review_service.create_review(
+            self.review_service.create_review(
                 image_urls=["test1", "test2", "test3"],
                 content="test_content",
                 photo_booth_id=999,
@@ -258,7 +258,7 @@ class TestReviewService:
             user=review.user,
         )
 
-        assert review.view_count is not 0
+        assert review.view_count != 0
 
     def test_view_count_up_fail_review_does_not_exist(self, review):
         with pytest.raises(NotFoundException) as e:
