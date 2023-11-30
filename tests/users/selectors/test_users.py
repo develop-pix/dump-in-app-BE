@@ -1,8 +1,4 @@
-import pytest
-
 from dump_in.users.selectors.users import UserSelector
-
-pytestmark = pytest.mark.django_db
 
 
 class TestUserSelector:

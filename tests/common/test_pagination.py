@@ -1,4 +1,3 @@
-import pytest
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
@@ -8,7 +7,6 @@ from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.users.models import User
 
 factory = APIRequestFactory()
-pytestmark = pytest.mark.django_db
 
 
 class ExampleListApi(APIView):

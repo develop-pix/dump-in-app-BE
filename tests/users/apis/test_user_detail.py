@@ -1,9 +1,6 @@
-import pytest
 from django.urls import reverse
 
 from tests.utils import IsAuthenticateTestCase
-
-pytestmark = pytest.mark.django_db
 
 
 class TestUserDetailAPI(IsAuthenticateTestCase):

@@ -1,9 +1,6 @@
-import pytest
 from django.urls import reverse
 
 from dump_in.common.exception.exceptions import AuthenticationFailedException
-
-pytestmark = pytest.mark.django_db
 
 
 class TestKakaoLoginRedirectAPI:

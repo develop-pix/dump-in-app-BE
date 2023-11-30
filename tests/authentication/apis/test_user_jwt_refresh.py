@@ -1,8 +1,5 @@
-import pytest
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
-
-pytestmark = pytest.mark.django_db
 
 
 class TestUserJWTRefreshAPI:

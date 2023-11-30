@@ -7,8 +7,6 @@ from dump_in.common.exception.exceptions import (
 )
 from dump_in.reviews.services.reviews import ReviewService
 
-pytestmark = pytest.mark.django_db
-
 
 class TestReviewService:
     def setup_method(self):
@@ -31,7 +29,7 @@ class TestReviewService:
         )
 
         assert review.content == "test_content"
-        assert review.photo_booth_id == photo_booth.id
+        assert str(review.photo_booth_id) == photo_booth.id
         assert review.date == "2021-01-01"
         assert review.frame_color == "test"
         assert review.participants == 2
@@ -101,7 +99,7 @@ class TestReviewService:
         )
 
         assert review.content == "test_content"
-        assert review.photo_booth_id == photo_booth.id
+        assert str(review.photo_booth_id) == photo_booth.id
         assert review.date == "2021-01-01"
         assert review.frame_color == "test"
         assert review.participants == 2

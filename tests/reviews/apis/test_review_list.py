@@ -42,7 +42,7 @@ class TestReviewListAPI(IsAuthenticateTestCase):
             data={
                 "image_urls": ["string"],
                 "content": "string",
-                "photo_booth_id": 1,
+                "photo_booth_id": photo_booth.id,
                 "date": "2023-01-01",
                 "frame_color": "string",
                 "participants": 1,

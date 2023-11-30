@@ -1,8 +1,4 @@
-import pytest
-
 from dump_in.reviews.selectors.review_images import ReviewImageSelector
-
-pytestmark = pytest.mark.django_db
 
 
 class TestReviewImageSelector:

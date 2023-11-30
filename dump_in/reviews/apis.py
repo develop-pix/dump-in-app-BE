@@ -33,7 +33,7 @@ class ReviewListAPI(APIView):
         default_limit = 10
 
     class FilterSerializer(BaseSerializer):
-        location = serializers.CharField(required=False)
+        photo_booth_name = serializers.CharField(required=False)
         frame_color = serializers.CharField(required=False)
         participants = serializers.CharField(required=False)
         camera_shot = serializers.CharField(required=False)
@@ -44,7 +44,7 @@ class ReviewListAPI(APIView):
     class OutputSerializer(BaseSerializer):
         review_id = serializers.IntegerField(source="id")
         review_images = serializers.StringRelatedField(many=True)  # type: ignore
-        # photo_booth_location = serializers.CharField(source="photo_booth.location")
+        # photo_booth_name = serializers.CharField(source="photo_booth.name")
 
     @swagger_auto_schema(
         tags=["리뷰"],
@@ -76,7 +76,7 @@ class ReviewListAPI(APIView):
     class InputSerializer(BaseSerializer):
         image_urls = serializers.ListField(required=True, min_length=1, max_length=5)
         content = serializers.CharField(required=True)
-        photo_booth_id = serializers.IntegerField(required=True)
+        photo_booth_id = serializers.CharField(required=True)
         date = serializers.DateField(required=True)
         frame_color = serializers.CharField(required=True)
         participants = serializers.IntegerField(required=True)
@@ -115,7 +115,7 @@ class ReviewListCountAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        location = serializers.CharField(required=False)
+        photo_booth_name = serializers.CharField(required=False)
         frame_color = serializers.CharField(required=False)
         participants = serializers.CharField(required=False)
         camera_shot = serializers.CharField(required=False)
@@ -153,7 +153,7 @@ class ReviewDetailAPI(APIView):
     class InputSerializer(BaseSerializer):
         image_urls = serializers.ListField(required=True, min_length=1, max_length=5)
         content = serializers.CharField(required=True)
-        photo_booth_id = serializers.IntegerField(required=True)
+        photo_booth_id = serializers.CharField(required=True)
         date = serializers.DateField(required=True)
         frame_color = serializers.CharField(required=True)
         participants = serializers.IntegerField(required=True)

@@ -60,7 +60,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 
 class PhotoBoothFactory(factory.django.DjangoModelFactory):
-    id = factory.Sequence(lambda n: n)
+    id = factory.LazyAttribute(lambda _: faker.uuid4())
     created_at = datetime.now()
     updated_at = datetime.now()
 

@@ -1,8 +1,4 @@
-import pytest
-
 from dump_in.reviews.selectors.hashtags import HashTagSelector
-
-pytestmark = pytest.mark.django_db
 
 
 class TestHashTagSelector:

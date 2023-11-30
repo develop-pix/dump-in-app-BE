@@ -75,9 +75,7 @@ def group(db):
 
 @pytest.fixture
 def photo_booth(db):
-    return PhotoBoothFactory(
-        id=1,
-    )
+    return PhotoBoothFactory()
 
 
 @pytest.fixture()
