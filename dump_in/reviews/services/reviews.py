@@ -10,7 +10,7 @@ from dump_in.common.exception.exceptions import (
 )
 from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 from dump_in.reviews.models import Review, ReviewImage
-from dump_in.reviews.selectors.hashtags import HashTagSelector
+from dump_in.reviews.selectors.concepts import ConceptSelector
 from dump_in.reviews.selectors.review_images import ReviewImageSelector
 from dump_in.reviews.selectors.reviews import ReviewSelector
 
@@ -26,7 +26,7 @@ class ReviewService:
         frame_color: str,
         participants: int,
         camera_shot: str,
-        hashtag_ids: List[int],
+        concept_ids: List[int],
         goods_amount: Optional[bool],
         curl_amount: Optional[bool],
         is_public: bool,
@@ -64,11 +64,11 @@ class ReviewService:
             ],
         )
 
-        hashtag_selector = HashTagSelector()
-        hashtags = hashtag_selector.get_hash_tag_queryset_by_ids(hashtag_ids)
+        concept_selector = ConceptSelector()
+        concepts = concept_selector.get_concept_queryset_by_ids(concept_ids)
 
-        if hashtags:
-            review.hashtags.set(hashtags)
+        if concepts:
+            review.concepts.set(concepts)
 
         return review
 
@@ -83,7 +83,7 @@ class ReviewService:
         frame_color: str,
         participants: int,
         camera_shot: str,
-        hashtag_ids: List[int],
+        concept_ids: List[int],
         goods_amount: Optional[bool],
         curl_amount: Optional[bool],
         is_public: bool,
@@ -99,7 +99,7 @@ class ReviewService:
             raise NotFoundException("PhotoBooth does not exist")
 
         review_selector = ReviewSelector()
-        review = review_selector.get_review_with_review_images_and_hashtags_by_id(review_id=review_id)
+        review = review_selector.get_review_with_review_images_and_concepts_by_id(review_id=review_id)
 
         if not review:
             raise NotFoundException("Review does not exist")
@@ -132,11 +132,11 @@ class ReviewService:
             ],
         )
 
-        hashtag_selector = HashTagSelector()
-        hashtags = hashtag_selector.get_hash_tag_queryset_by_ids(hashtag_ids)
+        concept_selector = ConceptSelector()
+        concepts = concept_selector.get_concept_queryset_by_ids(concept_ids)
 
-        if hashtags:
-            review.hashtags.set(hashtags)
+        if concepts:
+            review.concepts.set(concepts)
 
         return review
 

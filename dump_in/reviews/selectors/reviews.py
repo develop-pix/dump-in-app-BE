@@ -7,9 +7,9 @@ from dump_in.reviews.models import Review
 
 
 class ReviewSelector:
-    def get_review_with_review_images_and_hashtags_by_id(self, review_id: int) -> Optional[Review]:
+    def get_review_with_review_images_and_concepts_by_id(self, review_id: int) -> Optional[Review]:
         try:
-            return Review.objects.filter(id=review_id, is_deleted=False).get()
+            return Review.objects.prefetch_related("review_images", "concepts").filter(id=review_id, is_deleted=False).get()
         except Review.DoesNotExist:
             return None
 
@@ -35,7 +35,7 @@ class ReviewSelector:
         filters = filters or {}
         qs = (
             Review.objects.select_related("photo_booth")
-            .prefetch_related("review_images", "hashtags")
+            .prefetch_related("review_images", "concepts")
             .filter(is_deleted=False, is_public=True)
         )
         return ReviewFilter(filters, qs).qs.count()
@@ -44,7 +44,7 @@ class ReviewSelector:
         filters = filters or {}
         qs = (
             Review.objects.select_related("photo_booth")
-            .prefetch_related("review_images", "hashtags")
+            .prefetch_related("review_images", "concepts")
             .filter(is_deleted=False, is_public=True)
         )
         return ReviewFilter(filters, qs).qs

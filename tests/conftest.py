@@ -6,8 +6,9 @@ from rest_framework.test import APIClient
 
 from dump_in.users.models import User
 from tests.factories import (
+    ConceptFactory,
     GroupFactory,
-    HashTagFactory,
+    PhotoBoothBrandFactory,
     PhotoBoothFactory,
     ReviewFactory,
     ReviewImageFactory,
@@ -74,6 +75,11 @@ def group(db):
 
 
 @pytest.fixture
+def photo_booth_brand(db):
+    return PhotoBoothBrandFactory.create_batch(3)
+
+
+@pytest.fixture
 def photo_booth(db):
     return PhotoBoothFactory()
 
@@ -85,7 +91,7 @@ def review(db):
 
 @pytest.fixture()
 def review_list(db):
-    hashtag = HashTagFactory(
+    concept = ConceptFactory(
         id=1,
         name="test",
     )
@@ -95,7 +101,7 @@ def review_list(db):
         frame_color="red",
         participants="1",
         camera_shot="red1",
-        hashtags=[hashtag],
+        concepts=[concept],
     )
 
     ReviewFactory.create_batch(
@@ -112,7 +118,7 @@ def review_image(db):
 
 
 @pytest.fixture()
-def hashtag(db):
-    return HashTagFactory(
+def concept(db):
+    return ConceptFactory(
         id=1,
     )

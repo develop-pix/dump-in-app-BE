@@ -34,7 +34,7 @@ class TestReviewListAPI(IsAuthenticateTestCase):
         assert response.status_code == 401
         assert response.data["message"] == "자격 인증데이터(authentication credentials)가 제공되지 않았습니다."
 
-    def test_review_list_post_success(self, new_users, photo_booth, hashtag):
+    def test_review_list_post_success(self, new_users, photo_booth, concept):
         access_token = self.obtain_token(new_users)
         self.authenticate_with_token(access_token)
         response = self.client.post(
@@ -47,7 +47,7 @@ class TestReviewListAPI(IsAuthenticateTestCase):
                 "frame_color": "string",
                 "participants": 1,
                 "camera_shot": "string",
-                "hashtag_ids": [1],
+                "concept_ids": [1],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,

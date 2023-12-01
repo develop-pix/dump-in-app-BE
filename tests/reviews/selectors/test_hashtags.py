@@ -1,11 +1,11 @@
-from dump_in.reviews.selectors.hashtags import HashTagSelector
+from dump_in.reviews.selectors.concepts import ConceptSelector
 
 
-class TestHashTagSelector:
+class TestConceptSelector:
     def setup_method(self):
-        self.hashtag_selector = HashTagSelector()
+        self.concept_selector = ConceptSelector()
 
-    def test_get_hash_tag_queryset_by_ids_success(self, hashtag):
-        hashtag_id = hashtag.id
-        hashtag_queryset = self.hashtag_selector.get_hash_tag_queryset_by_ids([hashtag_id])
-        assert hashtag_queryset.count() == 1
+    def test_get_concept_queryset_by_ids_success(self, concept):
+        concept_id = concept.id
+        concept_queryset = self.concept_selector.get_concept_queryset_by_ids([concept_id])
+        assert concept_queryset.count() == 1

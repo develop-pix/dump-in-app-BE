@@ -37,7 +37,7 @@ class ReviewListAPI(APIView):
         frame_color = serializers.CharField(required=False)
         participants = serializers.CharField(required=False)
         camera_shot = serializers.CharField(required=False)
-        hashtags = serializers.CharField(required=False)
+        concepts = serializers.CharField(required=False)
         limit = serializers.IntegerField(required=False)
         offset = serializers.IntegerField(required=False)
 
@@ -81,7 +81,7 @@ class ReviewListAPI(APIView):
         frame_color = serializers.CharField(required=True)
         participants = serializers.IntegerField(required=True)
         camera_shot = serializers.CharField(required=True)
-        hashtag_ids = serializers.ListField(required=True, child=serializers.IntegerField())
+        concept_ids = serializers.ListField(required=True, child=serializers.IntegerField())
         goods_amount = serializers.BooleanField(required=True, allow_null=True)
         curl_amount = serializers.BooleanField(required=False, allow_null=True)
         is_public = serializers.BooleanField(required=True)
@@ -119,7 +119,7 @@ class ReviewListCountAPI(APIView):
         frame_color = serializers.CharField(required=False)
         participants = serializers.CharField(required=False)
         camera_shot = serializers.CharField(required=False)
-        hashtags = serializers.CharField(required=False)
+        concepts = serializers.CharField(required=False)
 
     class OutputSerializer(BaseSerializer):
         count = serializers.IntegerField()
@@ -158,14 +158,14 @@ class ReviewDetailAPI(APIView):
         frame_color = serializers.CharField(required=True)
         participants = serializers.IntegerField(required=True)
         camera_shot = serializers.CharField(required=True)
-        hashtag_ids = serializers.ListField(required=True, child=serializers.IntegerField())
+        concept_ids = serializers.ListField(required=True, child=serializers.IntegerField())
         goods_amount = serializers.BooleanField(required=True, allow_null=True)
         curl_amount = serializers.BooleanField(required=False, allow_null=True)
         is_public = serializers.BooleanField(required=True)
 
     class OutputSerializer(BaseModelSerializer):
         review_images = serializers.StringRelatedField(many=True)  # type: ignore
-        hashtags = serializers.StringRelatedField(many=True)  # type: ignore
+        concepts = serializers.StringRelatedField(many=True)  # type: ignore
         is_mine = serializers.SerializerMethodField(method_name="get_is_mine")
         user = serializers.CharField(source="user.nickname")
 

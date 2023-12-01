@@ -9,13 +9,13 @@ class TestReviewSelector:
     def setup_method(self):
         self.review_selector = ReviewSelector()
 
-    def test_get_review_with_review_images_and_hashtags_by_id_success(self, review):
-        review = self.review_selector.get_review_with_review_images_and_hashtags_by_id(review.id)
+    def test_get_review_with_review_images_and_concepts_by_id_success(self, review):
+        review = self.review_selector.get_review_with_review_images_and_concepts_by_id(review.id)
         assert review is not None
 
-    def test_get_review_with_review_images_and_hashtags_by_id_fail_does_not_exist(self):
+    def test_get_review_with_review_images_and_concepts_by_id_fail_does_not_exist(self):
         review_id = 1
-        review = self.review_selector.get_review_with_review_images_and_hashtags_by_id(review_id)
+        review = self.review_selector.get_review_with_review_images_and_concepts_by_id(review_id)
         assert review is None
 
     def test_get_review_by_id_success(self, review):
@@ -67,8 +67,8 @@ class TestReviewSelector:
         review_count = self.review_selector.get_review_count({"camera_shot": "red1"})
         assert review_count == 3
 
-    def test_get_review_count_success_with_hashtags(self, review_list):
-        review_count = self.review_selector.get_review_count({"hashtags": "1"})
+    def test_get_review_count_success_with_concepts(self, review_list):
+        review_count = self.review_selector.get_review_count({"concepts": "1"})
         assert review_count == 3
 
     def test_get_review_list_success_all(self, review_list):
@@ -87,6 +87,6 @@ class TestReviewSelector:
         review_queryset = self.review_selector.get_review_list({"camera_shot": "red1"})
         assert review_queryset.count() == 3
 
-    def test_get_review_list_success_with_hashtags(self, review_list):
-        review_queryset = self.review_selector.get_review_list({"hashtags": "1"})
+    def test_get_review_list_success_with_concepts(self, review_list):
+        review_queryset = self.review_selector.get_review_list({"concepts": "1"})
         assert review_queryset.count() == 3

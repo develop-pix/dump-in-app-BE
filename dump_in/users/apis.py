@@ -104,7 +104,7 @@ class MyReviewAPI(APIView):
     class OutputSerializer(BaseSerializer):
         review_id = serializers.IntegerField(source="id")
         review_images = serializers.StringRelatedField(many=True)  # type: ignore
-        # photo_booth_location = serializers.CharField(source="photo_booth.location")
+        # photo_booth_name = serializers.CharField(source="photo_booth.name")
 
     @swagger_auto_schema(
         tags=["유저"],
@@ -146,7 +146,7 @@ class MyReviewLikeAPI(APIView):
     class OutputSerializer(BaseSerializer):
         review_id = serializers.IntegerField(source="id")
         review_images = serializers.StringRelatedField(many=True)  # type: ignore
-        # photo_booth_location = serializers.CharField(source="photo_booth.location")
+        # photo_booth_name = serializers.CharField(source="photo_booth.name")
 
     @swagger_auto_schema(
         tags=["유저"],

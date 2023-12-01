@@ -1,12 +1,13 @@
-import random
 from datetime import datetime
 
 import factory
+import pytz
 from django.contrib.auth.models import Group
+from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyDateTime, FuzzyInteger, FuzzyText
 from faker import Faker
 
-from dump_in.photo_booths.models import PhotoBooth
-from dump_in.reviews.models import HashTag, Review, ReviewImage
+from dump_in.photo_booths.models import PhotoBooth, PhotoBoothBrand
+from dump_in.reviews.models import Concept, Review, ReviewImage
 from dump_in.users.models import User, UserSocialProvider
 
 faker = Faker()
@@ -15,7 +16,7 @@ faker = Faker()
 class UserSocialProviderFactory(factory.django.DjangoModelFactory):
     id = factory.Iterator(range(1, 5))
     name = factory.Iterator(["kakao", "naver", "apple", "email"])
-    description = factory.LazyAttribute(lambda _: faker.text(max_nb_chars=128))
+    description = FuzzyText(length=128)
 
     class Meta:
         model = UserSocialProvider
@@ -39,8 +40,8 @@ class UserFactory(factory.django.DjangoModelFactory):
     is_admin = faker.pybool()
     is_agree_privacy = True
     is_agree_marketing = faker.pybool()
-    gender = faker.random_element(elements=("M", "F"))
-    birth = faker.date()
+    gender = FuzzyChoice(choices=["M", "F"])
+    birth = FuzzyDate(start_date=datetime(1990, 1, 1), end_date=datetime(2000, 12, 31))
 
     class Meta:
         model = User
@@ -59,35 +60,58 @@ class UserFactory(factory.django.DjangoModelFactory):
                 self.groups.add(group)
 
 
+class PhotoBoothBrandFactory(factory.django.DjangoModelFactory):
+    id = factory.Sequence(lambda n: n)
+    name = FuzzyText(length=64)
+    description = FuzzyText(length=128)
+    photo_booth_url = faker.url()
+    main_thumbnail_image_url = faker.image_url()
+    logo_image_url = faker.image_url()
+    is_event = faker.pybool()
+    # category = factory.LazyAttribute(lambda _: faker.text(max_nb_chars=64))
+
+    class Meta:
+        model = PhotoBoothBrand
+
+
 class PhotoBoothFactory(factory.django.DjangoModelFactory):
     id = factory.LazyAttribute(lambda _: faker.uuid4())
-    created_at = datetime.now()
-    updated_at = datetime.now()
+    name = FuzzyText(length=64)
+    latitude = faker.latitude()
+    longitude = faker.longitude()
+    street_address = FuzzyText(length=64)
+    road_address = FuzzyText(length=64)
+    operating_time = FuzzyText(length=64)
+    like_count = FuzzyInteger(low=0, high=1000)
+    view_count = FuzzyInteger(low=0, high=1000)
+    photo_booth_brand = factory.SubFactory(PhotoBoothBrandFactory)
+    created_at = FuzzyDateTime(datetime(2023, 11, 11, tzinfo=pytz.timezone("Asia/Seoul")))
+    updated_at = FuzzyDateTime(datetime(2023, 11, 11, tzinfo=pytz.timezone("Asia/Seoul")))
 
     class Meta:
         model = PhotoBooth
 
 
-class HashTagFactory(factory.django.DjangoModelFactory):
+class ConceptFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda n: n)
-    name = factory.Sequence(lambda n: f"hash{n}")
+    name = factory.Sequence(lambda n: f"concept{n}")
 
     class Meta:
-        model = HashTag
+        model = Concept
 
 
 class ReviewFactory(factory.django.DjangoModelFactory):
     content = faker.text()
     is_deleted = False
     date = faker.date()
-    frame_color = factory.LazyAttribute(lambda _: faker.text(max_nb_chars=8))
-    participants = factory.LazyAttribute(lambda _: random.randint(1, 6))
-    camera_shot = factory.LazyAttribute(lambda _: faker.text(max_nb_chars=8))
+    frame_color = faker.color()
+    participants = FuzzyInteger(low=0, high=6)
+    camera_shot = FuzzyText(length=8)
     goods_amount = faker.pybool()
     curl_amount = faker.pybool()
     is_public = True
-    view_count = faker.random_number()
-    like_count = faker.random_number()
+    like_count = FuzzyInteger(low=0, high=1000)
+    view_count = FuzzyInteger(low=0, high=1000)
     user = factory.SubFactory(UserFactory)
     photo_booth = factory.SubFactory(PhotoBoothFactory)
 
@@ -95,10 +119,10 @@ class ReviewFactory(factory.django.DjangoModelFactory):
         model = Review
 
     @factory.post_generation
-    def hashtags(self, create, extracted, **kwargs):
+    def concepts(self, create, extracted, **kwargs):
         if extracted:
-            for hashtag in extracted:
-                self.hashtags.add(hashtag)
+            for concept in extracted:
+                self.concepts.add(concept)
 
     @factory.post_generation
     def user_review_like_logs(self, create, extracted, **kwargs):
