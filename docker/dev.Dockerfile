@@ -10,8 +10,7 @@ ENV LD_LIBRARY_PATH="/usr/local/lib"
 RUN apt-get update \
     && apt-get install -y binutils \
 	libproj-dev \
-	gdal-bin \
-	python-gdal
+	gdal-bin
 
 RUN python3 -m venv $POETRY_VENV \
 	&& $POETRY_VENV/bin/pip install -U pip setuptools \
