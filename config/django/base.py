@@ -2,12 +2,6 @@ import os
 import logging
 
 from config.env import BASE_DIR, APPS_DIR, env
-from django.conf import settings
-
-print("_________________________________________________________")
-print("GEOS_LIBRARY_PATH", settings.GEOS_LIBRARY_PATH)
-print("GDAL_LIBRARY_PATH", settings.GDAL_LIBRARY_PATH)
-print("_________________________________________________________")
 
 env.read_env(os.path.join(BASE_DIR, ".env.django"))
 
@@ -214,6 +208,7 @@ from config.settings.oauth import *  # noqa
 from config.settings.jwt import *  # noqa
 from config.settings.celery import *  # noqa
 from config.settings.slack import *  # noqa
+from config.settings.geo import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
