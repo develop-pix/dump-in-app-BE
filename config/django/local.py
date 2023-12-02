@@ -11,3 +11,6 @@ DATABASES = {
         "PORT": env("POSTGRESQL_PORT", default="5432"),
     }
 }
+
+GEOS_LIBRARY_PATH = env.str("GEOS_LIBRARY_PATH")
+GDAL_LIBRARY_PATH = env.str("GDAL_LIBRARY_PATH")
