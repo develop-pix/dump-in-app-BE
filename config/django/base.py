@@ -30,6 +30,7 @@ THIRD_PARTY_APPS = [
     "django_celery_beat",
     "corsheaders",
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 INSTALLED_APPS = [
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
     *THIRD_PARTY_APPS,
     *LOCAL_APPS,
 ]
@@ -183,7 +185,9 @@ LOGGING = {
             "level": "INFO",
         },
         # "django.db.backends": {
-        #     "handlers": ["console",],
+        #     "handlers": [
+        #         "console",
+        #     ],
         #     "level": "DEBUG",
         # },
     },
@@ -204,6 +208,7 @@ from config.settings.oauth import *  # noqa
 from config.settings.jwt import *  # noqa
 from config.settings.celery import *  # noqa
 from config.settings.slack import *  # noqa
+from config.settings.geo import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa

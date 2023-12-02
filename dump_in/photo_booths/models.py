@@ -1,3 +1,4 @@
+from django.contrib.gis.db.models import PointField
 from django.db import models
 
 from dump_in.common.base.models import BaseModel, SimpleModel
@@ -9,7 +10,7 @@ class PhotoBoothBrand(SimpleModel):
     main_thumbnail_image_url = models.URLField(max_length=512, null=True)
     logo_image_url = models.URLField(max_length=512, null=True)
     is_event = models.BooleanField(default=False)
-    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True)
+    hashtag = models.ManyToManyField("Hashtag", related_name="photo_booth_brands")
 
     def __str__(self):
         return f"[{self.id}] {self.name}"
@@ -22,9 +23,11 @@ class PhotoBoothBrand(SimpleModel):
 
 class PhotoBooth(BaseModel):
     id = models.UUIDField(primary_key=True, editable=False)
+    location = models.CharField(max_length=32)
     name = models.CharField(max_length=64)
     latitude = models.DecimalField(max_digits=13, decimal_places=10)
     longitude = models.DecimalField(max_digits=13, decimal_places=10)
+    point = PointField(null=True)
     street_address = models.CharField(max_length=64)
     road_address = models.CharField(max_length=64)
     operating_time = models.CharField(max_length=64)
@@ -68,11 +71,11 @@ class UserPhotoBoothLikeLog(BaseModel):
         verbose_name_plural = "user photo booth like logs"
 
 
-class Category(SimpleModel):
+class Hashtag(SimpleModel):
     def __str__(self):
         return f"[{self.id}] {self.name}"
 
     class Meta:
-        db_table = "category"
-        verbose_name = "category"
-        verbose_name_plural = "categories"
+        db_table = "hashtag"
+        verbose_name = "hashtag"
+        verbose_name_plural = "hashtags"

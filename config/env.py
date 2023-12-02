@@ -1,4 +1,5 @@
 import environ
+
 from django.core.exceptions import ImproperlyConfigured
 
 env = environ.Env()

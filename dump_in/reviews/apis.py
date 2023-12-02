@@ -173,7 +173,7 @@ class ReviewDetailAPI(APIView):
             model = Review
             exclude = ["is_deleted", "is_public", "user_review_like_logs"]
 
-        def get_is_mine(self, obj):
+        def get_is_mine(self, obj) -> bool:
             if self.context["user"] == obj.user:
                 return True
             return False
