@@ -208,7 +208,6 @@ from config.settings.oauth import *  # noqa
 from config.settings.jwt import *  # noqa
 from config.settings.celery import *  # noqa
 from config.settings.slack import *  # noqa
-from config.settings.geo import *  # noqa
 
 from config.settings.debug_toolbar.settings import *  # noqa
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa
