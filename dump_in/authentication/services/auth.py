@@ -6,7 +6,7 @@ from dump_in.users.selectors.users import UserSelector
 
 
 class AuthService:
-    def generate_token(self, user: User):
+    def generate_token(self, user: User) -> tuple[str, str]:
         refresh_token = RefreshToken.for_user(user)
         return str(refresh_token), str(refresh_token.access_token)
 
