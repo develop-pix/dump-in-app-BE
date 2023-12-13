@@ -18,6 +18,18 @@ class TestKakaoLoginRedirectAPI:
         assert response.status_code == 302
         assert response.url == "https://kauth.kakao.com/oauth/authorize"
 
+    def test_kakao_login_redirect_api_fail(self, api_client, mocker):
+        mock_response = mocker.Mock()
+        mock_response.status_code = 400
+
+        mocker.patch("dump_in.authentication.services.kakao_oauth.requests.get", return_value=mock_response)
+
+        response = api_client.get(path=self.url)
+
+        assert response.status_code == 401
+        assert response.data["code"] == AuthenticationFailedException.code
+        assert response.data["message"] == "Failed to get authorization url from Kakao."
+
 
 class TestKakaoLoginAPI:
     url = reverse("api-auth:kakao-login-callback")

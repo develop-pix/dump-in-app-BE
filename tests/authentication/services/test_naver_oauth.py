@@ -1,8 +1,12 @@
 import pytest
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.test import override_settings
 
 from dump_in.authentication.services.naver_oauth import (
     NaverAccessToken,
     NaverLoginFlowService,
+    naver_login_get_credentials,
 )
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 
@@ -21,7 +25,7 @@ class TestNaverLoginFlowService:
         authorization_url = self.service.get_authorization_url()
         assert authorization_url == "https://nid.naver.com/oauth2.0/authorize"
 
-    def test_get_authorization_url_fail(self, mocker):
+    def test_get_authorization_url_fail_response_not_200(self, mocker):
         mock_response = mocker.Mock()
         mock_response.status_code = 401
         mock_response.url = "https://nid.naver.com/oauth2.0/authorize"
@@ -44,7 +48,7 @@ class TestNaverLoginFlowService:
         token = self.service.get_token("test_code", "test_state")
         assert token.access_token == "test_access_token"
 
-    def test_get_token_fail(self, mocker):
+    def test_get_token_fail_response_not_200(self, mocker):
         mock_response = mocker.Mock()
         mock_response.status_code = 401
         mock_response.text = '{"access_token": "test_access_token"}'
@@ -82,7 +86,7 @@ class TestNaverLoginFlowService:
         assert user_info["birthyear"] == "2023"
         assert user_info["birthday"] == "01-01"
 
-    def test_get_user_info_fail(self, mocker):
+    def test_get_user_info_fail_response_not_200(self, mocker):
         mock_response = mocker.Mock()
         mock_response.status_code = 401
 
@@ -93,3 +97,22 @@ class TestNaverLoginFlowService:
 
         assert e.value.detail == "Failed to get user info from Naver."
         assert e.value.status_code == 401
+
+    def test_naver_login_get_credentials_success(self):
+        credentials = naver_login_get_credentials()
+        assert credentials.client_id == settings.NAVER_CLIENT_ID
+        assert credentials.client_secret == settings.NAVER_CLIENT_SECRET
+
+    @override_settings(NAVER_CLIENT_ID=None)
+    def test_naver_login_get_credentials_fail_client_id_missing(self):
+        with pytest.raises(ImproperlyConfigured) as e:
+            naver_login_get_credentials()
+
+        assert str(e.value) == "NAVER_CLIENT_ID missing in env."
+
+    @override_settings(NAVER_CLIENT_SECRET=None)
+    def test_naver_login_get_credentials_fail_client_secret_missing(self):
+        with pytest.raises(ImproperlyConfigured) as e:
+            naver_login_get_credentials()
+
+        assert str(e.value) == "NAVER_CLIENT_SECRET missing in env."

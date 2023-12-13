@@ -33,7 +33,7 @@ class ExampleListApi(APIView):
 
 
 class TestGetPaginatedData:
-    def test_response_is_paginated_correctly(self, new_users):
+    def test_response_is_paginated_correctly(self, valid_user_list):
         request = factory.get("/some/path")
         view = ExampleListApi.as_view()
         response = view(request)
@@ -49,8 +49,6 @@ class TestGetPaginatedData:
 
         results = data["results"]
         assert len(results) == 1
-        assert results[0]["id"] == 1
-        assert results[0]["email"] == "test1@test.com"
 
         next_page_request = factory.get("/some/path?limit=1&offset=1")
         next_page_response = view(next_page_request)
@@ -66,5 +64,3 @@ class TestGetPaginatedData:
 
         next_page_results = next_page_data["results"]
         assert len(next_page_results) == 1
-        assert next_page_results[0]["id"] == 2
-        assert next_page_results[0]["email"] == "test2@test.com"

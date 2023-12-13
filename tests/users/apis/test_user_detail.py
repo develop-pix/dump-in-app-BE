@@ -1,31 +1,34 @@
+import pytest
 from django.urls import reverse
 
 from tests.utils import IsAuthenticateTestCase
+
+pytestmark = pytest.mark.django_db
 
 
 class TestUserDetailAPI(IsAuthenticateTestCase):
     url = reverse("api-users:user-detail")
 
-    def test_user_detail_get_success(self, new_users):
-        access_token = self.obtain_token(new_users)
+    def test_user_detail_get_success(self, valid_user):
+        access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(self.url)
 
         assert response.status_code == 200
         assert response.data["data"] == {
-            "id": 11,
-            "email": "test11@test.com",
-            "nickname": "test11",
+            "id": valid_user.id,
+            "email": valid_user.email,
+            "nickname": valid_user.nickname,
         }
 
     def test_user_detail_get_fail_not_authenticated(self):
         response = self.client.get(self.url)
 
         assert response.status_code == 401
-        assert response.data["message"] == "자격 인증데이터(authentication credentials)가 제공되지 않았습니다."
+        assert response.data["message"] == "Authentication credentials were not provided."
 
-    def test_user_detail_put_success(self, new_users):
-        access_token = self.obtain_token(new_users)
+    def test_user_detail_put_success(self, valid_user):
+        access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.put(
             self.url,
@@ -35,8 +38,8 @@ class TestUserDetailAPI(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"] == {
-            "id": 11,
-            "email": "test11@test.com",
+            "id": valid_user.id,
+            "email": valid_user.email,
             "nickname": "test_nickname",
         }
 
@@ -48,10 +51,29 @@ class TestUserDetailAPI(IsAuthenticateTestCase):
         )
 
         assert response.status_code == 401
-        assert response.data["message"] == "자격 인증데이터(authentication credentials)가 제공되지 않았습니다."
+        assert response.data["message"] == "Authentication credentials were not provided."
 
-    def test_user_detail_delete_success(self, new_users):
-        access_token = self.obtain_token(new_users)
+    def test_user_detail_put_fail_required_nickname(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.put(self.url)
+
+        assert response.status_code == 400
+        assert response.data["message"] == "Invalid parameter format"
+
+    def test_user_detail_put_fail_max_length_nickname(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.put(
+            self.url,
+            data={"nickname": "test_nickname" * 10},
+            format="json",
+        )
+        assert response.status_code == 400
+        assert response.data["message"] == "Invalid parameter format"
+
+    def test_user_detail_delete_success(self, valid_user):
+        access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.delete(self.url)
 
@@ -61,4 +83,4 @@ class TestUserDetailAPI(IsAuthenticateTestCase):
         response = self.client.delete(self.url)
 
         assert response.status_code == 401
-        assert response.data["message"] == "자격 인증데이터(authentication credentials)가 제공되지 않았습니다."
+        assert response.data["message"] == "Authentication credentials were not provided."

@@ -4,16 +4,25 @@ from tests.utils import IsAuthenticateTestCase
 
 
 class TestReviewLikeAPI(IsAuthenticateTestCase):
-    def test_review_like_post_success(self, review, new_users):
-        access_token = self.obtain_token(new_users)
+    def test_review_like_post_success(self, valid_review, valid_user):
+        access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
-        response = self.client.post(reverse("api-reviews:review-like", kwargs={"review_id": review.id}))
+        response = self.client.post(reverse("api-reviews:review-like", kwargs={"review_id": valid_review.id}))
 
         assert response.status_code == 200
-        assert response.data["data"] is not None
+        assert response.data["data"].get("is_liked") is True
 
-    def test_review_like_post_fail_not_authenticated(self, review):
-        response = self.client.post(reverse("api-reviews:review-like", kwargs={"review_id": review.id}))
+    def test_review_like_post_success_already_liked(self, valid_review, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        valid_review.user_review_like_logs.add(valid_user)
+        response = self.client.post(reverse("api-reviews:review-like", kwargs={"review_id": valid_review.id}))
+
+        assert response.status_code == 200
+        assert response.data["data"].get("is_liked") is False
+
+    def test_review_like_post_fail_not_authenticated(self, valid_review):
+        response = self.client.post(reverse("api-reviews:review-like", kwargs={"review_id": valid_review.id}))
 
         assert response.status_code == 401
-        assert response.data["message"] == "자격 인증데이터(authentication credentials)가 제공되지 않았습니다."
+        assert response.data["message"] == "Authentication credentials were not provided."

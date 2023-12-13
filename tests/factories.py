@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import factory
@@ -31,13 +32,10 @@ class GroupFactory(factory.django.DjangoModelFactory):
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    id = factory.Sequence(lambda n: n + 13)
+    id = factory.Sequence(lambda n: n + 10)
     email = factory.LazyAttribute(lambda _: faker.unique.email())
-    username = factory.LazyAttribute(lambda _: faker.unique.user_name())
+    username = FuzzyText(length=16)
     nickname = factory.LazyAttribute(lambda _: faker.unique.user_name())
-    is_active = True
-    is_deleted = faker.pybool()
-    is_admin = faker.pybool()
     is_agree_privacy = True
     is_agree_marketing = faker.pybool()
     gender = FuzzyChoice(choices=["M", "F"])
@@ -48,10 +46,31 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def deleted_at(self, create, extracted, **kwargs):
-        if not self.is_deleted:
-            self.deleted_at = None
+        if isinstance(extracted, datetime):
+            self.deleted_at = extracted
         else:
-            self.deleted_at = faker.date()
+            self.deleted_at = None
+
+    @factory.post_generation
+    def is_deleted(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_deleted = extracted
+        else:
+            self.is_deleted = False
+
+    @factory.post_generation
+    def is_admin(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_admin = extracted
+        else:
+            self.is_admin = False
+
+    @factory.post_generation
+    def is_active(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_active = extracted
+        else:
+            self.is_active = True
 
     @factory.post_generation
     def groups(self, create, extracted, **kwargs):
@@ -67,21 +86,41 @@ class PhotoBoothBrandFactory(factory.django.DjangoModelFactory):
     photo_booth_url = faker.url()
     main_thumbnail_image_url = faker.image_url()
     logo_image_url = faker.image_url()
-    is_event = faker.pybool()
-    # category = factory.LazyAttribute(lambda _: faker.text(max_nb_chars=64))
 
     class Meta:
         model = PhotoBoothBrand
+
+    @factory.post_generation
+    def is_event(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_event = extracted
+        else:
+            self.is_event = False
+
+    @factory.post_generation
+    def hashtag(self, create, extracted, **kwargs):
+        if extracted:
+            for hashtag in extracted:
+                self.hashtag.add(hashtag)
 
 
 class PhotoBoothFactory(factory.django.DjangoModelFactory):
     id = factory.LazyAttribute(lambda _: faker.uuid4())
     name = FuzzyText(length=64)
+    location = FuzzyText(length=32)
     latitude = faker.latitude()
     longitude = faker.longitude()
+    point = factory.LazyAttribute(
+        lambda _: json.dumps(
+            {
+                "type": "Point",
+                "coordinates": [37.55466577566926, 126.97061201527232],
+            }
+        )
+    )  # 서울역
     street_address = FuzzyText(length=64)
     road_address = FuzzyText(length=64)
-    operating_time = FuzzyText(length=64)
+    operation_time = FuzzyText(length=64)
     like_count = FuzzyInteger(low=0, high=1000)
     view_count = FuzzyInteger(low=0, high=1000)
     photo_booth_brand = factory.SubFactory(PhotoBoothBrandFactory)
@@ -102,27 +141,40 @@ class ConceptFactory(factory.django.DjangoModelFactory):
 
 class ReviewFactory(factory.django.DjangoModelFactory):
     content = faker.text()
-    is_deleted = False
+    main_thumbnail_image_url = faker.image_url()
     date = faker.date()
     frame_color = faker.color()
     participants = FuzzyInteger(low=0, high=6)
     camera_shot = FuzzyText(length=8)
     goods_amount = faker.pybool()
     curl_amount = faker.pybool()
-    is_public = True
     like_count = FuzzyInteger(low=0, high=1000)
     view_count = FuzzyInteger(low=0, high=1000)
-    user = factory.SubFactory(UserFactory)
     photo_booth = factory.SubFactory(PhotoBoothFactory)
+    user = factory.SubFactory(UserFactory)
 
     class Meta:
         model = Review
 
     @factory.post_generation
-    def concepts(self, create, extracted, **kwargs):
+    def is_deleted(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_deleted = extracted
+        else:
+            self.is_deleted = False
+
+    @factory.post_generation
+    def is_public(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_public = extracted
+        else:
+            self.is_public = True
+
+    @factory.post_generation
+    def concept(self, create, extracted, **kwargs):
         if extracted:
             for concept in extracted:
-                self.concepts.add(concept)
+                self.concept.add(concept)
 
     @factory.post_generation
     def user_review_like_logs(self, create, extracted, **kwargs):
