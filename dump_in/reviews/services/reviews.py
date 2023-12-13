@@ -6,7 +6,6 @@ from django.db.models import F
 from dump_in.common.exception.exceptions import (
     NotFoundException,
     PermissionDeniedException,
-    ValidationException,
 )
 from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 from dump_in.reviews.models import Review, ReviewImage
@@ -19,6 +18,7 @@ class ReviewService:
     @transaction.atomic
     def create_review(
         self,
+        main_thumbnail_image_url: str,
         image_urls: List[str],
         content: str,
         photo_booth_id: str,
@@ -32,9 +32,6 @@ class ReviewService:
         is_public: bool,
         user,
     ) -> Review:
-        if len(image_urls) > 5:
-            raise ValidationException("Image urls must be less than 5")
-
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id)
 
@@ -43,6 +40,7 @@ class ReviewService:
 
         review = Review.objects.create(
             content=content,
+            main_thumbnail_image_url=main_thumbnail_image_url,
             photo_booth=photo_booth,
             date=date,
             frame_color=frame_color,
@@ -65,10 +63,15 @@ class ReviewService:
         )
 
         concept_selector = ConceptSelector()
-        concepts = concept_selector.get_concept_queryset_by_ids(concept_ids)
+        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids)
 
-        if concepts:
-            review.concepts.set(concepts)
+        concept_queryset_ids = [concept.id for concept in concept_queryset]
+
+        if any(concept_id not in concept_queryset_ids for concept_id in concept_ids):
+            raise NotFoundException("Concept does not exist")
+
+        if concept_queryset_ids:
+            review.concept.set(concept_queryset_ids)
 
         return review
 
@@ -76,6 +79,7 @@ class ReviewService:
     def update_review(
         self,
         review_id: int,
+        main_thumbnail_image_url: str,
         image_urls: List[str],
         content: str,
         photo_booth_id: str,
@@ -89,9 +93,6 @@ class ReviewService:
         is_public: bool,
         user,
     ) -> Review:
-        if len(image_urls) > 5:
-            raise ValidationException("Image urls must be less than 5")
-
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id)
 
@@ -99,7 +100,7 @@ class ReviewService:
             raise NotFoundException("PhotoBooth does not exist")
 
         review_selector = ReviewSelector()
-        review = review_selector.get_review_with_review_images_and_concepts_by_id(review_id=review_id)
+        review = review_selector.get_review_by_id(review_id=review_id)
 
         if not review:
             raise NotFoundException("Review does not exist")
@@ -108,6 +109,7 @@ class ReviewService:
             raise PermissionDeniedException()
 
         review.content = content
+        review.main_thumbnail_image_url = main_thumbnail_image_url
         review.photo_booth = photo_booth
         review.date = date
         review.frame_color = frame_color
@@ -119,7 +121,7 @@ class ReviewService:
         review.save()
 
         review_image_selector = ReviewImageSelector()
-        review_images = review_image_selector.get_review_queryset_by_review_id(review_id=review_id)
+        review_images = review_image_selector.get_review_image_queryset_by_review_id(review_id=review_id)
         review_images.delete()
 
         ReviewImage.objects.bulk_create(
@@ -133,10 +135,15 @@ class ReviewService:
         )
 
         concept_selector = ConceptSelector()
-        concepts = concept_selector.get_concept_queryset_by_ids(concept_ids)
+        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids)
 
-        if concepts:
-            review.concepts.set(concepts)
+        concept_queryset_ids = [concept.id for concept in concept_queryset]
+
+        if any(concept_id not in concept_queryset_ids for concept_id in concept_ids):
+            raise NotFoundException("Concept does not exist")
+
+        if concept_queryset_ids:
+            review.concept.set(concept_queryset_ids)
 
         return review
 
@@ -180,7 +187,7 @@ class ReviewService:
     @transaction.atomic
     def view_count_up(self, review_id: int, user) -> Review:
         review_selector = ReviewSelector()
-        review = review_selector.get_review_by_id(review_id=review_id)
+        review = review_selector.get_review_with_user_info_by_id(review_id=review_id, user=user)
 
         if not review:
             raise NotFoundException("Review does not exist")

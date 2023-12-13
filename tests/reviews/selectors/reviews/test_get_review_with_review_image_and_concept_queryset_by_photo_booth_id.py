@@ -9,39 +9,39 @@ from dump_in.reviews.selectors.reviews import ReviewSelector
 pytestmark = pytest.mark.django_db
 
 
-class TestGetReviewWithReviewImageAndConceptQuerysetByPhotoBoothId:
+class TestGetReviewQuerysetWithReviewImageAndConceptByPhotoBoothId:
     def setup_method(self):
         self.review_selector = ReviewSelector()
 
-    def test_get_review_with_review_image_and_concept_queryset_by_photo_booth_id_success(self, valid_review):
+    def test_get_review_queryset_with_review_image_and_concept_by_photo_booth_id_success(self, valid_review):
         review_with_review_image_and_concept_queryset = (
-            self.review_selector.get_review_with_review_image_and_concept_queryset_by_photo_booth_id(valid_review.photo_booth_id)
+            self.review_selector.get_review_queryset_with_review_image_and_concept_by_photo_booth_id(valid_review.photo_booth_id)
         )
 
         assert list(review_with_review_image_and_concept_queryset) == [valid_review]
 
-    def test_get_review_with_review_image_and_concept_queryset_by_photo_booth_id_fail_does_not_exist(self):
+    def test_get_review_queryset_with_review_image_and_concept_by_photo_booth_id_fail_does_not_exist(self):
         review_with_review_image_and_concept_queryset = (
-            self.review_selector.get_review_with_review_image_and_concept_queryset_by_photo_booth_id(uuid.uuid4())
+            self.review_selector.get_review_queryset_with_review_image_and_concept_by_photo_booth_id(uuid.uuid4())
         )
 
         assert list(review_with_review_image_and_concept_queryset) == []
 
-    def test_get_review_with_review_image_and_concept_queryset_by_photo_booth_id_fail_deleted_review(self, deleted_review):
+    def test_get_review_queryset_with_review_image_and_concept_by_photo_booth_id_fail_deleted_review(self, deleted_review):
         review_with_review_image_and_concept_queryset = (
-            self.review_selector.get_review_with_review_image_and_concept_queryset_by_photo_booth_id(deleted_review.photo_booth_id)
+            self.review_selector.get_review_queryset_with_review_image_and_concept_by_photo_booth_id(deleted_review.photo_booth_id)
         )
 
         assert list(review_with_review_image_and_concept_queryset) == []
 
-    def test_get_review_with_review_image_and_concept_queryset_by_photo_booth_id_fail_private_review(self, private_review):
+    def test_get_review_queryset_with_review_image_and_concept_by_photo_booth_id_fail_private_review(self, private_review):
         review_with_review_image_and_concept_queryset = (
-            self.review_selector.get_review_with_review_image_and_concept_queryset_by_photo_booth_id(private_review.photo_booth_id)
+            self.review_selector.get_review_queryset_with_review_image_and_concept_by_photo_booth_id(private_review.photo_booth_id)
         )
 
         assert list(review_with_review_image_and_concept_queryset) == []
 
-    def test_get_review_with_review_image_and_concept_queryset_by_photo_booth_id_prefetch_related_performance(self, valid_review_bulk):
+    def test_get_review_queryset_with_review_image_and_concept_by_photo_booth_id_prefetch_related_performance(self, valid_review_bulk):
         start_time = time.time()
 
         review_list = Review.objects.filter(photo_booth_id=valid_review_bulk[0].photo_booth_id)
@@ -59,7 +59,7 @@ class TestGetReviewWithReviewImageAndConceptQuerysetByPhotoBoothId:
         start_time = time.time()
 
         review_with_review_image_and_concept_queryset = (
-            self.review_selector.get_review_with_review_image_and_concept_queryset_by_photo_booth_id(valid_review_bulk[0].photo_booth_id)
+            self.review_selector.get_review_queryset_with_review_image_and_concept_by_photo_booth_id(valid_review_bulk[0].photo_booth_id)
         )
 
         for review in review_with_review_image_and_concept_queryset:
