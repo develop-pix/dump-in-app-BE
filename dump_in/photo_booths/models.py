@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from django.contrib.gis.db.models import PointField
 from django.db import models
 
@@ -35,6 +37,7 @@ class PhotoBooth(BaseModel):
     view_count = models.PositiveIntegerField(default=0)
     photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.SET_NULL, null=True)
     user_photo_booth_like_logs = models.ManyToManyField(User, through="UserPhotoBoothLikeLog", related_name="photo_booth_like_logs")
+    photo_booth_brand_images_url = Optional[List[str]]
 
     def __str__(self):
         return f"[{self.id}] {self.name}"

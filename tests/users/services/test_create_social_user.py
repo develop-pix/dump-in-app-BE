@@ -2,7 +2,7 @@ import pytest
 from requests.models import Response
 
 from dump_in.users.enums import UserProvider
-from dump_in.users.services.users import UserService
+from dump_in.users.services import UserService
 
 pytestmark = pytest.mark.django_db
 
@@ -31,7 +31,7 @@ class TestCreateSocialUser:
         mock_response.status_code = 200
         mock_response.json = mocker.Mock(return_value={"words": ["mocked_nickname"]})
 
-        mocker.patch("dump_in.users.services.users.requests.get", return_value=mock_response)
+        mocker.patch("dump_in.users.services.requests.get", return_value=mock_response)
 
         user = self.service.create_social_user(
             email="test@test.com",

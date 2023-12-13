@@ -4,7 +4,7 @@ from dump_in.common.exception.exceptions import (
     NotFoundException,
     PermissionDeniedException,
 )
-from dump_in.reviews.services.reviews import ReviewService
+from dump_in.reviews.services import ReviewService
 
 pytestmark = pytest.mark.django_db
 

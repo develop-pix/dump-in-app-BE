@@ -19,7 +19,7 @@ from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 from dump_in.photo_booths.serializers import HashtagSerializer
 from dump_in.reviews.selectors.reviews import ReviewSelector
 from dump_in.users.selectors.users import UserSelector
-from dump_in.users.services.users import UserService
+from dump_in.users.services import UserService
 
 
 class UserDetailAPI(APIView):

@@ -23,7 +23,7 @@ from dump_in.common.response import create_response
 from dump_in.reviews.models import Review
 from dump_in.reviews.selectors.reviews import ReviewSelector
 from dump_in.reviews.serializers import ConceptSerializer, ReviewImageSerializer
-from dump_in.reviews.services.reviews import ReviewService
+from dump_in.reviews.services import ReviewService
 
 
 class ReviewListAPI(APIView):

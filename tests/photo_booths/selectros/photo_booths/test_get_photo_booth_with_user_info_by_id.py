@@ -31,4 +31,4 @@ class TestGetPhotoBoothWithdUserInfoById:
     def test_get_photo_booth_with_user_info_by_id_fail_does_not_exist(self, valid_user):
         photo_booth_data = self.photo_booth_selector.get_photo_booth_with_user_info_by_id(uuid.uuid4(), valid_user)
 
-        assert photo_booth_data == None
+        assert photo_booth_data is None

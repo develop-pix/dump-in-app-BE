@@ -49,8 +49,8 @@ class TestReviewDetailAPI(IsAuthenticateTestCase):
         assert response.data["data"].get("participants") == 1
         assert response.data["data"].get("camera_shot") == "string"
         assert response.data["data"].get("concept")[0].get("id") == 1
-        assert response.data["data"].get("goods_amount") == True
-        assert response.data["data"].get("curl_amount") == True
+        assert response.data["data"].get("goods_amount") is True
+        assert response.data["data"].get("curl_amount") is True
 
     def test_review_detail_put_fail_not_authenticated(self, valid_review):
         response = self.client.put(

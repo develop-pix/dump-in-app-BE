@@ -4,7 +4,7 @@ import uuid
 import pytest
 
 from dump_in.common.exception.exceptions import NotFoundException
-from dump_in.photo_booths.services.photo_booths import PhotoBoothService
+from dump_in.photo_booths.services import PhotoBoothService
 
 
 class TestLikePhotoBooth:

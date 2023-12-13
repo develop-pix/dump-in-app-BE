@@ -4,7 +4,7 @@ import pytest
 
 from dump_in.common.exception.exceptions import NotFoundException
 from dump_in.reviews.models import Review
-from dump_in.reviews.services.reviews import ReviewService
+from dump_in.reviews.services import ReviewService
 
 pytestmark = pytest.mark.django_db
 

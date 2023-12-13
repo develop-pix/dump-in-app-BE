@@ -19,4 +19,4 @@ class TestGetPhotoBoothById:
     def test_get_photo_booth_by_id_fail_does_not_exist(self):
         photo_booth_data = self.photo_booth_selector.get_photo_booth_by_id(uuid.uuid4())
 
-        assert photo_booth_data == None
+        assert photo_booth_data is None

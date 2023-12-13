@@ -21,7 +21,7 @@ from dump_in.photo_booths.serializers import (
     HashtagSerializer,
     PhotoBoothBrandImageSerializer,
 )
-from dump_in.photo_booths.services.photo_booths import PhotoBoothService
+from dump_in.photo_booths.services import PhotoBoothService
 from dump_in.reviews.selectors.reviews import ReviewSelector
 from dump_in.reviews.serializers import ConceptSerializer
 

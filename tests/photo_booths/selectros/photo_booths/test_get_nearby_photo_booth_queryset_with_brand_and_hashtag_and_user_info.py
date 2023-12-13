@@ -85,7 +85,7 @@ class TestGetNearbyPhotoBoothQuerySetWithBrandAndHashtagAndUserInfo:
             user=valid_user,
         )
 
-        assert nearby_photo_booth_queryset.first().is_liked == True
+        assert nearby_photo_booth_queryset.first().is_liked is True
 
     def test_get_nearby_photo_booth_queryset_with_brand_and_hashtag_and_user_info_success_is_liked_false(self, photo_booth, valid_user):
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_queryset_with_brand_and_hashtag_and_user_info(
@@ -94,7 +94,7 @@ class TestGetNearbyPhotoBoothQuerySetWithBrandAndHashtagAndUserInfo:
             user=valid_user,
         )
 
-        assert nearby_photo_booth_queryset.first().is_liked == False
+        assert nearby_photo_booth_queryset.first().is_liked is False
 
     def test_get_nearby_photo_booth_queryset_with_brand_and_hashtag_and_user_info_fail_out_of_range(self, photo_booth, valid_user):
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_queryset_with_brand_and_hashtag_and_user_info(

@@ -1,7 +1,7 @@
 import pytest
 
 from dump_in.users.models import User
-from dump_in.users.services.users import UserService
+from dump_in.users.services import UserService
 
 pytestmark = pytest.mark.django_db
 

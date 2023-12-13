@@ -1,7 +1,7 @@
 import pytest
 
 from dump_in.common.exception.exceptions import ValidationException
-from dump_in.users.services.users import UserService
+from dump_in.users.services import UserService
 
 pytestmark = pytest.mark.django_db
 

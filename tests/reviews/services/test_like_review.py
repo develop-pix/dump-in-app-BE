@@ -3,7 +3,7 @@ import concurrent.futures
 import pytest
 
 from dump_in.common.exception.exceptions import NotFoundException
-from dump_in.reviews.services.reviews import ReviewService
+from dump_in.reviews.services import ReviewService
 
 pytestmark = pytest.mark.django_db
 
@@ -15,7 +15,7 @@ class TestLikeReview:
     def test_like_review_success(self, valid_review, valid_user):
         review, is_liked = self.review_service.like_review(review_id=valid_review.id, user=valid_user)
 
-        assert is_liked == True
+        assert is_liked is True
         assert review.user_review_like_logs.count() == 1
 
     def test_like_review_success_already_like(self, valid_review, valid_user):

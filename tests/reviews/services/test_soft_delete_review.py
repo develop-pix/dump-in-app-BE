@@ -4,7 +4,7 @@ from dump_in.common.exception.exceptions import (
     NotFoundException,
     PermissionDeniedException,
 )
-from dump_in.reviews.services.reviews import ReviewService
+from dump_in.reviews.services import ReviewService
 
 pytestmark = pytest.mark.django_db
 
@@ -16,7 +16,7 @@ class TestSoftDeleteReview:
     def test_soft_delete_review_success(self, valid_review):
         review = self.review_service.soft_delete_review(review_id=valid_review.id, user=valid_review.user)
 
-        assert review.is_deleted == True
+        assert review.is_deleted is True
 
     def test_soft_delete_review_fail_review_does_not_exist(self, valid_user):
         with pytest.raises(NotFoundException) as e:
