@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
     *THIRD_PARTY_APPS,
     *LOCAL_APPS,
 ]
@@ -82,7 +83,7 @@ ASGI_APPLICATION = "config.asgi.application"
 if os.environ.get("GITHUB_WORKFLOW"):
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
             "NAME": "github_actions",
             "USER": "postgres",
             "PASSWORD": "password",
@@ -114,7 +115,7 @@ PASSWORD_HASHERS = [
 AUTH_USER_MODEL = "users.User"
 
 # Internationalization
-LANGUAGE_CODE = "ko-kr"
+LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Seoul"
 
@@ -183,7 +184,7 @@ LOGGING = {
             "level": "INFO",
         },
         # "django.db.backends": {
-        #     "handlers": ["console",],
+        #     "handlers": ["console"],
         #     "level": "DEBUG",
         # },
     },

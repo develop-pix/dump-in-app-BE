@@ -1,5 +1,4 @@
 from config.env import env
-
 from config.django.base import *  # noqa
 
 SECRET_KEY = env("SECRET_KEY")
@@ -10,12 +9,12 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("POSTGRESQL_DATABASE"),
-        "USER": env("POSTGRESQL_USER"),
-        "PASSWORD": env("POSTGRESQL_PASSWORD"),
-        "HOST": env("POSTGRESQL_HOST"),
-        "PORT": env("POSTGRESQL_PORT"),
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": env("PROD_POSTGRESQL_DATABASE"),
+        "USER": env("PROD_POSTGRESQL_USER"),
+        "PASSWORD": env("PROD_POSTGRESQL_PASSWORD"),
+        "HOST": env("PORD_POSTGRESQL_HOST"),
+        "PORT": env("PROD_POSTGRESQL_PORT"),
     }
 }
 

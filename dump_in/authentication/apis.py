@@ -23,7 +23,7 @@ from dump_in.common.base.serializers import (
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 from dump_in.common.response import create_response
 from dump_in.users.enums import UserProvider
-from dump_in.users.services.users import UserService
+from dump_in.users.services import UserService
 
 
 class UserJWTRefreshAPI(TokenRefreshView):

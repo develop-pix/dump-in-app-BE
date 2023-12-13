@@ -1,11 +1,11 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 from dump_in.common.base.serializers import (
     BaseModelSerializer,
@@ -22,7 +22,8 @@ from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
 from dump_in.reviews.models import Review
 from dump_in.reviews.selectors.reviews import ReviewSelector
-from dump_in.reviews.services.reviews import ReviewService
+from dump_in.reviews.serializers import ConceptSerializer, ReviewImageSerializer
+from dump_in.reviews.services import ReviewService
 
 
 class ReviewListAPI(APIView):
@@ -33,18 +34,18 @@ class ReviewListAPI(APIView):
         default_limit = 10
 
     class FilterSerializer(BaseSerializer):
-        location = serializers.CharField(required=False)
+        photo_booth_location = serializers.CharField(required=False)
         frame_color = serializers.CharField(required=False)
         participants = serializers.CharField(required=False)
         camera_shot = serializers.CharField(required=False)
-        hashtags = serializers.CharField(required=False)
+        concept = serializers.CharField(required=False)
         limit = serializers.IntegerField(required=False)
         offset = serializers.IntegerField(required=False)
 
     class OutputSerializer(BaseSerializer):
         review_id = serializers.IntegerField(source="id")
-        review_images = serializers.StringRelatedField(many=True)  # type: ignore
-        # photo_booth_location = serializers.CharField(source="photo_booth.location")
+        main_thumbnail_image_url = serializers.URLField()
+        photo_booth_name = serializers.CharField(source="photo_booth.name")
 
     @swagger_auto_schema(
         tags=["리뷰"],
@@ -52,7 +53,7 @@ class ReviewListAPI(APIView):
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request) -> Response:
@@ -74,15 +75,16 @@ class ReviewListAPI(APIView):
         return create_response(data=pagination_reviews_data, status_code=status.HTTP_200_OK)
 
     class InputSerializer(BaseSerializer):
-        image_urls = serializers.ListField(required=True, min_length=1, max_length=5)
+        main_thumbnail_image_url = serializers.URLField(required=True)
+        image_urls = serializers.ListField(required=True, min_length=1, max_length=4, child=serializers.URLField())
         content = serializers.CharField(required=True)
-        photo_booth_id = serializers.IntegerField(required=True)
+        photo_booth_id = serializers.UUIDField(required=True)
         date = serializers.DateField(required=True)
         frame_color = serializers.CharField(required=True)
         participants = serializers.IntegerField(required=True)
         camera_shot = serializers.CharField(required=True)
-        hashtag_ids = serializers.ListField(required=True, child=serializers.IntegerField())
-        goods_amount = serializers.BooleanField(required=True, allow_null=True)
+        concept_ids = serializers.ListField(required=True, child=serializers.IntegerField())
+        goods_amount = serializers.BooleanField(required=False, allow_null=True)
         curl_amount = serializers.BooleanField(required=False, allow_null=True)
         is_public = serializers.BooleanField(required=True)
 
@@ -93,7 +95,7 @@ class ReviewListAPI(APIView):
         responses={
             status.HTTP_201_CREATED: BaseResponseSerializer(data_serializer=OutputSerializer),
             status.HTTP_400_BAD_REQUEST: BaseResponseExceptionSerializer(exception=ValidationException),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
             status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
@@ -115,11 +117,11 @@ class ReviewListCountAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        location = serializers.CharField(required=False)
+        photo_booth_location = serializers.CharField(required=False)
         frame_color = serializers.CharField(required=False)
         participants = serializers.CharField(required=False)
         camera_shot = serializers.CharField(required=False)
-        hashtags = serializers.CharField(required=False)
+        concept = serializers.CharField(required=False)
 
     class OutputSerializer(BaseSerializer):
         count = serializers.IntegerField()
@@ -130,7 +132,7 @@ class ReviewListCountAPI(APIView):
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request) -> Response:
@@ -151,39 +153,36 @@ class ReviewDetailAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class InputSerializer(BaseSerializer):
-        image_urls = serializers.ListField(required=True, min_length=1, max_length=5)
+        main_thumbnail_image_url = serializers.URLField(required=True)
+        image_urls = serializers.ListField(required=True, min_length=1, max_length=4, child=serializers.URLField())
         content = serializers.CharField(required=True)
-        photo_booth_id = serializers.IntegerField(required=True)
+        photo_booth_id = serializers.UUIDField(required=True)
         date = serializers.DateField(required=True)
         frame_color = serializers.CharField(required=True)
         participants = serializers.IntegerField(required=True)
         camera_shot = serializers.CharField(required=True)
-        hashtag_ids = serializers.ListField(required=True, child=serializers.IntegerField())
-        goods_amount = serializers.BooleanField(required=True, allow_null=True)
+        concept_ids = serializers.ListField(required=True, child=serializers.IntegerField())
+        goods_amount = serializers.BooleanField(required=False, allow_null=True)
         curl_amount = serializers.BooleanField(required=False, allow_null=True)
         is_public = serializers.BooleanField(required=True)
 
-    class OutputSerializer(BaseModelSerializer):
-        review_images = serializers.StringRelatedField(many=True)  # type: ignore
-        hashtags = serializers.StringRelatedField(many=True)  # type: ignore
-        is_mine = serializers.SerializerMethodField(method_name="get_is_mine")
+    class GetOutputSerializer(BaseModelSerializer):
+        review_image = ReviewImageSerializer(many=True)
+        concept = ConceptSerializer(many=True)
+        is_mine = serializers.BooleanField()
+        is_liked = serializers.BooleanField()
         user = serializers.CharField(source="user.nickname")
 
         class Meta:
             model = Review
             exclude = ["is_deleted", "is_public", "user_review_like_logs"]
 
-        def get_is_mine(self, obj):
-            if self.context["user"] == obj.user:
-                return True
-            return False
-
     @swagger_auto_schema(
         tags=["리뷰"],
         operation_summary="리뷰 상세 조회",
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=GetOutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
             status.HTTP_403_FORBIDDEN: BaseResponseExceptionSerializer(exception=PermissionDeniedException),
             status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
@@ -195,17 +194,26 @@ class ReviewDetailAPI(APIView):
         """
         review_service = ReviewService()
         review = review_service.view_count_up(review_id=review_id, user=request.user)
-        review_data = self.OutputSerializer(review, context={"user": request.user}).data
+        review_data = self.GetOutputSerializer(review).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)
+
+    class PutOutputSerializer(BaseModelSerializer):
+        review_image = ReviewImageSerializer(many=True)
+        concept = ConceptSerializer(many=True)
+        user = serializers.CharField(source="user.nickname")
+
+        class Meta:
+            model = Review
+            exclude = ["is_deleted", "is_public", "user_review_like_logs"]
 
     @swagger_auto_schema(
         tags=["리뷰"],
         operation_summary="리뷰 수정",
         request_body=InputSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=PutOutputSerializer),
             status.HTTP_400_BAD_REQUEST: BaseResponseExceptionSerializer(exception=ValidationException),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
             status.HTTP_403_FORBIDDEN: BaseResponseExceptionSerializer(exception=PermissionDeniedException),
             status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
@@ -219,7 +227,7 @@ class ReviewDetailAPI(APIView):
         input_serializer.is_valid(raise_exception=True)
         review_service = ReviewService()
         review = review_service.update_review(review_id=review_id, **input_serializer.validated_data, user=request.user)
-        review_data = self.OutputSerializer(review, context={"user": request.user}).data
+        review_data = self.PutOutputSerializer(review).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -227,7 +235,7 @@ class ReviewDetailAPI(APIView):
         operation_summary="리뷰 삭제",
         responses={
             status.HTTP_204_NO_CONTENT: "",
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
             status.HTTP_403_FORBIDDEN: BaseResponseExceptionSerializer(exception=PermissionDeniedException),
             status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
@@ -255,7 +263,7 @@ class ReviewLikeAPI(APIView):
         operation_summary="리뷰 좋아요",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailed),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
             status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )

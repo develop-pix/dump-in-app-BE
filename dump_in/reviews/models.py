@@ -5,18 +5,19 @@ from dump_in.photo_booths.models import PhotoBooth
 from dump_in.users.models import User
 
 
-class HashTag(SimpleModel):
+class Concept(SimpleModel):
     def __str__(self):
         return f"[{self.id}]: {self.name}"
 
     class Meta:
-        db_table = "hashtag"
-        verbose_name = "hashtag"
-        verbose_name_plural = "hashtags"
+        db_table = "concept"
+        verbose_name = "concept"
+        verbose_name_plural = "concepts"
 
 
 class Review(BaseModel):
     content = models.TextField()
+    main_thumbnail_image_url = models.URLField()
     is_deleted = models.BooleanField(default=False)
     date = models.DateField()
     frame_color = models.CharField(max_length=8)
@@ -27,7 +28,7 @@ class Review(BaseModel):
     is_public = models.BooleanField(default=False)
     view_count = models.PositiveIntegerField(default=0)
     like_count = models.PositiveIntegerField(default=0)
-    hashtags = models.ManyToManyField(HashTag, related_name="reviews")
+    concept = models.ManyToManyField(Concept, related_name="reviews")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
     photo_booth = models.ForeignKey(PhotoBooth, on_delete=models.CASCADE, related_name="reviews")
     user_review_like_logs = models.ManyToManyField(User, through="UserReviewLikeLog", related_name="review_like_logs")
@@ -43,7 +44,7 @@ class Review(BaseModel):
 
 class ReviewImage(BaseModel):
     review_image_url = models.URLField()
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="review_images")
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="review_image")
 
     def __str__(self):
         return f"[{self.id}]: {self.review_image_url}"

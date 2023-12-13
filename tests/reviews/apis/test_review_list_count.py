@@ -6,18 +6,16 @@ from tests.utils import IsAuthenticateTestCase
 class TestReviewListCountAPI(IsAuthenticateTestCase):
     url = reverse("api-reviews:review-list-count")
 
-    def test_review_list_count_get_success(self, review_list, new_users):
-        access_token = self.obtain_token(new_users)
+    def test_review_list_count_get_success(self, valid_review_list, valid_user):
+        access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(self.url)
 
         assert response.status_code == 200
-        assert response.data["data"] == {
-            "count": 7,
-        }
+        assert response.data["data"].get("count") == 10
 
-    def test_review_list_count_get_success_with_filter(self, review_list, new_users):
-        access_token = self.obtain_token(new_users)
+    def test_review_list_count_get_success_with_filter(self, valid_review_list_frame_color, valid_user):
+        access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(
             self.url,
@@ -25,12 +23,10 @@ class TestReviewListCountAPI(IsAuthenticateTestCase):
         )
 
         assert response.status_code == 200
-        assert response.data["data"] == {
-            "count": 3,
-        }
+        assert response.data["data"].get("count") == 3
 
     def test_review_list_count_get_fail_not_authenticated(self):
         response = self.client.get(self.url)
 
         assert response.status_code == 401
-        assert response.data["message"] == "자격 인증데이터(authentication credentials)가 제공되지 않았습니다."
+        assert response.data["message"] == "Authentication credentials were not provided."

@@ -116,9 +116,6 @@ jobs:
       - name: Build docker
         run: docker compose -f github-actions.docker-compose.yml build
 
-      - name: Migration test database
-        run: docker compose -f github-actions.docker-compose.yml run django poetry run python manage.py migrate
-
       - name: Run tests
         run:  docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in --cov-fail-under=80 tests/ -n 4 &&
               docker compose -f github-actions.docker-compose.yml run django poetry run pytest --cov=dump_in tests/ --cov-report=xml -n 4

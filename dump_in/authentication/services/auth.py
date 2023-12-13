@@ -1,4 +1,4 @@
-from rest_framework_simplejwt.tokens import RefreshToken, Token
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 from dump_in.users.models import User
@@ -6,7 +6,7 @@ from dump_in.users.selectors.users import UserSelector
 
 
 class AuthService:
-    def generate_token(self, user: User) -> Token:
+    def generate_token(self, user: User) -> tuple[str, str]:
         refresh_token = RefreshToken.for_user(user)
         return str(refresh_token), str(refresh_token.access_token)
 
