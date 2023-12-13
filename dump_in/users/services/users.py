@@ -75,5 +75,5 @@ class UserService:
 
     @transaction.atomic()
     def hard_bulk_delete_users(self, days: int):
-        user = self.user_selector.get_user_queryset_by_delated_at_lte_days(days=days)
-        user.delete()
+        users = self.user_selector.get_user_queryset_by_delated_at_lte_days(days=days)
+        users.delete()

@@ -42,7 +42,7 @@ class User(AbstractBaseUser, BaseModel, PermissionsMixin):
         return self.is_admin
 
     class Meta:
-        db_table = "users"
+        db_table = "user"
 
 
 class UserSocialProvider(SimpleModel):
