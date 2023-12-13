@@ -10,7 +10,8 @@ from dump_in.users.selectors.users import UserSelector
 class AuthService:
     def generate_token(self, user: User) -> Tuple[str, str]:
         refresh_token = RefreshToken.for_user(user)
-        return str(refresh_token), str(refresh_token.access_token)
+        access_token = refresh_token.access_token
+        return str(refresh_token), str(access_token)
 
     def authenticate_user(self, username: str) -> User:
         user_selector = UserSelector()
