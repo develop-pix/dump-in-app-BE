@@ -5,7 +5,9 @@ from rest_framework.test import APIClient
 from dump_in.users.models import User
 from tests.factories import (
     ConceptFactory,
+    EventFactory,
     GroupFactory,
+    HashtagFactory,
     PhotoBoothBrandFactory,
     PhotoBoothFactory,
     ReviewFactory,
@@ -76,8 +78,18 @@ def inactive_user(db):
 
 
 @pytest.fixture
+def photo_booth_brand(db):
+    return PhotoBoothBrandFactory()
+
+
+@pytest.fixture
 def photo_booth_brand_list(db):
     return PhotoBoothBrandFactory.create_batch(3)
+
+
+@pytest.fixture
+def photo_booth_brand_image(db):
+    return PhotoBoothBrandFactory()
 
 
 @pytest.fixture
@@ -104,12 +116,29 @@ def concept_list(db):
 
 @pytest.fixture
 def valid_review(db):
-    return ReviewFactory()
+    photo_booth_brand = PhotoBoothBrandFactory()
+
+    photo_booth = PhotoBoothFactory(
+        photo_booth_brand=photo_booth_brand,
+    )
+
+    return ReviewFactory(
+        photo_booth=photo_booth,
+    )
 
 
 @pytest.fixture
 def valid_review_list(db):
-    return ReviewFactory.create_batch(10)
+    photo_booth_brand = PhotoBoothBrandFactory()
+
+    photo_booth = PhotoBoothFactory(
+        photo_booth_brand=photo_booth_brand,
+    )
+
+    return ReviewFactory.create_batch(
+        size=10,
+        photo_booth=photo_booth,
+    )
 
 
 @pytest.fixture
@@ -141,7 +170,11 @@ def valid_review_list_concept(db):
 
 @pytest.fixture
 def valid_review_bulk(db):
-    photo_booth = PhotoBoothFactory()
+    photo_booth_brand = PhotoBoothBrandFactory()
+
+    photo_booth = PhotoBoothFactory(
+        photo_booth_brand=photo_booth_brand,
+    )
     concept_list = ConceptFactory.create_batch(30)
     review_list = ReviewFactory.create_batch(size=100, photo_booth=photo_booth, concept=concept_list)
 
@@ -169,3 +202,37 @@ def private_review(db):
 @pytest.fixture
 def review_image(db):
     return ReviewImageFactory()
+
+
+@pytest.fixture
+def valid_event(db):
+    hashtag = HashtagFactory()
+
+    photo_booth_brand = PhotoBoothBrandFactory(is_event=True)
+
+    return EventFactory(
+        photo_booth_brand=photo_booth_brand,
+        hashtag=[hashtag],
+    )
+
+
+@pytest.fixture
+def private_event(db):
+    return EventFactory(is_public=False)
+
+
+@pytest.fixture
+def valid_event_list(db):
+    photo_booth_brand = PhotoBoothBrandFactory(is_event=True)
+
+    return EventFactory.create_batch(
+        size=100,
+        photo_booth_brand=photo_booth_brand,
+    )
+
+
+@pytest.fixture
+def invalid_event(db):
+    photo_booth_brand = PhotoBoothBrandFactory(is_event=False)
+
+    return EventFactory(photo_booth_brand=photo_booth_brand)
