@@ -15,6 +15,7 @@ from dump_in.common.base.serializers import (
 from dump_in.common.exception.exceptions import ValidationException
 from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
+from dump_in.events.selectors.events import EventSelector
 from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 from dump_in.photo_booths.serializers import HashtagSerializer
 from dump_in.reviews.selectors.reviews import ReviewSelector
@@ -48,7 +49,7 @@ class UserDetailAPI(APIView):
         url: /app/api/auth/users/detail
         """
         user_selector = UserSelector()
-        user = user_selector.get_user_by_id(request.user.id)
+        user = user_selector.get_user_by_id(user_id=request.user.id)
         user_data = self.OutputSerializer(user).data
         return create_response(data=user_data, status_code=status.HTTP_200_OK)
 
@@ -88,7 +89,7 @@ class UserDetailAPI(APIView):
         url: /app/api/auth/users/detail
         """
         user_service = UserService()
-        user_service.soft_delete_user(request.user.id)
+        user_service.soft_delete_user(user_id=request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -124,7 +125,7 @@ class MyReviewAPI(APIView):
         url: /app/api/users/reviews
         """
         review_selector = ReviewSelector()
-        reviews = review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(request.user)
+        reviews = review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(user=request.user)
         pagination_reviews_data = get_paginated_data(
             pagination_class=self.Pagination,
             serializer_class=self.OutputSerializer,
@@ -167,7 +168,7 @@ class MyReviewLikeAPI(APIView):
         url: /app/api/users/reviews/likes
         """
         review_selector = ReviewSelector()
-        reviews = review_selector.get_review_queryset_with_photo_booth_by_user_like(request.user)
+        reviews = review_selector.get_review_queryset_with_photo_booth_by_user_like(user=request.user)
         pagination_reviews_data = get_paginated_data(
             pagination_class=self.Pagination,
             serializer_class=self.OutputSerializer,
@@ -212,7 +213,7 @@ class MyPhotoBoothLikeAPI(APIView):
         url: /app/api/users/photo-booths/likes
         """
         photo_booth_selector = PhotoBoothSelector()
-        photo_booths = photo_booth_selector.get_photo_booth_queryset_with_brand_and_hashtag_by_user_like(request.user)
+        photo_booths = photo_booth_selector.get_photo_booth_queryset_with_brand_and_hashtag_by_user_like(user=request.user)
         pagination_photo_booths_data = get_paginated_data(
             pagination_class=self.Pagination,
             serializer_class=self.OutputSerializer,
@@ -221,3 +222,48 @@ class MyPhotoBoothLikeAPI(APIView):
             view=self,
         )
         return create_response(data=pagination_photo_booths_data, status_code=status.HTTP_200_OK)
+
+
+class MyEventLikeAPI(APIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
+    class FilterSerializer(BaseSerializer):
+        limit = serializers.IntegerField(required=False)
+        offset = serializers.IntegerField(required=False)
+
+    class OutputSerializer(BaseSerializer):
+        event_id = serializers.UUIDField(source="id")
+        event_title = serializers.CharField(source="title")
+        event_main_thumbnail_image_url = serializers.URLField(source="main_thumbnail_image_url")
+        event_start_date = serializers.DateField(source="start_date")
+        event_end_date = serializers.DateField(source="end_date")
+        is_liked = serializers.BooleanField(default=True)
+
+    @swagger_auto_schema(
+        tags=["유저"],
+        operation_summary="내가 좋아요한 이벤트 조회",
+        query_serializer=FilterSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """
+        인증된 유저가 자신이 좋아요한 이벤트를 조회합니다.
+        url: /app/api/users/events/likes
+        """
+        event_selector = EventSelector()
+        events = event_selector.get_event_queryset_by_user_like(user=request.user)
+        pagination_events_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=events,
+            request=request,
+            view=self,
+        )
+        return create_response(data=pagination_events_data, status_code=status.HTTP_200_OK)
