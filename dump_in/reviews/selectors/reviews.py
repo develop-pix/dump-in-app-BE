@@ -7,9 +7,12 @@ from dump_in.reviews.models import Review
 
 
 class ReviewSelector:
-    def get_review_queryset_with_review_image_and_concept_by_photo_booth_id(self, photo_booth_id: str) -> QuerySet[Review]:
-        return Review.objects.prefetch_related("review_image", "concept").filter(
-            photo_booth_id=photo_booth_id, is_deleted=False, is_public=True
+    def get_review_queryset_with_concept_by_photo_booth_id(self, photo_booth_id: str) -> QuerySet[Review]:
+        return Review.objects.prefetch_related("concept").filter(photo_booth_id=photo_booth_id, is_deleted=False, is_public=True)
+
+    def get_review_queryset_with_concept_by_photo_booth_brand_id(self, photo_booth_brand_id: int) -> QuerySet[Review]:
+        return Review.objects.prefetch_related("concept").filter(
+            photo_booth__photo_booth_brand_id=photo_booth_brand_id, is_deleted=False, is_public=True
         )
 
     def get_review_by_id(self, review_id: int) -> Optional[Review]:
@@ -58,7 +61,6 @@ class ReviewSelector:
     def get_review_count(self, filters: Optional[dict]) -> int:
         filters = filters or {}
         qs = Review.objects.filter(is_deleted=False, is_public=True)
-
         return ReviewFilter(filters, qs).qs.count()
 
     def get_review_list(self, filters: Optional[dict]) -> QuerySet[Review]:

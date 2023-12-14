@@ -1,6 +1,7 @@
 from django.urls import path
 
 from dump_in.users.apis import (
+    MyEventLikeAPI,
     MyPhotoBoothLikeAPI,
     MyReviewAPI,
     MyReviewLikeAPI,
@@ -12,4 +13,5 @@ urlpatterns = [
     path("reviews", MyReviewAPI.as_view(), name="user-review"),
     path("reviews/likes", MyReviewLikeAPI.as_view(), name="user-review-like"),
     path("photo-booths/likes", MyPhotoBoothLikeAPI.as_view(), name="user-photo-booth-like"),
+    path("events/likes", MyEventLikeAPI.as_view(), name="user-event-like"),
 ]

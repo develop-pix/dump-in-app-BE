@@ -10,7 +10,7 @@ def send_slack_for_exception_task(self, exc: str, context: str):
 
     try:
         slack_api = SlackAPI()
-        slack_api.send_slack_for_exception(exc, context)
+        slack_api.send_slack_for_exception(exc=exc, context=context)
 
     except Exception as e:
         logger.warning(f"Exception occurred while sending slack message: {e}")

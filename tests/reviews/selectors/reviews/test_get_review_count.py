@@ -49,6 +49,31 @@ class TestGetReviewCount:
 
         assert review_count == len(valid_review_list_photo_booth_location)
 
+    def test_get_review_count_fail_invalid_frame_color(self, valid_review_list_frame_color):
+        review_count = self.review_selector.get_review_count({"frame_color": "invalid"})
+
+        assert review_count == 0
+
+    def test_get_review_count_fail_invalid_participants(self, valid_review_list_participants):
+        review_count = self.review_selector.get_review_count({"participants": "9999"})
+
+        assert review_count == 0
+
+    def test_get_review_count_fail_invalid_camera_shot(self, valid_review_list_camera_shot):
+        review_count = self.review_selector.get_review_count({"camera_shot": "invalid"})
+
+        assert review_count == 0
+
+    def test_get_review_count_fail_invalid_concept(self, valid_review_list_concept):
+        review_count = self.review_selector.get_review_count({"concept": "9999"})
+
+        assert review_count == 0
+
+    def test_get_review_count_fail_invalid_photo_booth_location(self, valid_review_list_photo_booth_location):
+        review_count = self.review_selector.get_review_count({"photo_booth_location": "invalid"})
+
+        assert review_count == 0
+
     def test_get_review_count_fail_does_not_exist(self):
         review_count = self.review_selector.get_review_count({})
 

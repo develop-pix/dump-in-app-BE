@@ -52,6 +52,31 @@ class TestGetReviewList:
 
         assert review_list.count() == len(valid_review_list_photo_booth_location)
 
+    def test_get_review_list_fail_invalid_frame_color(self, valid_review_list_frame_color):
+        review_list = self.review_selector.get_review_list({"frame_color": "invalid"})
+
+        assert list(review_list) == []
+
+    def test_get_review_list_fail_invalid_participants(self, valid_review_list_participants):
+        review_list = self.review_selector.get_review_list({"participants": "9999"})
+
+        assert list(review_list) == []
+
+    def test_get_review_list_fail_invalid_camera_shot(self, valid_review_list_camera_shot):
+        review_list = self.review_selector.get_review_list({"camera_shot": "invalid"})
+
+        assert list(review_list) == []
+
+    def test_get_review_list_fail_invalid_concept(self, valid_review_list_concept):
+        review_list = self.review_selector.get_review_list({"concept": "9999"})
+
+        assert list(review_list) == []
+
+    def test_get_review_list_fail_invalid_photo_booth_location(self, valid_review_list_photo_booth_location):
+        review_list = self.review_selector.get_review_list({"photo_booth_location": "invalid"})
+
+        assert list(review_list) == []
+
     def test_get_review_list_fail_does_not_exist(self):
         review_list = self.review_selector.get_review_list({})
 

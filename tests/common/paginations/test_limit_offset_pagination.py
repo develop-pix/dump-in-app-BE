@@ -9,7 +9,7 @@ from dump_in.users.models import User
 factory = APIRequestFactory()
 
 
-class ExampleListApi(APIView):
+class LimitOffsetExampleListApi(APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 1
 
@@ -32,10 +32,10 @@ class ExampleListApi(APIView):
         return Response(data=data, status=status.HTTP_200_OK)
 
 
-class TestGetPaginatedData:
+class TestLimitOffsetPagination:
     def test_response_is_paginated_correctly(self, valid_user_list):
         request = factory.get("/some/path")
-        view = ExampleListApi.as_view()
+        view = LimitOffsetExampleListApi.as_view()
         response = view(request)
 
         assert response.status_code == 200

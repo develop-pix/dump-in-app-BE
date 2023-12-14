@@ -22,6 +22,7 @@ LOCAL_APPS = [
     "dump_in.authentication.apps.AuthenticationConfig",
     "dump_in.reviews.apps.ReviewsConfig",
     "dump_in.photo_booths.apps.PhotoBoothsConfig",
+    "dump_in.events.apps.EventsConfig",
 ]
 
 THIRD_PARTY_APPS = [

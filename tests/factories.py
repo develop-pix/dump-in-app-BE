@@ -7,7 +7,13 @@ from django.contrib.auth.models import Group
 from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyDateTime, FuzzyInteger, FuzzyText
 from faker import Faker
 
-from dump_in.photo_booths.models import PhotoBooth, PhotoBoothBrand
+from dump_in.events.models import Event, EventImage
+from dump_in.photo_booths.models import (
+    Hashtag,
+    PhotoBooth,
+    PhotoBoothBrand,
+    PhotoBoothBrandImage,
+)
 from dump_in.reviews.models import Concept, Review, ReviewImage
 from dump_in.users.models import User, UserSocialProvider
 
@@ -79,6 +85,14 @@ class UserFactory(factory.django.DjangoModelFactory):
                 self.groups.add(group)
 
 
+class HashtagFactory(factory.django.DjangoModelFactory):
+    id = factory.Sequence(lambda n: n)
+    name = factory.Sequence(lambda n: f"hashtag{n}")
+
+    class Meta:
+        model = Hashtag
+
+
 class PhotoBoothBrandFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda n: n)
     name = FuzzyText(length=64)
@@ -102,6 +116,14 @@ class PhotoBoothBrandFactory(factory.django.DjangoModelFactory):
         if extracted:
             for hashtag in extracted:
                 self.hashtag.add(hashtag)
+
+
+class PhotoBoothBrandImageFactory(factory.django.DjangoModelFactory):
+    photo_booth_brand_image_url = faker.image_url()
+    photo_booth_brand = factory.SubFactory(PhotoBoothBrandFactory)
+
+    class Meta:
+        model = PhotoBoothBrandImage
 
 
 class PhotoBoothFactory(factory.django.DjangoModelFactory):
@@ -189,3 +211,47 @@ class ReviewImageFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = ReviewImage
+
+
+class EventFactory(factory.django.DjangoModelFactory):
+    id = factory.Sequence(lambda n: n)
+    title = FuzzyText(length=128)
+    content = FuzzyText(length=256)
+    main_thumbnail_image_url = faker.image_url()
+    view_count = FuzzyInteger(low=0, high=1000)
+    like_count = FuzzyInteger(low=0, high=1000)
+    start_date = FuzzyDateTime(datetime(2023, 11, 11, tzinfo=pytz.timezone("Asia/Seoul")))
+    end_date = FuzzyDateTime(datetime(2023, 11, 30, tzinfo=pytz.timezone("Asia/Seoul")))
+    photo_booth_brand = factory.SubFactory(PhotoBoothBrandFactory)
+    created_at = FuzzyDateTime(datetime(2023, 11, 11, tzinfo=pytz.timezone("Asia/Seoul")))
+    updated_at = FuzzyDateTime(datetime(2023, 11, 11, tzinfo=pytz.timezone("Asia/Seoul")))
+
+    class Meta:
+        model = Event
+
+    @factory.post_generation
+    def is_public(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_public = extracted
+        else:
+            self.is_public = True
+
+    @factory.post_generation
+    def hashtag(self, create, extracted, **kwargs):
+        if extracted:
+            for hashtag in extracted:
+                self.hashtag.add(hashtag)
+
+    @factory.post_generation
+    def user_event_like_logs(self, create, extracted, **kwargs):
+        if extracted:
+            for user in extracted:
+                self.user_event_like_logs.add(user)
+
+
+class EventImageFactory(factory.django.DjangoModelFactory):
+    event_image_url = faker.image_url()
+    event = factory.SubFactory(EventFactory)
+
+    class Meta:
+        model = EventImage

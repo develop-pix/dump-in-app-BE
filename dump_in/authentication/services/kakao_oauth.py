@@ -61,6 +61,7 @@ class KakaoLoginFlowService:
             "code": code,
         }
         response = requests.post(self.KAKAO_ACCESS_TOKEN_OBTAIN_URL, data=data)
+
         if response.status_code != 200:
             raise AuthenticationFailedException("Failed to get access token from Kakao.")
 
@@ -70,8 +71,10 @@ class KakaoLoginFlowService:
     def get_user_info(self, kakao_token: KakaoAccessToken) -> Dict[str, Any]:
         access_token = kakao_token.access_token
         response = requests.get(self.KAKAO_USER_INFO_URL, headers={"Authorization": f"Bearer {access_token}"})
+
         if response.status_code != 200:
             raise AuthenticationFailedException("Failed to get user info from Kakao.")
+
         return json.loads(response.text)
 
 

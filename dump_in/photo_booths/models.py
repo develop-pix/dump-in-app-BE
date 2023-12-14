@@ -12,7 +12,7 @@ class PhotoBoothBrand(SimpleModel):
     main_thumbnail_image_url = models.URLField(max_length=512, null=True)
     logo_image_url = models.URLField(max_length=512, null=True)
     is_event = models.BooleanField(default=False)
-    hashtag = models.ManyToManyField("Hashtag", related_name="photo_booth_brands")
+    hashtag = models.ManyToManyField("Hashtag", related_name="photo_booth_brands", through="PhotoBoothBrandHashtag")
 
     def __str__(self):
         return f"[{self.id}] {self.name}"
@@ -37,7 +37,7 @@ class PhotoBooth(BaseModel):
     view_count = models.PositiveIntegerField(default=0)
     photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.SET_NULL, null=True)
     user_photo_booth_like_logs = models.ManyToManyField(User, through="UserPhotoBoothLikeLog", related_name="photo_booth_like_logs")
-    photo_booth_brand_images_url = Optional[List[str]]
+    photo_booth_brand_image = Optional[List[str]]
 
     def __str__(self):
         return f"[{self.id}] {self.name}"
@@ -49,7 +49,7 @@ class PhotoBooth(BaseModel):
 
 
 class PhotoBoothBrandImage(BaseModel):
-    photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.CASCADE, related_name="photo_booth_brand_images")
+    photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.CASCADE, related_name="photo_booth_brand_image")
     photo_booth_brand_image_url = models.URLField(max_length=512)
 
     def __str__(self):
@@ -82,3 +82,34 @@ class Hashtag(SimpleModel):
         db_table = "hashtag"
         verbose_name = "hashtag"
         verbose_name_plural = "hashtags"
+
+
+class PhotoBoothRawData(BaseModel):
+    id = models.UUIDField(primary_key=True, editable=False)
+    location = models.CharField(max_length=32)
+    name = models.CharField(max_length=64)
+    operation_time = models.CharField(max_length=32)
+    street_address = models.CharField(max_length=64)
+    road_address = models.CharField(max_length=64)
+    latitude = models.DecimalField(max_digits=13, decimal_places=10)
+    longitude = models.DecimalField(max_digits=13, decimal_places=10)
+    photo_booth_url = models.URLField(max_length=128)
+    main_thumbnail_image_url = models.URLField(max_length=512)
+
+    class Meta:
+        db_table = "photo_booth_raw_data"
+        verbose_name = "photo booth raw data"
+        verbose_name_plural = "photo booth raw datas"
+
+
+class PhotoBoothBrandHashtag(models.Model):
+    photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.CASCADE, related_name="photo_booth_brand_hashtags")
+    hashtag = models.ForeignKey("Hashtag", on_delete=models.CASCADE, related_name="photo_booth_brand_hashtags")
+
+    def __str__(self):
+        return f"[{self.id}] {self.photo_booth_brand} - {self.hashtag}"
+
+    class Meta:
+        db_table = "photo_booth_brand_hashtag"
+        verbose_name = "photo booth brand hashtag"
+        verbose_name_plural = "photo booth brand hashtags"

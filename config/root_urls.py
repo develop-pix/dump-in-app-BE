@@ -11,6 +11,7 @@ urlpatterns = [
     path("app/api/users/", include(("dump_in.users.urls", "api-users"))),
     path("app/api/reviews/", include(("dump_in.reviews.urls", "api-reviews"))),
     path("app/api/photo-booths/", include(("dump_in.photo_booths.urls", "api-photo-booths"))),
+    path("app/api/events/", include(("dump_in.events.urls", "api-events"))),
 ]
 
 from config.settings.debug_toolbar.setup import DebugToolbarSetup  # noqa

@@ -226,7 +226,7 @@ class ReviewDetailAPI(APIView):
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         review_service = ReviewService()
-        review = review_service.update_review(review_id=review_id, **input_serializer.validated_data, user=request.user)
+        review = review_service.update_review(review_id=review_id, user=request.user, **input_serializer.validated_data)
         review_data = self.PutOutputSerializer(review).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)
 
