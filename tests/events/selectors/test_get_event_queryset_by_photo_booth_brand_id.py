@@ -1,0 +1,45 @@
+import pytest
+
+from dump_in.events.selectors.events import EventSelector
+
+pytestmark = pytest.mark.django_db
+
+
+class TestGetEventQuerysetByPhotoBoothBrandId:
+    def setup_method(self):
+        self.event_selector = EventSelector()
+
+    def test_get_event_queryset_by_photo_booth_brand_id_success(self, valid_event, valid_user):
+        event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(valid_event.photo_booth_brand_id, valid_user)
+
+        assert event_queryset.count() == 1
+        assert event_queryset.first() == valid_event
+
+    def test_get_event_queryset_by_photo_booth_brand_id_success_is_liked_true(self, valid_event, valid_user):
+        valid_event.user_event_like_logs.add(valid_user)
+
+        event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(valid_event.photo_booth_brand_id, valid_user)
+
+        assert event_queryset.count() == 1
+        assert event_queryset.first().is_liked is True
+
+    def test_get_event_queryset_by_photo_booth_brand_id_success_is_liked_false(self, valid_event, valid_user):
+        event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(valid_event.photo_booth_brand_id, valid_user)
+
+        assert event_queryset.count() == 1
+        assert event_queryset.first().is_liked is False
+
+    def test_get_event_queryset_by_photo_booth_brand_id_fail_does_not_exist(self, valid_event, valid_user):
+        event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(valid_event.photo_booth_brand_id + 1, valid_user)
+
+        assert event_queryset.count() == 0
+
+    def test_get_event_queryset_by_photo_booth_brand_id_fail_private_event(self, private_event, valid_user):
+        event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(private_event.photo_booth_brand_id, valid_user)
+
+        assert event_queryset.count() == 0
+
+    def test_get_event_queryset_by_photo_booth_brand_id_fail_not_event_photo_booth_brand(self, invalid_event, valid_user):
+        event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(invalid_event.photo_booth_brand_id, valid_user)
+
+        assert event_queryset.count() == 0

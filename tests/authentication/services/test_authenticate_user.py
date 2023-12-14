@@ -3,6 +3,8 @@ import pytest
 from dump_in.authentication.services.auth import AuthService
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 
+pytestmark = pytest.mark.django_db
+
 
 class TestAuthenticateUser:
     def setup_method(self):
@@ -19,6 +21,13 @@ class TestAuthenticateUser:
         assert deleted_user.username == user.username
         assert not user.is_deleted
         assert user.deleted_at is None
+
+    def test_authenticate_user_fail_does_not_exist(self):
+        with pytest.raises(AuthenticationFailedException) as e:
+            self.auth_service.authenticate_user("test")
+
+        assert str(e.value) == "User is not found"
+        assert isinstance(e.value, AuthenticationFailedException)
 
     def test_authenticate_user_fail_user_is_not_active(self, inactive_user):
         with pytest.raises(AuthenticationFailedException) as e:
