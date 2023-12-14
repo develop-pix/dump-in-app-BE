@@ -137,8 +137,8 @@ class KakaoLoginAPI(APIView):
 
         # User Authenticate & Generate Token
         auth_service = AuthService()
-        auth_service.authenticate_user(str(user.username))
-        refresh_token, access_token = auth_service.generate_token(user)
+        auth_service.authenticate_user(username=str(user.username))
+        refresh_token, access_token = auth_service.generate_token(user=user)
         token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
         return create_response(data=token_data, status_code=status.HTTP_200_OK)
 
@@ -229,8 +229,8 @@ class NaverLoginAPI(APIView):
 
         # User Authenticate & Generate Token
         auth_service = AuthService()
-        auth_service.authenticate_user(str(user.username))
-        refresh_token, access_token = auth_service.generate_token(user)
+        auth_service.authenticate_user(username=str(user.username))
+        refresh_token, access_token = auth_service.generate_token(user=user)
         token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
         return create_response(data=token_data, status_code=status.HTTP_200_OK)
 
@@ -309,7 +309,7 @@ class AppleLoginAPI(APIView):
 
         # User Authenticate & Generate Token
         auth_service = AuthService()
-        auth_service.authenticate_user(str(user.username))
-        refresh_token, access_token = auth_service.generate_token(user)
+        auth_service.authenticate_user(username=str(user.username))
+        refresh_token, access_token = auth_service.generate_token(user=user)
         token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
         return create_response(data=token_data, status_code=status.HTTP_200_OK)

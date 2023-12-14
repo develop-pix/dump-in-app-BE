@@ -57,6 +57,7 @@ class NaverLoginFlowService:
 
         if response.status_code != 200:
             raise AuthenticationFailedException("Failed to get authorization url from Naver.")
+
         return response.url
 
     def get_token(self, code: str, state: str) -> NaverAccessToken:
@@ -69,6 +70,7 @@ class NaverLoginFlowService:
         }
 
         response = requests.post(self.NAVER_ACCESS_TOKEN_OBTAIN_URL, data=data)
+
         if response.status_code != 200:
             raise AuthenticationFailedException("Failed to get access token from Naver.")
 

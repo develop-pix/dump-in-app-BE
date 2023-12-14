@@ -25,11 +25,11 @@ class UserService:
         gender: Optional[str],
         social_provider: int,
     ) -> User:
-        user = self.user_selector.get_user_by_username_for_auth(social_id)
+        user = self.user_selector.get_user_by_username_for_auth(username=social_id)
 
         if not user:
             # Nickname exists check and Generate random nickname
-            while self.user_selector.check_is_exists_user_by_nickname(nickname):
+            while self.user_selector.check_is_exists_user_by_nickname(nickname=nickname):
                 response = requests.get(
                     "https://nickname.hwanmoo.kr",
                     params={
@@ -55,10 +55,10 @@ class UserService:
         if len(nickname) > 16:
             raise ValidationException("Nickname is 16 characters or less")
 
-        if self.user_selector.check_is_exists_user_by_nickname(nickname):
+        if self.user_selector.check_is_exists_user_by_nickname(nickname=nickname):
             raise ValidationException("Nickname already exists")
 
-        user = self.user_selector.get_user_by_id(user_id)
+        user = self.user_selector.get_user_by_id(user_id=user_id)
 
         user.nickname = nickname
         user.save()
@@ -66,7 +66,7 @@ class UserService:
 
     @transaction.atomic
     def soft_delete_user(self, user_id: BigAutoField) -> User:
-        user = self.user_selector.get_user_by_id(user_id)
+        user = self.user_selector.get_user_by_id(user_id=user_id)
 
         user.deleted_at = timezone.now()
         user.is_deleted = True

@@ -34,7 +34,7 @@ def default_exception_handler(exc: Exception, context: dict) -> Union[Response, 
     logger.error(f"{context}")
 
     # 익셉션 핸들러를 통해 예외 처리를 시도합니다.
-    response = handle_api_exception(exc, context)
+    response = handle_api_exception(exc=exc, context=context)
 
     # 익셉션 핸들러에서 처리가 완료되었다면 해당 Response를 반환합니다.
     if response:
@@ -42,9 +42,9 @@ def default_exception_handler(exc: Exception, context: dict) -> Union[Response, 
 
     # 슬랙에 메시지를 전송합니다.
     if os.environ.get("DJANGO_SETTINGS_MODULE") != "config.django.local" or os.environ.get("GITHUB_WORKFLOW"):
-        send_slack_for_exception_task.delay(str(exc), str(context))  # type: ignore
+        send_slack_for_exception_task.delay(exc=str(exc), context=str(context))  # type: ignore
 
-    return handle_api_exception(UnknownServerException(), context)
+    return handle_api_exception(exc=UnknownServerException(), context=context)
 
 
 def handle_api_exception(exc: Exception, context: dict) -> Optional[Response]:

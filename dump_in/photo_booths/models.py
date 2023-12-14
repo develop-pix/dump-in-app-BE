@@ -37,7 +37,7 @@ class PhotoBooth(BaseModel):
     view_count = models.PositiveIntegerField(default=0)
     photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.SET_NULL, null=True)
     user_photo_booth_like_logs = models.ManyToManyField(User, through="UserPhotoBoothLikeLog", related_name="photo_booth_like_logs")
-    photo_booth_brand_images_url = Optional[List[str]]
+    photo_booth_brand_image = Optional[List[str]]
 
     def __str__(self):
         return f"[{self.id}] {self.name}"
@@ -49,7 +49,7 @@ class PhotoBooth(BaseModel):
 
 
 class PhotoBoothBrandImage(BaseModel):
-    photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.CASCADE, related_name="photo_booth_brand_images")
+    photo_booth_brand = models.ForeignKey(PhotoBoothBrand, on_delete=models.CASCADE, related_name="photo_booth_brand_image")
     photo_booth_brand_image_url = models.URLField(max_length=512)
 
     def __str__(self):

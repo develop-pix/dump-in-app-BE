@@ -33,7 +33,7 @@ class ReviewService:
         user,
     ) -> Review:
         photo_booth_selector = PhotoBoothSelector()
-        photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id)
+        photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
         if not photo_booth:
             raise NotFoundException("PhotoBooth does not exist")
@@ -63,7 +63,7 @@ class ReviewService:
         )
 
         concept_selector = ConceptSelector()
-        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids)
+        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids=concept_ids)
 
         concept_queryset_ids = [concept.id for concept in concept_queryset]
 
@@ -94,7 +94,7 @@ class ReviewService:
         user,
     ) -> Review:
         photo_booth_selector = PhotoBoothSelector()
-        photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id)
+        photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
         if not photo_booth:
             raise NotFoundException("PhotoBooth does not exist")
@@ -135,7 +135,7 @@ class ReviewService:
         )
 
         concept_selector = ConceptSelector()
-        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids)
+        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids=concept_ids)
 
         concept_queryset_ids = [concept.id for concept in concept_queryset]
 
