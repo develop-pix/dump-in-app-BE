@@ -6,12 +6,23 @@ from tests.utils import IsAuthenticateTestCase
 class TestReviewListAPI(IsAuthenticateTestCase):
     url = reverse("api-reviews:review-list")
 
-    def test_review_list_get_success(self, valid_review_list, valid_user):
+    def test_review_list_get_success_single_review(self, valid_review, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(
             self.url,
             data={"limit": 1, "offset": 0},
+        )
+
+        assert response.status_code == 200
+        assert response.data["data"].get("count") == 1
+
+    def test_review_list_get_success_pagination(self, valid_review_list, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            self.url,
+            data={"limit": 10, "offset": 0},
         )
 
         assert response.status_code == 200
