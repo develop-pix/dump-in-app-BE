@@ -25,11 +25,10 @@ class PhotoBoothSelector:
             ).get(id=photo_booth_id)
 
             if photo_booth.photo_booth_brand:
-                photo_booth.photo_booth_brand_images_url = list(
-                    photo_booth.photo_booth_brand.photo_booth_brand_images.order_by("-created_at")[:4]
+                photo_booth.photo_booth_brand_image = list(
+                    photo_booth.photo_booth_brand.photo_booth_brand_image.order_by("-created_at")[:4]
                 )
             return photo_booth
-
         except PhotoBooth.DoesNotExist:
             return None
 
