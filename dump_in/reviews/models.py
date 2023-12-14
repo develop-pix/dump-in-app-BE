@@ -17,7 +17,7 @@ class Concept(SimpleModel):
 
 class Review(BaseModel):
     content = models.TextField()
-    main_thumbnail_image_url = models.URLField()
+    main_thumbnail_image_url = models.URLField(max_length=512)
     is_deleted = models.BooleanField(default=False)
     date = models.DateField()
     frame_color = models.CharField(max_length=8)
@@ -43,7 +43,7 @@ class Review(BaseModel):
 
 
 class ReviewImage(BaseModel):
-    review_image_url = models.URLField()
+    review_image_url = models.URLField(max_length=512)
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="review_image")
 
     def __str__(self):

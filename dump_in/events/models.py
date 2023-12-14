@@ -8,7 +8,7 @@ from dump_in.users.models import User
 class Event(BaseModel):
     title = models.CharField(max_length=128)
     content = models.TextField()
-    main_thumbnail_image_url = models.URLField()
+    main_thumbnail_image_url = models.URLField(max_length=512)
     view_count = models.PositiveIntegerField(default=0)
     like_count = models.PositiveIntegerField(default=0)
     is_public = models.BooleanField(default=False)
@@ -28,7 +28,7 @@ class Event(BaseModel):
 
 
 class EventImage(BaseModel):
-    event_image_url = models.URLField()
+    event_image_url = models.URLField(max_length=512)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="event_image")
 
     def __str__(self):
