@@ -80,7 +80,7 @@ class KakaoLoginAPI(APIView):
 
         # Kakao Login Flow
         kakao_login_flow = KakaoLoginFlowService()
-        user_info = kakao_login_flow.get_user_info(kakao_token=validated_data["access_token"])
+        user_info = kakao_login_flow.get_user_info(access_token=validated_data["access_token"])
 
         # User Info Parsing
         birthyear = user_info["kakao_account"].get("birthyear")
@@ -140,7 +140,7 @@ class NaverLoginAPI(APIView):
 
         # Naver Login Flow
         naver_login_flow = NaverLoginFlowService()
-        user_info = naver_login_flow.get_user_info(naver_token=validated_data["access_token"])
+        user_info = naver_login_flow.get_user_info(access_token=validated_data["access_token"])
 
         # User Info Parsing
         birthyear = user_info["birthyear"]
