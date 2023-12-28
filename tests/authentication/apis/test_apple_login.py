@@ -1,9 +1,7 @@
 from django.urls import reverse
 
-from dump_in.common.exception.exceptions import AuthenticationFailedException
 
-
-class TestAppleLoginRedirectAPI:
+class TestAppleLoginRedirect:
     url = reverse("api-auth:apple-login-redirect")
 
     def test_apple_login_redirect_api_success(self, api_client, mocker):
@@ -27,11 +25,11 @@ class TestAppleLoginRedirectAPI:
         response = api_client.get(path=self.url)
 
         assert response.status_code == 401
-        assert response.data["code"] == AuthenticationFailedException.code
+        assert response.data["code"] == "authentication_failed"
         assert response.data["message"] == "Failed to get authorization url from Apple."
 
 
-class TestAppleLoginAPI:
+class TestAppleLogin:
     url = reverse("api-auth:apple-login-callback")
 
     def test_apple_login_api_success(self, api_client, mocker, user_social_provider, group):
@@ -49,7 +47,7 @@ class TestAppleLoginAPI:
         )
 
         assert response.status_code == 200
-        assert response.data["code"] == 0
+        assert response.data["code"] == "request_success"
         assert response.data["success"] is True
         assert response.data["message"] == "Request was successful."
         assert response.data["data"]["access_token"] is not None
@@ -57,6 +55,7 @@ class TestAppleLoginAPI:
 
     def test_apple_login_api_fail_not_code(self, api_client):
         response = api_client.post(path=self.url)
+
         assert response.status_code == 401
-        assert response.data["code"] == AuthenticationFailedException.code
+        assert response.data["code"] == "authentication_failed"
         assert response.data["message"] == "Code is not provided"

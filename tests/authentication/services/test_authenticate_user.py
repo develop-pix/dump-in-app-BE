@@ -15,19 +15,19 @@ class TestAuthenticateUser:
 
         assert valid_user.username == user.username
 
+    def test_authenticate_user_fail_user_is_not_found(self):
+        with pytest.raises(AuthenticationFailedException) as e:
+            self.auth_service.authenticate_user("test")
+
+        assert str(e.value) == "User is not found"
+        assert isinstance(e.value, AuthenticationFailedException)
+
     def test_authenticate_user_success_deleted_user(self, deleted_user):
         user = self.auth_service.authenticate_user(deleted_user.username)
 
         assert deleted_user.username == user.username
         assert not user.is_deleted
         assert user.deleted_at is None
-
-    def test_authenticate_user_fail_does_not_exist(self):
-        with pytest.raises(AuthenticationFailedException) as e:
-            self.auth_service.authenticate_user("test")
-
-        assert str(e.value) == "User is not found"
-        assert isinstance(e.value, AuthenticationFailedException)
 
     def test_authenticate_user_fail_user_is_not_active(self, inactive_user):
         with pytest.raises(AuthenticationFailedException) as e:

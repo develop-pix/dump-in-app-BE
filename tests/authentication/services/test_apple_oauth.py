@@ -13,7 +13,7 @@ from dump_in.authentication.services.apple_oauth import (
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 
 
-class TestAppleLoginFlowService:
+class TestAppleLoginFlow:
     def setup_method(self):
         self.service = AppleLoginFlowService()
 
