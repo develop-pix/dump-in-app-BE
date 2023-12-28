@@ -14,7 +14,7 @@ class PhotoBoothService:
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
-        if not photo_booth:
+        if photo_booth is None:
             raise NotFoundException("Photo Booth does not exist")
 
         if photo_booth.user_photo_booth_like_logs.filter(id=user.id).exists():

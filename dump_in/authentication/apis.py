@@ -15,15 +15,11 @@ from dump_in.authentication.services.apple_oauth import AppleLoginFlowService
 from dump_in.authentication.services.auth import AuthService
 from dump_in.authentication.services.kakao_oauth import KakaoLoginFlowService
 from dump_in.authentication.services.naver_oauth import NaverLoginFlowService
-from dump_in.common.base.serializers import (
-    BaseResponseExceptionSerializer,
-    BaseResponseSerializer,
-    BaseSerializer,
-)
+from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 from dump_in.common.response import create_response
 from dump_in.users.enums import UserProvider
-from dump_in.users.services import UserService
+from dump_in.users.services.users import UserService
 
 
 class UserJWTRefreshAPI(TokenRefreshView):
@@ -35,7 +31,6 @@ class UserJWTRefreshAPI(TokenRefreshView):
         operation_summary="인증 토큰 재발급",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
     def post(self, request: Request) -> Response:
@@ -54,31 +49,12 @@ class UserJWTRefreshAPI(TokenRefreshView):
         return create_response(token_data, status_code=status.HTTP_200_OK)
 
 
-class KakaoLoginRedirectAPI(APIView):
-    authentication_classes = ()
-    permission_classes = (AllowAny,)
-
-    @swagger_auto_schema(
-        tags=["인증"],
-        operation_summary="카카오 로그인 리다이렉트",
-    )
-    def get(self, request: Request):
-        """
-        카카오 로그인을 위한 리다이렉트 URL로 이동합니다.
-        url: /app/api/auth/kakao/redirect
-        """
-        kaka_login_flow = KakaoLoginFlowService()
-        authorization_url = kaka_login_flow.get_authorization_url()
-        return redirect(authorization_url)
-
-
 class KakaoLoginAPI(APIView):
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
     class InputSerializer(BaseSerializer):
-        code = serializers.CharField(required=False)
-        error = serializers.CharField(required=False)
+        access_token = serializers.CharField(required=True)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -86,35 +62,25 @@ class KakaoLoginAPI(APIView):
 
     @swagger_auto_schema(
         tags=["인증"],
-        operation_summary="카카오 로그인 콜백",
-        query_serializer=InputSerializer,
+        operation_summary="카카오 로그인",
+        request_body=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
-    def get(self, request: Request) -> Response:
+    def post(self, request: Request) -> Response:
         """
-        카카오 로그인 콜백 API 입니다. 카카오 로그인을 완료하면, 카카오에서 전달받은 정보를 토대로
-        앱 유저를 생성하고, 액세스 토큰과 리프레쉬 토큰을 발급합니다.
-        url: /app/api/auth/kakao/callback
+        카카오 로그인 API 입니다. 카카오에서 전달받은 토큰을 토대로 앱 유저를 생성하고,
+        액세스 토큰과 리프레쉬 토큰을 발급합니다.
+        url: /app/api/auth/kakao/login
         """
-        input_serializer = self.InputSerializer(data=request.GET)
+        input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         validated_data = input_serializer.validated_data
-        code = validated_data.get("code")
-        error = validated_data.get("error")
-
-        if error is not None:
-            raise AuthenticationFailedException(error)
-
-        if code is None:
-            raise AuthenticationFailedException("Code is not provided")
 
         # Kakao Login Flow
         kakao_login_flow = KakaoLoginFlowService()
-        kakao_token = kakao_login_flow.get_token(code=code)
-        user_info = kakao_login_flow.get_user_info(kakao_token=kakao_token)
+        user_info = kakao_login_flow.get_user_info(access_token=validated_data["access_token"])
 
         # User Info Parsing
         birthyear = user_info["kakao_account"].get("birthyear")
@@ -143,32 +109,12 @@ class KakaoLoginAPI(APIView):
         return create_response(data=token_data, status_code=status.HTTP_200_OK)
 
 
-class NaverLoginRedirectAPI(APIView):
-    authentication_classes = ()
-    permission_classes = (AllowAny,)
-
-    @swagger_auto_schema(
-        tags=["인증"],
-        operation_summary="네이버 로그인 리다이렉트",
-    )
-    def get(self, request: Request):
-        """
-        네이버 로그인을 위한 리다이렉트 URL로 이동합니다.
-        url: /app/api/auth/naver/redirect
-        """
-        naver_login_flow = NaverLoginFlowService()
-        authorization_url = naver_login_flow.get_authorization_url()
-        return redirect(authorization_url)
-
-
 class NaverLoginAPI(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = ()
 
     class InputSerializer(BaseSerializer):
-        code = serializers.CharField(required=False)
-        error = serializers.CharField(required=False)
-        state = serializers.CharField(required=False)
+        access_token = serializers.CharField(required=True)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -176,37 +122,25 @@ class NaverLoginAPI(APIView):
 
     @swagger_auto_schema(
         tags=["인증"],
-        operation_summary="네이버 로그인 콜백",
-        query_serializer=InputSerializer,
+        operation_summary="네이버 로그인",
+        request_body=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
-    def get(self, request: Request) -> Response:
+    def post(self, request: Request) -> Response:
         """
-        네이버 로그인 콜백 API 입니다. 네이버 로그인을 완료하면, 네이버에서 전달받은 정보를 토대로
-        앱 유저를 생성하고, 액세스 토큰과 리프레쉬 토큰을 발급합니다.
-        url: /app/api/auth/naver/callback
+        네이버 로그인 API 입니다. 네이버에서 전달받은 토큰을 토대로 앱 유저를 생성하고,
+        액세스 토큰과 리프레쉬 토큰을 발급합니다.
+        url: /app/api/auth/naver/login
         """
-        input_serializer = self.InputSerializer(data=request.GET)
+        input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         validated_data = input_serializer.validated_data
 
-        code = validated_data.get("code")
-        error = validated_data.get("error")
-        state = validated_data.get("state")
-
-        if error is not None:
-            raise AuthenticationFailedException(error)
-
-        if code is None or state is None:
-            raise AuthenticationFailedException("Code and State is not provided")
-
         # Naver Login Flow
         naver_login_flow = NaverLoginFlowService()
-        naver_token = naver_login_flow.get_token(code=code, state=state)
-        user_info = naver_login_flow.get_user_info(naver_token=naver_token)
+        user_info = naver_login_flow.get_user_info(access_token=validated_data["access_token"])
 
         # User Info Parsing
         birthyear = user_info["birthyear"]
@@ -271,7 +205,6 @@ class AppleLoginAPI(APIView):
         request_body=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=AuthenticationFailedException),
         },
     )
     def post(self, request: Request) -> Response:

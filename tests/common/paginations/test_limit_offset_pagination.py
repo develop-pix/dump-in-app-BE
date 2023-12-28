@@ -41,6 +41,7 @@ class TestLimitOffsetPagination:
         assert response.status_code == 200
 
         data = response.data
+
         assert data["limit"] == 1
         assert data["offset"] == 0
         assert data["count"] == 11
@@ -48,6 +49,7 @@ class TestLimitOffsetPagination:
         assert data["previous"] is None
 
         results = data["results"]
+
         assert len(results) == 1
 
         next_page_request = factory.get("/some/path?limit=1&offset=1")
@@ -56,6 +58,7 @@ class TestLimitOffsetPagination:
         assert next_page_response.status_code == 200
 
         next_page_data = next_page_response.data
+
         assert next_page_data["limit"] == 1
         assert next_page_data["offset"] == 1
         assert next_page_data["count"] == 11
@@ -63,4 +66,5 @@ class TestLimitOffsetPagination:
         assert next_page_data["previous"] == "http://testserver/some/path?limit=1"
 
         next_page_results = next_page_data["results"]
+
         assert len(next_page_results) == 1

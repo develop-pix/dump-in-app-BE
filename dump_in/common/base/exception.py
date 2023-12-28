@@ -11,9 +11,9 @@ class BaseAPIException(APIException):
     Attributes:
         status_code (int): 예외에 대한 HTTP 상태 코드입니다.
         default_detail (str): 예외에 대한 기본 상세 설명입니다.
-        code (int): 예외 코드입니다. 1 이상의 값을 가져야 합니다.
+        code (str): 예외 코드입니다. 대문자로 작성되어야 합니다.
     """
 
     status_code: int = status.HTTP_400_BAD_REQUEST
-    default_detail: str = "Bad Request"
-    code: int = 1000
+    default_detail: str = "Bad request."
+    default_code: str = "bad_request"

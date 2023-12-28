@@ -72,6 +72,9 @@ def handle_api_exception(exc: Exception, context: dict) -> Optional[Response]:
 
     # DRF 내부 오류가 발생한다면 code 속성이 없을 수 있습니다.
     # code 속성이 없다면, BaseAPIException의 code 값을 기본값으로 사용합니다.
-    code = getattr(exc, "code", BaseAPIException.code)
+    if hasattr(exc, "default_code"):
+        code = getattr(exc, "default_code")
+    else:
+        code = getattr(exc, "default_code", BaseAPIException.default_code)
 
     return create_response(code=code, message=message, status_code=status_code)

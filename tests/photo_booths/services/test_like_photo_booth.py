@@ -12,21 +12,23 @@ class TestLikePhotoBooth:
         self.photo_booth_service = PhotoBoothService()
 
     def test_like_photo_booth_success(self, photo_booth, valid_user):
-        photo_booth, is_like = self.photo_booth_service.like_photo_booth(
+        photo_booth_data, is_like = self.photo_booth_service.like_photo_booth(
             photo_booth_id=photo_booth.id,
             user=valid_user,
         )
 
         assert is_like is True
+        assert str(photo_booth_data.id) == photo_booth.id
 
     def test_like_photo_booth_success_already_like(self, photo_booth, valid_user):
         photo_booth.user_photo_booth_like_logs.add(valid_user)
-        photo_booth, is_like = self.photo_booth_service.like_photo_booth(
+        photo_booth_data, is_like = self.photo_booth_service.like_photo_booth(
             photo_booth_id=photo_booth.id,
             user=valid_user,
         )
 
         assert is_like is False
+        assert str(photo_booth_data.id) == photo_booth.id
 
     @pytest.mark.django_db(transaction=True)
     def test_like_photo_booth_success_concurrency(self, photo_booth, inactive_user, valid_user):

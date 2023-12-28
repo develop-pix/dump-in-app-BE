@@ -1,28 +1,21 @@
+from django.core.validators import MaxValueValidator
+from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.exceptions import NotAuthenticated
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from dump_in.common.base.serializers import (
-    BaseModelSerializer,
-    BaseResponseExceptionSerializer,
-    BaseResponseSerializer,
-    BaseSerializer,
-)
-from dump_in.common.exception.exceptions import (
-    NotFoundException,
-    PermissionDeniedException,
-    ValidationException,
-)
+from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
+from dump_in.common.fields import CustomMultipleChoiceField
 from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
-from dump_in.reviews.models import Review
+from dump_in.common.utils import inline_serializer
+from dump_in.photo_booths.enums import PhotoBoothLocation
+from dump_in.reviews.enums import CameraShot, Concept, FrameColor, Participants
 from dump_in.reviews.selectors.reviews import ReviewSelector
-from dump_in.reviews.serializers import ConceptSerializer, ReviewImageSerializer
 from dump_in.reviews.services import ReviewService
 
 
@@ -34,16 +27,18 @@ class ReviewListAPI(APIView):
         default_limit = 10
 
     class FilterSerializer(BaseSerializer):
-        photo_booth_location = serializers.CharField(required=False)
-        frame_color = serializers.CharField(required=False)
-        participants = serializers.CharField(required=False)
-        camera_shot = serializers.CharField(required=False)
-        concept = serializers.CharField(required=False)
-        limit = serializers.IntegerField(required=False)
-        offset = serializers.IntegerField(required=False)
+        photo_booth_location = CustomMultipleChoiceField(
+            required=False, choices=[photo_booth_location.value for photo_booth_location in PhotoBoothLocation]
+        )
+        frame_color = CustomMultipleChoiceField(required=False, choices=[frame_color.value for frame_color in FrameColor])
+        participants = CustomMultipleChoiceField(required=False, choices=[participants.value for participants in Participants])
+        camera_shot = CustomMultipleChoiceField(required=False, choices=[camera_shot.value for camera_shot in CameraShot])
+        concept = CustomMultipleChoiceField(required=False, choices=[concept.value for concept in Concept])
+        limit = serializers.IntegerField(required=False, min_value=1, max_value=50, default=10)
+        offset = serializers.IntegerField(required=False, min_value=0)
 
     class OutputSerializer(BaseSerializer):
-        review_id = serializers.IntegerField(source="id")
+        id = serializers.IntegerField()
         main_thumbnail_image_url = serializers.URLField()
         photo_booth_name = serializers.CharField(source="photo_booth.name")
 
@@ -53,7 +48,6 @@ class ReviewListAPI(APIView):
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request) -> Response:
@@ -76,14 +70,14 @@ class ReviewListAPI(APIView):
 
     class InputSerializer(BaseSerializer):
         main_thumbnail_image_url = serializers.URLField(required=True)
-        image_urls = serializers.ListField(required=True, min_length=1, max_length=4, child=serializers.URLField())
-        content = serializers.CharField(required=True)
+        image_urls = serializers.ListField(max_length=4, child=serializers.URLField())
+        content = serializers.CharField(required=True, max_length=100)
         photo_booth_id = serializers.UUIDField(required=True)
-        date = serializers.DateField(required=True)
-        frame_color = serializers.CharField(required=True)
-        participants = serializers.IntegerField(required=True)
-        camera_shot = serializers.CharField(required=True)
-        concept_ids = serializers.ListField(required=True, child=serializers.IntegerField())
+        date = serializers.DateField(required=True, validators=[MaxValueValidator(limit_value=timezone.now().date())])
+        frame_color = serializers.ChoiceField(required=True, choices=[frame_color.value for frame_color in FrameColor])
+        participants = serializers.IntegerField(required=True, min_value=1, max_value=5)
+        camera_shot = serializers.ChoiceField(required=True, choices=[camera_shot.value for camera_shot in CameraShot])
+        concept_names = CustomMultipleChoiceField(choices=[concept.value for concept in Concept], max_choices=5, allow_empty=False)
         goods_amount = serializers.BooleanField(required=False, allow_null=True)
         curl_amount = serializers.BooleanField(required=False, allow_null=True)
         is_public = serializers.BooleanField(required=True)
@@ -94,9 +88,6 @@ class ReviewListAPI(APIView):
         request_body=InputSerializer,
         responses={
             status.HTTP_201_CREATED: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_400_BAD_REQUEST: BaseResponseExceptionSerializer(exception=ValidationException),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
-            status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
     def post(self, request: Request) -> Response:
@@ -107,7 +98,7 @@ class ReviewListAPI(APIView):
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         review_service = ReviewService()
-        review = review_service.create_review(**input_serializer.validated_data, user=request.user)
+        review = review_service.create_review(**input_serializer.validated_data, user_id=request.user.id)
         review_data = self.OutputSerializer(review).data
         return create_response(data=review_data, status_code=status.HTTP_201_CREATED)
 
@@ -117,11 +108,13 @@ class ReviewListCountAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        photo_booth_location = serializers.CharField(required=False)
-        frame_color = serializers.CharField(required=False)
-        participants = serializers.CharField(required=False)
-        camera_shot = serializers.CharField(required=False)
-        concept = serializers.CharField(required=False)
+        photo_booth_location = CustomMultipleChoiceField(
+            required=False, choices=[photo_booth_location.value for photo_booth_location in PhotoBoothLocation]
+        )
+        frame_color = CustomMultipleChoiceField(required=False, choices=[frame_color.value for frame_color in FrameColor])
+        participants = CustomMultipleChoiceField(required=False, choices=[participants.value for participants in Participants])
+        camera_shot = CustomMultipleChoiceField(required=False, choices=[camera_shot.value for camera_shot in CameraShot])
+        concept = CustomMultipleChoiceField(required=False, choices=[concept.value for concept in Concept])
 
     class OutputSerializer(BaseSerializer):
         count = serializers.IntegerField()
@@ -132,7 +125,6 @@ class ReviewListCountAPI(APIView):
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request) -> Response:
@@ -152,39 +144,46 @@ class ReviewDetailAPI(APIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    class InputSerializer(BaseSerializer):
-        main_thumbnail_image_url = serializers.URLField(required=True)
-        image_urls = serializers.ListField(required=True, min_length=1, max_length=4, child=serializers.URLField())
-        content = serializers.CharField(required=True)
-        photo_booth_id = serializers.UUIDField(required=True)
-        date = serializers.DateField(required=True)
-        frame_color = serializers.CharField(required=True)
-        participants = serializers.IntegerField(required=True)
-        camera_shot = serializers.CharField(required=True)
-        concept_ids = serializers.ListField(required=True, child=serializers.IntegerField())
-        goods_amount = serializers.BooleanField(required=False, allow_null=True)
-        curl_amount = serializers.BooleanField(required=False, allow_null=True)
-        is_public = serializers.BooleanField(required=True)
-
-    class GetOutputSerializer(BaseModelSerializer):
-        review_image = ReviewImageSerializer(many=True)
-        concept = ConceptSerializer(many=True)
+    class GetOutputSerializer(BaseSerializer):
+        id = serializers.IntegerField()
+        image = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "image_url": serializers.URLField(source="review_image_url"),
+            },
+            source="review_image",
+        )
+        concept = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "name": serializers.CharField(),
+            },
+        )
         is_mine = serializers.BooleanField()
         is_liked = serializers.BooleanField()
-        user = serializers.CharField(source="user.nickname")
-
-        class Meta:
-            model = Review
-            exclude = ["is_deleted", "is_public", "user_review_like_logs"]
+        user_nickname = serializers.CharField(source="user.nickname")
+        created_at = serializers.DateTimeField()
+        updated_at = serializers.DateTimeField()
+        content = serializers.CharField()
+        main_thumbnail_image_url = serializers.URLField()
+        date = serializers.DateField()
+        frame_color = serializers.CharField()
+        participants = serializers.IntegerField()
+        camera_shot = serializers.CharField()
+        goods_amount = serializers.BooleanField()
+        curl_amount = serializers.BooleanField()
+        is_public = serializers.BooleanField()
+        view_count = serializers.IntegerField()
+        like_count = serializers.IntegerField()
+        photo_booth_id = serializers.UUIDField()
 
     @swagger_auto_schema(
         tags=["리뷰"],
         operation_summary="리뷰 상세 조회",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=GetOutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
-            status.HTTP_403_FORBIDDEN: BaseResponseExceptionSerializer(exception=PermissionDeniedException),
-            status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
     def get(self, request: Request, review_id: int) -> Response:
@@ -193,18 +192,57 @@ class ReviewDetailAPI(APIView):
         url: /app/api/reviews/<int:review_id>
         """
         review_service = ReviewService()
-        review = review_service.view_count_up(review_id=review_id, user=request.user)
+        review = review_service.view_count_up(review_id=review_id, user_id=request.user.id)
         review_data = self.GetOutputSerializer(review).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)
 
-    class PutOutputSerializer(BaseModelSerializer):
-        review_image = ReviewImageSerializer(many=True)
-        concept = ConceptSerializer(many=True)
-        user = serializers.CharField(source="user.nickname")
+    class InputSerializer(BaseSerializer):
+        main_thumbnail_image_url = serializers.URLField(required=True)
+        image_urls = serializers.ListField(max_length=4, child=serializers.URLField())
+        content = serializers.CharField(required=True, max_length=100)
+        photo_booth_id = serializers.UUIDField(required=True)
+        date = serializers.DateField(required=True, validators=[MaxValueValidator(limit_value=timezone.now().date())])
+        frame_color = serializers.ChoiceField(required=True, choices=[frame_color.value for frame_color in FrameColor])
+        participants = serializers.IntegerField(required=True, min_value=1, max_value=5)
+        camera_shot = serializers.ChoiceField(required=True, choices=[camera_shot.value for camera_shot in CameraShot])
+        concept_names = CustomMultipleChoiceField(choices=[concept.value for concept in Concept], max_choices=5, allow_empty=False)
+        goods_amount = serializers.BooleanField(required=False, allow_null=True)
+        curl_amount = serializers.BooleanField(required=False, allow_null=True)
+        is_public = serializers.BooleanField(required=True)
 
-        class Meta:
-            model = Review
-            exclude = ["is_deleted", "is_public", "user_review_like_logs"]
+    class PutOutputSerializer(BaseSerializer):
+        id = serializers.IntegerField()
+        main_thumbnail_image_url = serializers.URLField()
+        photo_booth_name = serializers.CharField(source="photo_booth.name")
+        image = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "image_url": serializers.URLField(source="review_image_url"),
+            },
+            source="review_image",
+        )
+        concept = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "name": serializers.CharField(),
+            },
+        )
+        user_nickname = serializers.CharField(source="user.nickname")
+        created_at = serializers.DateTimeField()
+        updated_at = serializers.DateTimeField()
+        content = serializers.CharField()
+        date = serializers.DateField()
+        frame_color = serializers.CharField()
+        participants = serializers.IntegerField()
+        camera_shot = serializers.CharField()
+        goods_amount = serializers.BooleanField()
+        curl_amount = serializers.BooleanField()
+        is_public = serializers.BooleanField()
+        view_count = serializers.IntegerField()
+        like_count = serializers.IntegerField()
+        photo_booth_id = serializers.UUIDField()
 
     @swagger_auto_schema(
         tags=["리뷰"],
@@ -212,10 +250,6 @@ class ReviewDetailAPI(APIView):
         request_body=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=PutOutputSerializer),
-            status.HTTP_400_BAD_REQUEST: BaseResponseExceptionSerializer(exception=ValidationException),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
-            status.HTTP_403_FORBIDDEN: BaseResponseExceptionSerializer(exception=PermissionDeniedException),
-            status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
     def put(self, request: Request, review_id: int) -> Response:
@@ -226,7 +260,7 @@ class ReviewDetailAPI(APIView):
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         review_service = ReviewService()
-        review = review_service.update_review(review_id=review_id, user=request.user, **input_serializer.validated_data)
+        review = review_service.update_review(review_id=review_id, user_id=request.user.id, **input_serializer.validated_data)
         review_data = self.PutOutputSerializer(review).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)
 
@@ -235,9 +269,6 @@ class ReviewDetailAPI(APIView):
         operation_summary="리뷰 삭제",
         responses={
             status.HTTP_204_NO_CONTENT: "",
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
-            status.HTTP_403_FORBIDDEN: BaseResponseExceptionSerializer(exception=PermissionDeniedException),
-            status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
     def delete(self, request: Request, review_id: int) -> Response:
@@ -246,7 +277,7 @@ class ReviewDetailAPI(APIView):
         url: /app/api/reviews/<int:review_id>
         """
         review_service = ReviewService()
-        review_service.soft_delete_review(review_id=review_id, user=request.user)
+        review_service.soft_delete_review(review_id=review_id, user_id=request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -255,7 +286,7 @@ class ReviewLikeAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(BaseSerializer):
-        review_id = serializers.IntegerField()
+        id = serializers.IntegerField()
         is_liked = serializers.BooleanField()
 
     @swagger_auto_schema(
@@ -263,8 +294,6 @@ class ReviewLikeAPI(APIView):
         operation_summary="리뷰 좋아요",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
-            status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
     def post(self, request: Request, review_id: int) -> Response:
@@ -274,5 +303,5 @@ class ReviewLikeAPI(APIView):
         """
         review_service = ReviewService()
         review, is_liked = review_service.like_review(review_id=review_id, user=request.user)
-        review_data = self.OutputSerializer(data={"review_id": review.id, "is_liked": is_liked}).data
+        review_data = self.OutputSerializer(data={"id": review.id, "is_liked": is_liked}).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)

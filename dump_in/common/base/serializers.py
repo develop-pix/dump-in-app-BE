@@ -12,17 +12,7 @@ class BaseSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if "data" in kwargs and not self.is_valid():
-            raise InvalidParameterFormatException()
-
-    class Meta:
-        ref_name = None
-
-
-class BaseModelSerializer(serializers.ModelSerializer):
-    """
-    기본 API 출력 Serializer 클래스입니다.
-    이 클래스는 Model의 필드를 기반으로 자동으로 필드를 생성합니다.
-    """
+            raise InvalidParameterFormatException(self.errors)
 
     class Meta:
         ref_name = None
@@ -34,13 +24,13 @@ class BaseResponseSerializer(serializers.Serializer):
     이 클래스는 모든 API의 Swagger 문서에 응답 형식을 표시하기 위해 사용됩니다.
 
     Attributes:
-        code (int) : 응답 코드 (기본값: 0)
+        code (str) : 응답 코드 (기본값: "request_success")
         success (bool) : 응답 성공 여부 (기본값: True)
         message (str) : 응답 메시지 (기본값: "Request was successful.")
         data (dict) : 응답 데이터
     """
 
-    code = serializers.IntegerField(default=0)
+    code = serializers.CharField(default="request_success")
     success = serializers.BooleanField(default=True)
     message = serializers.CharField(default="Request was successful.")
 
@@ -50,33 +40,6 @@ class BaseResponseSerializer(serializers.Serializer):
 
         if data_serializer is not None:
             self.fields["data"] = data_serializer()
-
-    class Meta:
-        ref_name = None
-
-
-class BaseResponseExceptionSerializer(serializers.Serializer):
-    """
-    기본 API 예외 응답 Serializer 클래스입니다.
-    이 클래스는 모든 API의 Swagger 문서에 예외 응답 형식을 표시하기 위해 사용됩니다.
-
-    Attributes:
-        code (int) : 응답 코드 (기본값: 1000)
-        success (bool) : 응답 성공 여부 (기본값: False)
-        message (str) : 응답 메시지 (기본값: "Unknown server error")
-    """
-
-    code = serializers.IntegerField(default=1000)
-    message = serializers.CharField(default="Unknown server error")
-    success = serializers.BooleanField(default=False)
-
-    def __init__(self, *args, **kwargs):
-        exception = kwargs.pop("exception", None)
-        super().__init__(*args, **kwargs)
-
-        if exception is not None:
-            self.fields["message"] = serializers.CharField(default=exception.default_detail)
-            self.fields["code"] = serializers.IntegerField(default=exception.status_code)
 
     class Meta:
         ref_name = None

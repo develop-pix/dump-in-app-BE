@@ -8,32 +8,41 @@ from dump_in.reviews.selectors.reviews import ReviewSelector
 pytestmark = pytest.mark.django_db
 
 
-class TestGetReviewQuerysetWithPhotoBoothAndBrandByUserId:
+class TestGetReviewWithPhotoBoothAndBrandQuerysetByUserId:
     def setup_method(self):
         self.review_selector = ReviewSelector()
 
-    def test_get_review_queryset_with_photo_booth_and_brand_by_user_id_success(self, valid_review_list_by_valid_user, valid_user):
-        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(
-            valid_user
+    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_success_single_review(self, valid_review):
+        review_with_photo_booth_and_brand_queryset = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
+            valid_review.user_id
+        )
+
+        assert review_with_photo_booth_and_brand_queryset.first() == valid_review
+
+    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_success_multiple_review(
+        self, valid_review_list_by_valid_user, valid_user
+    ):
+        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
+            valid_user.id
         )
 
         assert review_queryset_with_photo_booth_and_brand.count() == len(valid_review_list_by_valid_user)
 
-    def test_get_review_queryset_with_photo_booth_and_brand_by_user_id_fail_does_not_exist(self, valid_user):
-        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(
-            valid_user
+    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_fail_does_not_exist(self, valid_user):
+        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
+            valid_user.id
         )
 
-        assert list(review_queryset_with_photo_booth_and_brand) == []
+        assert review_queryset_with_photo_booth_and_brand.count() == 0
 
-    def test_get_review_queryset_with_photo_booth_and_brand_by_user_id_fail_deleted_review(self, deleted_review):
-        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(
-            deleted_review.user
+    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_fail_deleted_review(self, deleted_review):
+        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
+            deleted_review.user.id
         )
 
-        assert list(review_queryset_with_photo_booth_and_brand) == []
+        assert review_queryset_with_photo_booth_and_brand.count() == 0
 
-    def test_get_review_queryset_with_photo_booth_and_brand_by_user_id_select_related_performance(self, valid_review_list_by_valid_user):
+    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_select_related_performance(self, valid_review_list_by_valid_user):
         start_time = time.time()
 
         review_list = Review.objects.filter(user_id=valid_review_list_by_valid_user[0].user_id, is_deleted=False)
@@ -55,8 +64,8 @@ class TestGetReviewQuerysetWithPhotoBoothAndBrandByUserId:
 
         start_time = time.time()
 
-        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(
-            valid_review_list_by_valid_user[0].user
+        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
+            valid_review_list_by_valid_user[0].user.id
         )
 
         for review in review_queryset_with_photo_booth_and_brand:
@@ -76,7 +85,7 @@ class TestGetReviewQuerysetWithPhotoBoothAndBrandByUserId:
 
         assert time_with_filter > time_with_select_related
 
-    def test_get_review_queryset_with_photo_booth_and_brand_by_user_id_prefetch_related_performance(self, valid_review_list_by_valid_user):
+    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_prefetch_related_performance(self, valid_review_list_by_valid_user):
         start_time = time.time()
 
         review_list = Review.objects.filter(user_id=valid_review_list_by_valid_user[0].user_id, is_deleted=False)
@@ -92,8 +101,8 @@ class TestGetReviewQuerysetWithPhotoBoothAndBrandByUserId:
 
         start_time = time.time()
 
-        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(
-            valid_review_list_by_valid_user[0].user
+        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
+            valid_review_list_by_valid_user[0].user.id
         )
 
         for review in review_queryset_with_photo_booth_and_brand:
@@ -107,7 +116,7 @@ class TestGetReviewQuerysetWithPhotoBoothAndBrandByUserId:
 
         assert time_with_filter > time_with_prefetch_related
 
-    def test_get_review_queryset_with_photo_booth_and_brand_by_user_id_selected_and_prefetch_related_performance(
+    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_selected_and_prefetch_related_performance(
         self, valid_review_list_by_valid_user
     ):
         start_time = time.time()
@@ -142,8 +151,8 @@ class TestGetReviewQuerysetWithPhotoBoothAndBrandByUserId:
 
         start_time = time.time()
 
-        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_queryset_with_photo_booth_and_brand_by_user_id(
-            valid_review_list_by_valid_user[0].user
+        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
+            valid_review_list_by_valid_user[0].user.id
         )
 
         for review in review_queryset_with_photo_booth_and_brand:

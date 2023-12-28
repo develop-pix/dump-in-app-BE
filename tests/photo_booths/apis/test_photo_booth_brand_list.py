@@ -6,7 +6,7 @@ from tests.utils import IsAuthenticateTestCase
 pytestmark = pytest.mark.django_db
 
 
-class TestPhotoBoothBrandListAPI(IsAuthenticateTestCase):
+class TestPhotoBoothBrandList(IsAuthenticateTestCase):
     url = reverse("api-photo-booths:photo-booth-brand-list")
 
     def test_photo_booth_brand_list_get_success(self, photo_booth_brand_list, valid_user):
@@ -21,4 +21,5 @@ class TestPhotoBoothBrandListAPI(IsAuthenticateTestCase):
         response = self.client.get(self.url)
 
         assert response.status_code == 401
+        assert response.data["code"] == "not_authenticated"
         assert response.data["message"] == "Authentication credentials were not provided."

@@ -8,14 +8,23 @@ from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyDateTime, FuzzyInteger, F
 from faker import Faker
 
 from dump_in.events.models import Event, EventImage
+from dump_in.photo_booths.enums import PhotoBoothLocation
 from dump_in.photo_booths.models import (
     Hashtag,
     PhotoBooth,
     PhotoBoothBrand,
     PhotoBoothBrandImage,
 )
+from dump_in.reviews.enums import CameraShot
+from dump_in.reviews.enums import Concept as ConceptEnum
+from dump_in.reviews.enums import FrameColor
 from dump_in.reviews.models import Concept, Review, ReviewImage
-from dump_in.users.models import User, UserSocialProvider
+from dump_in.users.models import (
+    Notification,
+    NotificationCategory,
+    User,
+    UserSocialProvider,
+)
 
 faker = Faker()
 
@@ -85,6 +94,39 @@ class UserFactory(factory.django.DjangoModelFactory):
                 self.groups.add(group)
 
 
+class NotificationCategoryFactory(factory.django.DjangoModelFactory):
+    id = factory.Sequence(lambda n: n)
+    name = factory.Sequence(lambda n: f"notification_category{n}")
+
+    class Meta:
+        model = NotificationCategory
+
+
+class NotificationFactory(factory.django.DjangoModelFactory):
+    title = FuzzyText(length=64)
+    content = FuzzyText(length=128)
+    parameter_data = FuzzyText(length=512)
+    user = factory.SubFactory(UserFactory)
+    category = factory.SubFactory(NotificationCategoryFactory)
+
+    class Meta:
+        model = Notification
+
+    @factory.post_generation
+    def is_read(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_read = extracted
+        else:
+            self.is_read = False
+
+    @factory.post_generation
+    def is_deleted(self, create, extracted, **kwargs):
+        if isinstance(extracted, bool):
+            self.is_deleted = extracted
+        else:
+            self.is_deleted = False
+
+
 class HashtagFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda n: n)
     name = factory.Sequence(lambda n: f"hashtag{n}")
@@ -117,6 +159,12 @@ class PhotoBoothBrandFactory(factory.django.DjangoModelFactory):
             for hashtag in extracted:
                 self.hashtag.add(hashtag)
 
+    @factory.post_generation
+    def photo_booth_brand_image(self, create, extracted, **kwargs):
+        if extracted:
+            for photo_booth_brand_image in extracted:
+                self.photo_booth_brand_image.add(photo_booth_brand_image)
+
 
 class PhotoBoothBrandImageFactory(factory.django.DjangoModelFactory):
     photo_booth_brand_image_url = faker.image_url()
@@ -129,14 +177,14 @@ class PhotoBoothBrandImageFactory(factory.django.DjangoModelFactory):
 class PhotoBoothFactory(factory.django.DjangoModelFactory):
     id = factory.LazyAttribute(lambda _: faker.uuid4())
     name = FuzzyText(length=64)
-    location = FuzzyText(length=32)
+    location = FuzzyChoice([location.value for location in PhotoBoothLocation])
     latitude = faker.latitude()
     longitude = faker.longitude()
     point = factory.LazyAttribute(
         lambda _: json.dumps(
             {
                 "type": "Point",
-                "coordinates": [37.55466577566926, 126.97061201527232],
+                "coordinates": [126.97061201527232, 37.55466577566926],
             }
         )
     )  # 서울역
@@ -155,7 +203,7 @@ class PhotoBoothFactory(factory.django.DjangoModelFactory):
 
 class ConceptFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda n: n)
-    name = factory.Sequence(lambda n: f"concept{n}")
+    name = factory.Iterator([concept.value for concept in ConceptEnum])
 
     class Meta:
         model = Concept
@@ -165,9 +213,9 @@ class ReviewFactory(factory.django.DjangoModelFactory):
     content = faker.text()
     main_thumbnail_image_url = faker.image_url()
     date = faker.date()
-    frame_color = faker.color()
-    participants = FuzzyInteger(low=0, high=6)
-    camera_shot = FuzzyText(length=8)
+    frame_color = FuzzyChoice([color.value for color in FrameColor])
+    participants = FuzzyInteger(low=0, high=5)
+    camera_shot = FuzzyChoice([shot.value for shot in CameraShot])
     goods_amount = faker.pybool()
     curl_amount = faker.pybool()
     like_count = FuzzyInteger(low=0, high=1000)
@@ -247,6 +295,12 @@ class EventFactory(factory.django.DjangoModelFactory):
         if extracted:
             for user in extracted:
                 self.user_event_like_logs.add(user)
+
+    @factory.post_generation
+    def event_image(self, create, extracted, **kwargs):
+        if extracted:
+            for event_image in extracted:
+                self.event_image.add(event_image)
 
 
 class EventImageFactory(factory.django.DjangoModelFactory):

@@ -30,12 +30,14 @@ def test_inline_serializer_creates_a_serializer(mock_datetime, mock_object):
     # Output
     result = serializer.to_representation(mock_object)
     expected = {"foo": 1, "bar": "bar", "dt": expected_dt}
+
     assert expected == result
 
     # Input
     payload = {"foo": 1, "bar": "bar", "dt": expected_dt}
     result = serializer.to_internal_value(payload)
     expected = {"foo": 1, "bar": "bar", "dt": mock_datetime}
+
     assert expected == result
 
 
@@ -52,10 +54,12 @@ def test_inline_serializer_passes_kwargs(mock_object):
     # Output
     result = serializer.to_representation(objects)
     expected = [{"foo": 1}]
+
     assert expected == result
 
     # Input
     payload = [{"foo": 1}]
     result = serializer.to_internal_value(payload)
     expected = [{"foo": 1}]
+
     assert expected == result

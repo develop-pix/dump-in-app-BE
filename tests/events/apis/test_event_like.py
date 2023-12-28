@@ -20,8 +20,8 @@ class TestEventLike(IsAuthenticateTestCase):
         )
 
         assert response.status_code == 200
+        assert response.data["data"]["id"] == valid_event.id
         assert response.data["data"]["is_liked"] is True
-        assert response.data["data"]["event_id"] == valid_event.id
 
     def test_event_like_post_suceess_already_liked(self, valid_event, valid_user):
         valid_event.user_event_like_logs.add(valid_user)
@@ -38,8 +38,8 @@ class TestEventLike(IsAuthenticateTestCase):
         )
 
         assert response.status_code == 200
+        assert response.data["data"]["id"] == valid_event.id
         assert response.data["data"]["is_liked"] is False
-        assert response.data["data"]["event_id"] == valid_event.id
 
     def test_event_like_post_fail_not_authenticated(self):
         response = self.client.post(
@@ -52,4 +52,5 @@ class TestEventLike(IsAuthenticateTestCase):
         )
 
         assert response.status_code == 401
+        assert response.data["code"] == "not_authenticated"
         assert response.data["message"] == "Authentication credentials were not provided."

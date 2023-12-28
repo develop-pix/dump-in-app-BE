@@ -2,7 +2,7 @@ import pytest
 from requests.models import Response
 
 from dump_in.users.enums import UserProvider
-from dump_in.users.services import UserService
+from dump_in.users.services.users import UserService
 
 pytestmark = pytest.mark.django_db
 
@@ -20,6 +20,7 @@ class TestCreateSocialUser:
             gender="F",
             social_provider=UserProvider.KAKAO.value,
         )
+
         assert user.email == "test@test.com"
         assert user.nickname == "test_nickname"
         assert user.username == "test_social_id"
@@ -31,7 +32,7 @@ class TestCreateSocialUser:
         mock_response.status_code = 200
         mock_response.json = mocker.Mock(return_value={"words": ["mocked_nickname"]})
 
-        mocker.patch("dump_in.users.services.requests.get", return_value=mock_response)
+        mocker.patch("dump_in.users.services.users.requests.get", return_value=mock_response)
 
         user = self.service.create_social_user(
             email="test@test.com",
@@ -41,6 +42,7 @@ class TestCreateSocialUser:
             gender="F",
             social_provider=UserProvider.KAKAO.value,
         )
+
         assert user.email == "test@test.com"
         assert user.nickname != valid_user.nickname
         assert user.username == "test_social_id"
@@ -56,6 +58,7 @@ class TestCreateSocialUser:
             gender=valid_user.gender,
             social_provider=UserProvider.KAKAO.value,
         )
+
         assert user.email == valid_user.email
         assert user.nickname == valid_user.nickname
         assert user.username == valid_user.username

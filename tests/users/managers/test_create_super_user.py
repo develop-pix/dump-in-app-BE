@@ -42,6 +42,7 @@ class TestCreateSuperUser:
                     username=username,
                     password=password,
                 )
+
         assert User.objects.count() == 1
 
     def test_create_superuser_fail_duplicate_username(self, user_social_provider, group, valid_user):
@@ -58,4 +59,5 @@ class TestCreateSuperUser:
                     username=username,
                     password=password,
                 )
+
         assert User.objects.count() == 1

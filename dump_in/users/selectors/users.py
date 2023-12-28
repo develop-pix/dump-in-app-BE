@@ -1,7 +1,6 @@
 from datetime import timedelta
-from typing import Optional, Union
+from typing import Optional
 
-from django.db.models import BigAutoField
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
@@ -9,7 +8,7 @@ from dump_in.users.models import User
 
 
 class UserSelector:
-    def get_user_by_id(self, user_id: Union[BigAutoField, str, int]) -> Optional[User]:
+    def get_user_by_id(self, user_id) -> Optional[User]:
         try:
             return User.objects.filter(id=user_id, is_deleted=False, deleted_at__isnull=True, is_active=True).get()
         except User.DoesNotExist:

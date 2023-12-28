@@ -59,4 +59,5 @@ class TestCreateSocialUser:
                     social_id=social_id,
                     social_provider=social_provider,
                 )
+
         assert User.objects.count() == 1

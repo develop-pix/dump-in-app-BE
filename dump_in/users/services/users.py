@@ -3,7 +3,6 @@ from typing import Optional, Union
 
 import requests
 from django.db import transaction
-from django.db.models import BigAutoField
 from django.utils import timezone
 
 from dump_in.common.exception.exceptions import ValidationException
@@ -51,10 +50,7 @@ class UserService:
         return user
 
     @transaction.atomic
-    def update_user(self, user_id: BigAutoField, nickname: str) -> User:
-        if len(nickname) > 16:
-            raise ValidationException("Nickname is 16 characters or less")
-
+    def update_user(self, user_id, nickname: str) -> User:
         if self.user_selector.check_is_exists_user_by_nickname(nickname=nickname):
             raise ValidationException("Nickname already exists")
 
@@ -65,13 +61,12 @@ class UserService:
         return user
 
     @transaction.atomic
-    def soft_delete_user(self, user_id: BigAutoField) -> User:
+    def soft_delete_user(self, user_id):
         user = self.user_selector.get_user_by_id(user_id=user_id)
 
         user.deleted_at = timezone.now()
         user.is_deleted = True
         user.save()
-        return user
 
     @transaction.atomic()
     def hard_bulk_delete_users(self, days: int):

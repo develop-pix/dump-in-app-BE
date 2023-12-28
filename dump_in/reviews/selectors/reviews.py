@@ -7,10 +7,10 @@ from dump_in.reviews.models import Review
 
 
 class ReviewSelector:
-    def get_review_queryset_with_concept_by_photo_booth_id(self, photo_booth_id: str) -> QuerySet[Review]:
+    def get_review_with_concept_queryset_by_photo_booth_id(self, photo_booth_id: str) -> QuerySet[Review]:
         return Review.objects.prefetch_related("concept").filter(photo_booth_id=photo_booth_id, is_deleted=False, is_public=True)
 
-    def get_review_queryset_with_concept_by_photo_booth_brand_id(self, photo_booth_brand_id: int) -> QuerySet[Review]:
+    def get_review_with_concept_queryset_by_photo_booth_brand_id(self, photo_booth_brand_id: int) -> QuerySet[Review]:
         return Review.objects.prefetch_related("concept").filter(
             photo_booth__photo_booth_brand_id=photo_booth_brand_id, is_deleted=False, is_public=True
         )
@@ -21,17 +21,17 @@ class ReviewSelector:
         except Review.DoesNotExist:
             return None
 
-    def get_review_with_user_info_by_id(self, review_id: int, user) -> Optional[Review]:
+    def get_review_with_user_info_by_id(self, review_id: int, user_id) -> Optional[Review]:
         try:
             return (
                 Review.objects.annotate(
                     is_liked=Case(
-                        When(userreviewlikelog__user=user, then=True),
+                        When(userreviewlikelog__user_id=user_id, then=True),
                         default=False,
                         output_field=BooleanField(),
                     ),
                     is_mine=Case(
-                        When(user=user, then=True),
+                        When(user_id=user_id, then=True),
                         default=False,
                         output_field=BooleanField(),
                     ),
@@ -48,15 +48,15 @@ class ReviewSelector:
         except Review.DoesNotExist:
             return None
 
-    def get_review_queryset_with_photo_booth_and_brand_by_user_id(self, user) -> QuerySet[Review]:
+    def get_review_with_photo_booth_and_brand_queryset_by_user_id(self, user_id) -> QuerySet[Review]:
         return (
             Review.objects.select_related("photo_booth")
             .prefetch_related("photo_booth__photo_booth_brand")
-            .filter(user_id=user.id, is_deleted=False)
+            .filter(user_id=user_id, is_deleted=False)
         )
 
-    def get_review_queryset_with_photo_booth_by_user_like(self, user) -> QuerySet[Review]:
-        return Review.objects.select_related("photo_booth").filter(userreviewlikelog__user=user, is_deleted=False, is_public=True)
+    def get_review_with_photo_booth_queryset_by_user_like(self, user_id) -> QuerySet[Review]:
+        return Review.objects.select_related("photo_booth").filter(userreviewlikelog__user_id=user_id, is_deleted=False, is_public=True)
 
     def get_review_count(self, filters: Optional[dict]) -> int:
         filters = filters or {}

@@ -6,9 +6,12 @@ from dump_in.users.models import User
 from tests.factories import (
     ConceptFactory,
     EventFactory,
+    EventImageFactory,
     GroupFactory,
     HashtagFactory,
+    NotificationFactory,
     PhotoBoothBrandFactory,
+    PhotoBoothBrandImageFactory,
     PhotoBoothFactory,
     ReviewFactory,
     ReviewImageFactory,
@@ -78,8 +81,40 @@ def inactive_user(db):
 
 
 @pytest.fixture
+def valid_notification(db):
+    return NotificationFactory()
+
+
+@pytest.fixture
+def valid_notification_list(db):
+    user = UserFactory()
+
+    return NotificationFactory.create_batch(
+        size=100,
+        user=user,
+    )
+
+
+@pytest.fixture
+def deleted_notification(db):
+    return NotificationFactory(is_deleted=True)
+
+
+@pytest.fixture
+def read_notification(db):
+    return NotificationFactory(is_read=True)
+
+
+@pytest.fixture
 def photo_booth_brand(db):
-    return PhotoBoothBrandFactory()
+    photo_booth_brand_image = PhotoBoothBrandImageFactory()
+
+    hashtag = HashtagFactory()
+
+    return PhotoBoothBrandFactory(
+        photo_booth_brand_image=[photo_booth_brand_image],
+        hashtag=[hashtag],
+    )
 
 
 @pytest.fixture
@@ -89,18 +124,26 @@ def photo_booth_brand_list(db):
 
 @pytest.fixture
 def photo_booth_brand_image(db):
-    return PhotoBoothBrandFactory()
+    return PhotoBoothBrandImageFactory()
 
 
 @pytest.fixture
-def photo_booth(db):
-    return PhotoBoothFactory()
-
-
-@pytest.fixture
-def photo_booth_list(db):
+def photo_booth_brand_image_list(db):
     photo_booth_brand = PhotoBoothBrandFactory()
 
+    return PhotoBoothBrandImageFactory.create_batch(
+        size=10,
+        photo_booth_brand=photo_booth_brand,
+    )
+
+
+@pytest.fixture
+def photo_booth(db, photo_booth_brand):
+    return PhotoBoothFactory(photo_booth_brand=photo_booth_brand)
+
+
+@pytest.fixture
+def photo_booth_list(db, photo_booth_brand):
     return PhotoBoothFactory.create_batch(size=100, photo_booth_brand=photo_booth_brand)
 
 
@@ -122,8 +165,11 @@ def valid_review(db):
         photo_booth_brand=photo_booth_brand,
     )
 
+    concept = ConceptFactory()
+
     return ReviewFactory(
         photo_booth=photo_booth,
+        concept=[concept],
     )
 
 
@@ -149,7 +195,7 @@ def valid_review_list_photo_booth_location(db):
 
 @pytest.fixture
 def valid_review_list_frame_color(db):
-    return ReviewFactory.create_batch(3, frame_color="red")
+    return ReviewFactory.create_batch(3, frame_color="#000000")
 
 
 @pytest.fixture
@@ -205,14 +251,22 @@ def review_image(db):
 
 
 @pytest.fixture
+def review_image_list(db):
+    review = ReviewFactory()
+    return ReviewImageFactory.create_batch(10, review=review)
+
+
+@pytest.fixture
 def valid_event(db):
     hashtag = HashtagFactory()
+    evnet_image = EventImageFactory()
 
     photo_booth_brand = PhotoBoothBrandFactory(is_event=True)
 
     return EventFactory(
         photo_booth_brand=photo_booth_brand,
         hashtag=[hashtag],
+        event_image=[evnet_image],
     )
 
 
