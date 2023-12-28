@@ -14,7 +14,7 @@ class EventService:
         event_selector = EventSelector()
         event = event_selector.get_event_by_id(event_id=event_id)
 
-        if not event:
+        if event is None:
             raise NotFoundException("Event does not exist")
 
         if event.user_event_like_logs.filter(id=user.id).exists():

@@ -10,7 +10,6 @@ from dump_in.common.exception.exceptions import (
 from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 from dump_in.reviews.models import Review, ReviewImage
 from dump_in.reviews.selectors.concepts import ConceptSelector
-from dump_in.reviews.selectors.review_images import ReviewImageSelector
 from dump_in.reviews.selectors.reviews import ReviewSelector
 
 
@@ -19,23 +18,23 @@ class ReviewService:
     def create_review(
         self,
         main_thumbnail_image_url: str,
-        image_urls: List[str],
+        image_urls: Optional[List[str]],
         content: str,
         photo_booth_id: str,
         date: str,
         frame_color: str,
         participants: int,
         camera_shot: str,
-        concept_ids: List[int],
+        concept_names: List[str],
         goods_amount: Optional[bool],
         curl_amount: Optional[bool],
         is_public: bool,
-        user,
+        user_id,
     ) -> Review:
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
-        if not photo_booth:
+        if photo_booth is None:
             raise NotFoundException("PhotoBooth does not exist")
 
         review = Review.objects.create(
@@ -49,29 +48,23 @@ class ReviewService:
             goods_amount=goods_amount,
             curl_amount=curl_amount,
             is_public=is_public,
-            user=user,
+            user_id=user_id,
         )
 
-        ReviewImage.objects.bulk_create(
-            [
-                ReviewImage(
-                    review=review,
-                    review_image_url=image_url,
-                )
-                for image_url in image_urls
-            ],
-        )
+        if image_urls is not None:
+            review.review_image.bulk_create(
+                [
+                    ReviewImage(
+                        review=review,
+                        review_image_url=image_url,
+                    )
+                    for image_url in image_urls
+                ],
+            )
 
         concept_selector = ConceptSelector()
-        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids=concept_ids)
-
-        concept_queryset_ids = [concept.id for concept in concept_queryset]
-
-        if any(concept_id not in concept_queryset_ids for concept_id in concept_ids):
-            raise NotFoundException("Concept does not exist")
-
-        if concept_queryset_ids:
-            review.concept.set(concept_queryset_ids)
+        concepts = concept_selector.get_concept_queryset_by_names(concept_names=concept_names)
+        review.concept.set(concepts)
 
         return review
 
@@ -80,32 +73,32 @@ class ReviewService:
         self,
         review_id: int,
         main_thumbnail_image_url: str,
-        image_urls: List[str],
+        image_urls: Optional[List[str]],
         content: str,
         photo_booth_id: str,
         date: str,
         frame_color: str,
         participants: int,
         camera_shot: str,
-        concept_ids: List[int],
+        concept_names: List[str],
         goods_amount: Optional[bool],
         curl_amount: Optional[bool],
         is_public: bool,
-        user,
+        user_id,
     ) -> Review:
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
-        if not photo_booth:
+        if photo_booth is None:
             raise NotFoundException("PhotoBooth does not exist")
 
         review_selector = ReviewSelector()
         review = review_selector.get_review_by_id(review_id=review_id)
 
-        if not review:
+        if review is None:
             raise NotFoundException("Review does not exist")
 
-        if review.user != user:
+        if review.user_id != user_id:
             raise PermissionDeniedException()
 
         review.content = content
@@ -120,54 +113,46 @@ class ReviewService:
         review.is_public = is_public
         review.save()
 
-        review_image_selector = ReviewImageSelector()
-        review_images = review_image_selector.get_review_image_queryset_by_review_id(review_id=review_id)
-        review_images.delete()
-
-        ReviewImage.objects.bulk_create(
-            [
-                ReviewImage(
-                    review=review,
-                    review_image_url=image_url,
-                )
-                for image_url in image_urls
-            ],
-        )
+        if image_urls is not None:
+            review.review_image.all().delete()
+            review.review_image.bulk_create(
+                [
+                    ReviewImage(
+                        review=review,
+                        review_image_url=image_url,
+                    )
+                    for image_url in image_urls
+                ],
+            )
 
         concept_selector = ConceptSelector()
-        concept_queryset = concept_selector.get_concept_queryset_by_ids(concept_ids=concept_ids)
+        concepts = concept_selector.get_concept_queryset_by_names(concept_names=concept_names)
 
-        concept_queryset_ids = [concept.id for concept in concept_queryset]
-
-        if any(concept_id not in concept_queryset_ids for concept_id in concept_ids):
-            raise NotFoundException("Concept does not exist")
-
-        if concept_queryset_ids:
-            review.concept.set(concept_queryset_ids)
+        review.concept.clear()
+        review.concept.set(concepts)
 
         return review
 
     @transaction.atomic
-    def soft_delete_review(self, review_id: int, user) -> Optional[Review]:
+    def soft_delete_review(self, review_id: int, user_id):
         review_selector = ReviewSelector()
         review = review_selector.get_review_by_id(review_id=review_id)
 
-        if not review:
+        if review is None:
             raise NotFoundException("Review does not exist")
 
-        if review.user != user:
+        if review.user_id != user_id:
             raise PermissionDeniedException()
 
         review.is_deleted = True
         review.save()
-        return review
 
     @transaction.atomic
     def like_review(self, review_id: int, user) -> Tuple[Review, bool]:
         review_selector = ReviewSelector()
         review = review_selector.get_public_review_by_id(review_id=review_id)
 
-        if not review:
+        if review is None:
             raise NotFoundException("Review does not exist")
 
         if review.user_review_like_logs.filter(id=user.id).exists():
@@ -185,14 +170,14 @@ class ReviewService:
         return review, is_liked
 
     @transaction.atomic
-    def view_count_up(self, review_id: int, user) -> Review:
+    def view_count_up(self, review_id: int, user_id) -> Review:
         review_selector = ReviewSelector()
-        review = review_selector.get_review_with_user_info_by_id(review_id=review_id, user=user)
+        review = review_selector.get_review_with_user_info_by_id(review_id=review_id, user_id=user_id)
 
-        if not review:
+        if review is None:
             raise NotFoundException("Review does not exist")
 
-        if review.is_public is False and review.user != user:
+        if review.is_public is False and review.user_id != user_id:
             raise PermissionDeniedException()
 
         review.view_count += 1

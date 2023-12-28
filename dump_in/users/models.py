@@ -77,3 +77,31 @@ class UserMobileUUID(BaseModel):
         db_table = "user_mobile_uuid"
         verbose_name = "user mobile uuid"
         verbose_name_plural = "user mobile uuids"
+
+
+class Notification(BaseModel):
+    title = models.CharField(max_length=64)
+    content = models.CharField(max_length=128)
+    is_read = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+    parameter_data = models.CharField(max_length=512, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey("NotificationCategory", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"[{self.id}/{self.user}] {self.title}"
+
+    class Meta:
+        db_table = "notification"
+        verbose_name = "notification"
+        verbose_name_plural = "notifications"
+
+
+class NotificationCategory(SimpleModel):
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = "notification_category"
+        verbose_name = "notification category"
+        verbose_name_plural = "notification categories"

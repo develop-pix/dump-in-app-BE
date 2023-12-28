@@ -17,6 +17,7 @@ class TestLikeEvent:
 
         assert is_liked is True
         assert event.user_event_like_logs.count() == 1
+        assert event == valid_event
 
     def test_like_event_success_already_like(self, valid_event, valid_user):
         valid_event.user_event_like_logs.add(valid_user)
@@ -24,6 +25,7 @@ class TestLikeEvent:
 
         assert is_like is False
         assert event.user_event_like_logs.count() == 0
+        assert event == valid_event
 
     def test_like_event_fail_event_does_not_exist(self, valid_user):
         with pytest.raises(NotFoundException) as e:

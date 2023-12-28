@@ -14,33 +14,27 @@ class PhotoBoothSelector:
         except PhotoBooth.DoesNotExist:
             return None
 
-    def get_photo_booth_with_user_info_by_id(self, photo_booth_id: str, user) -> Optional[PhotoBooth]:
+    def get_photo_booth_with_user_info_by_id(self, photo_booth_id: str, user_id) -> Optional[PhotoBooth]:
         try:
-            photo_booth = PhotoBooth.objects.annotate(
+            return PhotoBooth.objects.annotate(
                 is_liked=Case(
-                    When(userphotoboothlikelog__user=user, then=True),
+                    When(userphotoboothlikelog__user_id=user_id, then=True),
                     default=False,
                     output_field=BooleanField(),
                 ),
             ).get(id=photo_booth_id)
-
-            if photo_booth.photo_booth_brand:
-                photo_booth.photo_booth_brand_image = list(
-                    photo_booth.photo_booth_brand.photo_booth_brand_image.order_by("-created_at")[:4]
-                )
-            return photo_booth
         except PhotoBooth.DoesNotExist:
             return None
 
-    def get_nearby_photo_booth_queryset_with_brand_and_hashtag_and_user_info(
-        self, center_point: Point, radius: int, user
+    def get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
+        self, center_point: Point, radius: int, user_id
     ) -> QuerySet[PhotoBooth]:
         return (
             PhotoBooth.objects.select_related("photo_booth_brand")
             .prefetch_related("photo_booth_brand__hashtag")
             .annotate(
                 is_liked=Case(
-                    When(userphotoboothlikelog__user=user, then=True),
+                    When(userphotoboothlikelog__user_id=user_id, then=True),
                     default=False,
                     output_field=BooleanField(),
                 ),
@@ -58,9 +52,9 @@ class PhotoBoothSelector:
             photo_booth_brand__name__icontains=photo_booth_brand_name,
         )
 
-    def get_photo_booth_queryset_with_brand_and_hashtag_by_user_like(self, user) -> QuerySet[PhotoBooth]:
+    def get_photo_booth_with_brand_and_hashtag_queryset_by_user_like(self, user_id) -> QuerySet[PhotoBooth]:
         return (
             PhotoBooth.objects.select_related("photo_booth_brand")
             .prefetch_related("photo_booth_brand__hashtag")
-            .filter(userphotoboothlikelog__user=user)
+            .filter(userphotoboothlikelog__user_id=user_id)
         )

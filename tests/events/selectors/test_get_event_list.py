@@ -13,58 +13,63 @@ class TestGetEventList:
     def setup_method(self):
         self.event_selector = EventSelector()
 
-    def test_get_event_list_success(self, valid_event_list, valid_user):
-        event_list = self.event_selector.get_event_list({}, valid_user)
+    def test_get_event_list_success_single_event(self, valid_event, valid_user):
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
 
-        assert event_list.count() == 100
+        assert event_list.first() == valid_event
+
+    def test_get_event_list_success_multiple_event(self, valid_event_list, valid_user):
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
+
+        assert event_list.count() == len(valid_event_list)
 
     def test_get_event_list_success_is_liked_true(self, valid_event, valid_user):
         valid_event.user_event_like_logs.add(valid_user)
 
-        event_list = self.event_selector.get_event_list({}, valid_user)
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
 
-        assert event_list.count() == 1
+        assert event_list.first() == valid_event
         assert event_list.first().is_liked is True
 
     def test_get_event_list_success_is_liked_false(self, valid_event, valid_user):
-        event_list = self.event_selector.get_event_list({}, valid_user)
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
 
-        assert event_list.count() == 1
+        assert event_list.first() == valid_event
         assert event_list.first().is_liked is False
 
     def test_get_event_list_success_with_hashtag(self, valid_event, valid_user):
         hashtag = valid_event.hashtag.first()
 
-        event_list = self.event_selector.get_event_list({"hashtag": str(hashtag.id)}, valid_user)
+        event_list = self.event_selector.get_event_list({"hashtag_ids": str(hashtag.id)}, valid_user.id)
 
-        assert event_list.count() == 1
+        assert event_list.first() == valid_event
 
     def test_get_event_list_fail_does_not_exist(self, valid_user):
-        event_list = self.event_selector.get_event_list({}, valid_user)
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
 
-        assert list(event_list) == []
+        assert event_list.count() == 0
 
     def test_get_event_list_fail_private_event(self, private_event, valid_user):
-        event_list = self.event_selector.get_event_list({}, valid_user)
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
 
-        assert list(event_list) == []
+        assert event_list.count() == 0
 
     def test_get_event_list_fail_not_event_photo_booth_brand(self, invalid_event, valid_user):
-        event_list = self.event_selector.get_event_list({}, valid_user)
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
 
-        assert list(event_list) == []
+        assert event_list.count() == 0
 
     def test_get_event_list_fail_invalid_hashtag(self, valid_event, valid_user):
-        event_list = self.event_selector.get_event_list({"hashtag": "99999"}, valid_user)
+        event_list = self.event_selector.get_event_list({"hashtag_ids": "99999"}, valid_user.id)
 
-        assert list(event_list) == []
+        assert event_list.count() == 0
 
     def test_get_event_list_select_related_performance(self, valid_event_list, valid_user):
         start_time = time.time()
 
         event_list = Event.objects.annotate(
             is_liked=Case(
-                When(usereventlikelog__user=valid_user, then=True),
+                When(usereventlikelog__user_id=valid_user.id, then=True),
                 default=False,
                 output_field=BooleanField(),
             ),
@@ -84,7 +89,7 @@ class TestGetEventList:
 
         start_time = time.time()
 
-        event_list = self.event_selector.get_event_list({}, valid_user)
+        event_list = self.event_selector.get_event_list({}, valid_user.id)
 
         for event in event_list:
             event.photo_booth_brand.name

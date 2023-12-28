@@ -1,30 +1,24 @@
 from django.contrib.gis.geos import Point
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.exceptions import NotAuthenticated
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from dump_in.common.base.serializers import (
-    BaseResponseExceptionSerializer,
-    BaseResponseSerializer,
-    BaseSerializer,
-)
+from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.exception.exceptions import NotFoundException
 from dump_in.common.response import create_response
+from dump_in.common.utils import inline_serializer
 from dump_in.events.selectors.events import EventSelector
+from dump_in.photo_booths.selectors.photo_booth_brand_images import (
+    PhotoBoothBrandImageSelector,
+)
 from dump_in.photo_booths.selectors.photo_booth_brands import PhotoBoothBrandSelector
 from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
-from dump_in.photo_booths.serializers import (
-    HashtagSerializer,
-    PhotoBoothBrandImageSerializer,
-)
 from dump_in.photo_booths.services import PhotoBoothService
 from dump_in.reviews.selectors.reviews import ReviewSelector
-from dump_in.reviews.serializers import ConceptSerializer
 
 
 class PhotoBoothBrandListAPI(APIView):
@@ -38,15 +32,14 @@ class PhotoBoothBrandListAPI(APIView):
 
     @swagger_auto_schema(
         tags=["포토부스"],
-        operation_summary="포토부스 업체 조회",
+        operation_summary="포토부스 업체 목록 조회",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 포토부스에 업체를 조회합니다.
+        인증된 사용자가 포토부스에 업체 목록을 조회합니다.
         url: /app/api/photo-booths/brands
         """
         photo_booth_brand_selector = PhotoBoothBrandSelector()
@@ -62,16 +55,26 @@ class PhotoBoothBrandDetailAPI(APIView):
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
         name = serializers.CharField()
-        hashtag = HashtagSerializer(many=True)
-        photo_booth_brand_image = PhotoBoothBrandImageSerializer(many=True)
+        hashtag = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "name": serializers.CharField(),
+            },
+        )
+        image = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "image_url": serializers.CharField(source="photo_booth_brand_image_url"),
+            },
+        )
 
     @swagger_auto_schema(
         tags=["포토부스"],
         operation_summary="포토부스 업체 상세 조회",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
-            status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
@@ -80,19 +83,22 @@ class PhotoBoothBrandDetailAPI(APIView):
         url: /app/api/photo-booths/brands/<int:photo_booth_brand_id>
         """
         photo_booth_brand_selector = PhotoBoothBrandSelector()
-        photo_booth_brand, photo_booth_brand_image = photo_booth_brand_selector.get_photo_booth_brand_with_by_id(
-            photo_booth_brand_id=photo_booth_brand_id
-        )
+        photo_booth_brand = photo_booth_brand_selector.get_photo_booth_brand_by_id(photo_booth_brand_id=photo_booth_brand_id)
 
         if photo_booth_brand is None:
             raise NotFoundException("Photo Booth Brand does not exist")
+
+        photo_booth_brand_image_selector = PhotoBoothBrandImageSelector()
+        photo_booth_brand_image = photo_booth_brand_image_selector.get_recent_photo_booth_brand_image_queryset_by_photo_booth_brand_id(
+            photo_booth_brand_id=photo_booth_brand_id
+        )
 
         photo_booth_brand_data = self.OutputSerializer(
             {
                 "id": photo_booth_brand.id,
                 "name": photo_booth_brand.name,
                 "hashtag": photo_booth_brand.hashtag,
-                "photo_booth_brand_image": photo_booth_brand_image,
+                "image": photo_booth_brand_image,
             },
         ).data
         return create_response(data=photo_booth_brand_data, status_code=status.HTTP_200_OK)
@@ -103,7 +109,7 @@ class PhotoBoothBrandEventListAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        limit = serializers.IntegerField(default=15)
+        limit = serializers.IntegerField(default=15, min_value=1, max_value=50)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
@@ -115,24 +121,30 @@ class PhotoBoothBrandEventListAPI(APIView):
 
     @swagger_auto_schema(
         tags=["포토부스"],
-        operation_summary="포토부스 업체 이벤트 리스트 조회",
+        operation_summary="포토부스 업체 이벤트 목록 조회",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
         """
-        인증된 사용자가 포토부스에 업체 이벤트 리스트를 조회합니다.
+        인증된 사용자가 포토부스에 업체 이벤트 목록을 조회합니다.
         url: /app/api/photo-booths/brands/<int:photo_booth_brand_id>/events
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
         limit = filter_serializer.validated_data["limit"]
+
+        photo_booth_brand_selector = PhotoBoothBrandSelector()
+        photo_booth_brand = photo_booth_brand_selector.get_photo_booth_brand_by_id(photo_booth_brand_id=photo_booth_brand_id)
+
+        if photo_booth_brand is None:
+            raise NotFoundException("Photo Booth Brand does not exist")
+
         event_selector = EventSelector()
         events = event_selector.get_event_queryset_by_photo_booth_brand_id(
             photo_booth_brand_id=photo_booth_brand_id,
-            user=request.user,
+            user_id=request.user.id,
         ).order_by("-created_at")[0:limit]
         events_data = self.OutputSerializer(events, many=True).data
         return create_response(data=events_data, status_code=status.HTTP_200_OK)
@@ -143,7 +155,7 @@ class PhotoBoothBrandReviewListAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        limit = serializers.IntegerField(default=15)
+        limit = serializers.IntegerField(default=15, min_value=1, max_value=50)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
@@ -154,28 +166,40 @@ class PhotoBoothBrandReviewListAPI(APIView):
         camera_shot = serializers.CharField()
         goods_amount = serializers.BooleanField()
         curl_amount = serializers.BooleanField()
-        concept = ConceptSerializer(many=True)
+        concept = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "name": serializers.CharField(),
+            },
+        )
         created_at = serializers.DateTimeField()
         updated_at = serializers.DateTimeField()
 
     @swagger_auto_schema(
         tags=["포토부스"],
-        operation_summary="포토부스 업체 리뷰 리스트 조회",
+        operation_summary="포토부스 업체 리뷰 목록 조회",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
         """
-        인증된 사용자가 포토부스에 업체 리뷰 리스트를 조회합니다.
+        인증된 사용자가 포토부스에 업체 리뷰 목록을 조회합니다.
         url: /app/api/photo-booths/brands/<int:photo_booth_brand_id>/reviews
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
         limit = filter_serializer.validated_data["limit"]
+
+        photo_booth_brand_selector = PhotoBoothBrandSelector()
+        photo_booth_brand = photo_booth_brand_selector.get_photo_booth_brand_by_id(photo_booth_brand_id=photo_booth_brand_id)
+
+        if photo_booth_brand is None:
+            raise NotFoundException("Photo Booth Brand does not exist")
+
         review_selector = ReviewSelector()
-        reviews = review_selector.get_review_queryset_with_concept_by_photo_booth_brand_id(
+        reviews = review_selector.get_review_with_concept_queryset_by_photo_booth_brand_id(
             photo_booth_brand_id=photo_booth_brand_id,
         ).order_by("-created_at")[0:limit]
         reviews_data = self.OutputSerializer(reviews, many=True).data
@@ -187,10 +211,10 @@ class PhotoBoothLocationSearchAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        photo_booth_brand_name = serializers.CharField(required=True)
-        latitude = serializers.FloatField(required=True)
-        longitude = serializers.FloatField(required=True)
-        radius = serializers.FloatField(max_value=1.5, required=True)
+        photo_booth_brand_name = serializers.CharField(required=True, max_length=64)
+        latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
+        longitude = serializers.FloatField(required=True, min_value=-180, max_value=180)
+        radius = serializers.FloatField(required=True, min_value=0, max_value=1.5)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
@@ -211,12 +235,11 @@ class PhotoBoothLocationSearchAPI(APIView):
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 자신의 위를 기준으로 포토부스 지점 위치를 검색합니다. (반경 최대 1.5km)
+        인증된 사용자가 자신의 위치를 기준으로 포토부스 지점 위치를 검색합니다. (반경 최대 1.5km)
         url: /app/api/photo-booths/locations/search
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -245,32 +268,41 @@ class PhotoBoothLocationListAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        latitude = serializers.FloatField(required=True)
-        longitude = serializers.FloatField(required=True)
-        radius = serializers.FloatField(max_value=1.5, required=True)
+        latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
+        longitude = serializers.FloatField(required=True, min_value=-180, max_value=180)
+        radius = serializers.FloatField(required=True, min_value=0, max_value=1.5)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
-        photo_booth_name = serializers.CharField(source="name")
-        photo_booth_brand_name = serializers.CharField(source="photo_booth_brand.name")
-        logo_image_url = serializers.URLField(source="photo_booth_brand.logo_image_url")
+        name = serializers.CharField()
         latitude = serializers.FloatField()
         longitude = serializers.FloatField()
         is_liked = serializers.BooleanField()
-        hashtag = HashtagSerializer(many=True, source="photo_booth_brand.hashtag")
+        photo_booth_brand = inline_serializer(
+            fields={
+                "name": serializers.CharField(),
+                "logo_image_url": serializers.CharField(),
+                "hashtag": inline_serializer(
+                    many=True,
+                    fields={
+                        "id": serializers.IntegerField(),
+                        "name": serializers.CharField(),
+                    },
+                ),
+            }
+        )
 
     @swagger_auto_schema(
         tags=["포토부스"],
-        operation_summary="포토부스 지점 위치 리스트 조회",
+        operation_summary="포토부스 지점 위치 목록 조회",
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 자신의 위치를 기준으로 포토부스 지점 리스트를 조회합니다. (반경 1.5km)
+        인증된 사용자가 자신의 위치를 기준으로 포토부스 지점 목록을 조회합니다. (반경 1.5km)
         url: /app/api/photo-booths/locations
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -281,15 +313,12 @@ class PhotoBoothLocationListAPI(APIView):
             srid=4326,
         )
         photo_booths_selector = PhotoBoothSelector()
-        photo_booths = photo_booths_selector.get_nearby_photo_booth_queryset_with_brand_and_hashtag_and_user_info(
+        photo_booths = photo_booths_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=center_point,
             radius=filter_serializer.validated_data["radius"],
-            user=request.user,
+            user_id=request.user.id,
         )
-        photo_booths_data = self.OutputSerializer(
-            photo_booths,
-            many=True,
-        ).data
+        photo_booths_data = self.OutputSerializer(photo_booths, many=True).data
         return create_response(data=photo_booths_data, status_code=status.HTTP_200_OK)
 
 
@@ -298,26 +327,42 @@ class PhotoBoothDetailAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        latitude = serializers.FloatField(required=True)
-        longitude = serializers.FloatField(required=True)
+        latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
+        longitude = serializers.FloatField(required=True, min_value=-180, max_value=180)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
-        photo_booth_name = serializers.CharField(source="name")
-        photo_booth_brand_name = serializers.CharField(source="photo_booth_brand.name")
+        name = serializers.CharField()
         latitude = serializers.FloatField()
         longitude = serializers.FloatField()
         street_address = serializers.CharField()
         road_address = serializers.CharField()
         operation_time = serializers.CharField()
-        distance = serializers.SerializerMethodField()
         is_liked = serializers.BooleanField()
-        photo_booth_brand_image = PhotoBoothBrandImageSerializer(many=True)
-        hashtag = HashtagSerializer(many=True, source="photo_booth_brand.hashtag")
+        photo_booth_brand = inline_serializer(
+            fields={
+                "name": serializers.CharField(),
+                "image": inline_serializer(
+                    many=True,
+                    fields={
+                        "id": serializers.IntegerField(),
+                        "image_url": serializers.CharField(source="photo_booth_brand_image_url"),
+                    },
+                ),
+                "hashtag": inline_serializer(
+                    many=True,
+                    fields={
+                        "id": serializers.IntegerField(),
+                        "name": serializers.CharField(),
+                    },
+                ),
+            }
+        )
+        distance = serializers.SerializerMethodField()
 
         def get_distance(self, obj) -> str:
             center_point = self.context["center_point"]
-            destination_point = obj.point
+            destination_point = obj.get("point")
             distance = center_point.distance(destination_point)
             if distance > 0.01:
                 return f"{distance * 100:.2f} km"
@@ -329,7 +374,6 @@ class PhotoBoothDetailAPI(APIView):
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request, photo_booth_id: str) -> Response:
@@ -347,13 +391,37 @@ class PhotoBoothDetailAPI(APIView):
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_with_user_info_by_id(
             photo_booth_id=photo_booth_id,
-            user=request.user,
+            user_id=request.user.id,
         )
 
         if photo_booth is None:
             raise NotFoundException("Photo Booth does not exist")
 
-        photo_booth_data = self.OutputSerializer(photo_booth, context={"center_point": center_point}).data
+        if photo_booth.photo_booth_brand_id is not None:
+            photo_booth_brand_image_selector = PhotoBoothBrandImageSelector()
+            photo_booth_brand_image = photo_booth_brand_image_selector.get_recent_photo_booth_brand_image_queryset_by_photo_booth_brand_id(
+                photo_booth_brand_id=photo_booth.photo_booth_brand_id
+            )
+
+        photo_booth_data = self.OutputSerializer(
+            {
+                "id": photo_booth.id,
+                "name": photo_booth.name,
+                "latitude": photo_booth.latitude,
+                "longitude": photo_booth.longitude,
+                "street_address": photo_booth.street_address,
+                "road_address": photo_booth.road_address,
+                "operation_time": photo_booth.operation_time,
+                "is_liked": getattr(photo_booth, "is_liked", False),
+                "photo_booth_brand": {
+                    "name": getattr(photo_booth.photo_booth_brand, "name", None),
+                    "image": photo_booth_brand_image,
+                    "hashtag": getattr(photo_booth.photo_booth_brand, "hashtag", []),
+                },
+                "point": photo_booth.point,
+            },
+            context={"center_point": center_point},
+        ).data
         return create_response(data=photo_booth_data, status_code=status.HTTP_200_OK)
 
 
@@ -362,7 +430,7 @@ class PhotoBoothLikeAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(BaseSerializer):
-        photo_booth_id = serializers.UUIDField()
+        id = serializers.UUIDField()
         is_liked = serializers.BooleanField()
 
     @swagger_auto_schema(
@@ -370,8 +438,6 @@ class PhotoBoothLikeAPI(APIView):
         operation_summary="포토부스 지점 좋아요",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
-            status.HTTP_404_NOT_FOUND: BaseResponseExceptionSerializer(exception=NotFoundException),
         },
     )
     def post(self, request: Request, photo_booth_id: str) -> Response:
@@ -381,7 +447,7 @@ class PhotoBoothLikeAPI(APIView):
         """
         photo_booth_service = PhotoBoothService()
         photo_booth, is_liked = photo_booth_service.like_photo_booth(photo_booth_id=photo_booth_id, user=request.user)
-        photo_booth_data = self.OutputSerializer({"photo_booth_id": photo_booth.id, "is_liked": is_liked}).data
+        photo_booth_data = self.OutputSerializer({"id": photo_booth.id, "is_liked": is_liked}).data
         return create_response(data=photo_booth_data, status_code=status.HTTP_200_OK)
 
 
@@ -390,7 +456,7 @@ class PhotoBoothReviewListAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class FilterSerializer(BaseSerializer):
-        limit = serializers.IntegerField(default=15)
+        limit = serializers.IntegerField(default=15, min_value=1, max_value=50)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
@@ -401,29 +467,34 @@ class PhotoBoothReviewListAPI(APIView):
         camera_shot = serializers.CharField()
         goods_amount = serializers.BooleanField()
         curl_amount = serializers.BooleanField()
-        concept = ConceptSerializer(many=True)
+        concept = inline_serializer(
+            many=True,
+            fields={
+                "id": serializers.IntegerField(),
+                "name": serializers.CharField(),
+            },
+        )
         created_at = serializers.DateTimeField()
         updated_at = serializers.DateTimeField()
 
     @swagger_auto_schema(
         tags=["포토부스"],
-        operation_summary="포토부스 리뷰 리스트 조회",
+        operation_summary="포토부스 지점 리뷰 목록 조회",
         query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-            status.HTTP_401_UNAUTHORIZED: BaseResponseExceptionSerializer(exception=NotAuthenticated),
         },
     )
     def get(self, request: Request, photo_booth_id: str) -> Response:
         """
-        인증된 사용자가 포토부스 지점 리뷰 리스트를 조회합니다.
+        인증된 사용자가 포토부스 지점 리뷰 목록을 조회합니다.
         url: /app/api/photo-booths/<str:photo_booth_id>/reviews
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
         limit = filter_serializer.validated_data["limit"]
         review_selector = ReviewSelector()
-        reviews = review_selector.get_review_queryset_with_concept_by_photo_booth_id(
+        reviews = review_selector.get_review_with_concept_queryset_by_photo_booth_id(
             photo_booth_id=photo_booth_id,
         ).order_by(
             "-created_at"
