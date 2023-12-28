@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 def create_response(
     data: Optional[dict] = None,
-    code: Optional[int] = 0,
+    code: Optional[str] = "request_success",
     message: Optional[str] = "Request was successful.",
     status_code: int = status.HTTP_200_OK,
     **kwargs: Any,
@@ -18,8 +18,8 @@ def create_response(
 
     Args:
         data (Optional[dict], optional): 응답 데이터를 담는 딕셔너리입니다. 기본값은 빈 딕셔너리입니다.
-        code (Optional[int], optional): 응답 코드를 나타내는 정수입니다. 기본값은 0 (성공)입니다.
-        message (Optional[str], optional): 응답 메시지를 나타내는 문자열입니다. 기본값은 "Request was successful."입니다.
+        code (Optional[str], optional): 응답 코드를 나타내는 문자열입니다. 기본값은 "request_success"입니다.
+        message (Optional[str], optional): 자세한 응답 메시지를 나타내는 문자열입니다. 기본값은 "Request was successful."입니다.
         status_code (status, optional): 응답의 HTTP 상태 코드입니다. 기본값은 HTTP 200 OK입니다.
 
     Returns:
@@ -27,8 +27,8 @@ def create_response(
     """
 
     json_data: Dict[str, Any] = {}
+    json_data["success"] = True if status.is_success(status_code) else False
     json_data["code"] = code
-    json_data["success"] = code == 0
     json_data["message"] = message
     json_data["data"] = data or {}
     return Response(json_data, status=status_code, **kwargs)

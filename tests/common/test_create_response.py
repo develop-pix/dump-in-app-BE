@@ -11,7 +11,7 @@ def test_create_response():
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data["code"] == 0
+    assert response.data["code"] == "request_success"
     assert response.data["success"] is True
     assert response.data["message"] == "Request was successful."
     assert response.data["data"] == custom_data
