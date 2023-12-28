@@ -13,4 +13,4 @@ class TestSoftDeleteNotifications:
         self.service.soft_delete_notifications(user_id=valid_notification.user_id)
 
         valid_notification.refresh_from_db()
-        assert valid_notification.is_deleted == True
+        assert valid_notification.is_deleted

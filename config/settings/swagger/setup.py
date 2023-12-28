@@ -46,7 +46,10 @@ class SwaggerSetup:
             openapi.Info(
                 title="Dump-In App API",
                 default_version="v1",
-                description=f"자세한 문서는 [여기](https://secret-leech-e86.notion.site/83a2515a34b74557a46a0da84d7a0f9e?v=e236b67907a84fb0ae8d49ef1c28dc96&pvs=4)를 참고해주세요.",
+                description=(
+                    "자세한 문서는 [여기](https://secret-leech-e86.notion.site/83a2515a34b74557a46a0da84d7a0f9e?"
+                    "v=e236b67907a84fb0ae8d49ef1c28dc96&pvs=4)를 참고해주세요."
+                ),
                 terms_of_service="",
                 contact=openapi.Contact(email="wogur981208@gmail.com"),
                 license=openapi.License(name="Pix Team"),

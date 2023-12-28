@@ -24,7 +24,7 @@ class TestEventDetail(IsAuthenticateTestCase):
         assert response.data["data"]["title"] == valid_event.title
         assert response.data["data"]["content"] == valid_event.content
         assert response.data["data"]["main_thumbnail_image_url"] == valid_event.main_thumbnail_image_url
-        assert response.data["data"]["is_liked"] == False
+        assert not response.data["data"]["is_liked"]
         assert response.data["data"]["hashtag"][0]["id"] == valid_event.hashtag.all()[0].id
         assert response.data["data"]["hashtag"][0]["name"] == valid_event.hashtag.all()[0].name
         assert response.data["data"]["image"][0]["id"] == valid_event.event_image.all()[0].id

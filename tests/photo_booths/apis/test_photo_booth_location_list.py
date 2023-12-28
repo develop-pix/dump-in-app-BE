@@ -42,7 +42,7 @@ class TestPhotoBoothLocationList(IsAuthenticateTestCase):
         assert response.data["data"][0]["name"] == photo_booth.name
         assert response.data["data"][0]["latitude"] == float(photo_booth.latitude)
         assert response.data["data"][0]["longitude"] == float(photo_booth.longitude)
-        assert response.data["data"][0]["is_liked"] == False
+        assert not response.data["data"][0]["is_liked"]
         assert response.data["data"][0]["photo_booth_brand"]["name"] == photo_booth.photo_booth_brand.name
         assert response.data["data"][0]["photo_booth_brand"]["logo_image_url"] == photo_booth.photo_booth_brand.logo_image_url
         assert response.data["data"][0]["photo_booth_brand"]["hashtag"][0]["id"] == photo_booth.photo_booth_brand.hashtag.all()[0].id

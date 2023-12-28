@@ -30,7 +30,7 @@ class TestPhotoBoothDetail(IsAuthenticateTestCase):
         assert response.data["data"]["street_address"] == photo_booth.street_address
         assert response.data["data"]["road_address"] == photo_booth.road_address
         assert response.data["data"]["operation_time"] == photo_booth.operation_time
-        assert response.data["data"]["is_liked"] == False
+        assert not response.data["data"]["is_liked"]
         assert response.data["data"]["photo_booth_brand"]["name"] == photo_booth.photo_booth_brand.name
         assert (
             response.data["data"]["photo_booth_brand"]["image"][0]["id"]

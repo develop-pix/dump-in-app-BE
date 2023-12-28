@@ -14,7 +14,7 @@ class TestPhotoBoothLike(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == photo_booth.id
-        assert response.data["data"]["is_liked"] == True
+        assert response.data["data"]["is_liked"]
 
     def test_photo_booth_like_post_success_already_liked(self, photo_booth, valid_user):
         photo_booth.user_photo_booth_like_logs.add(valid_user)
@@ -25,7 +25,7 @@ class TestPhotoBoothLike(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == photo_booth.id
-        assert response.data["data"]["is_liked"] == False
+        assert not response.data["data"]["is_liked"]
 
     def test_photo_booth_like_post_fail_not_authenticated(self, photo_booth):
         response = self.client.post(reverse("api-photo-booths:photo-booth-like", kwargs={"photo_booth_id": photo_booth.id}))

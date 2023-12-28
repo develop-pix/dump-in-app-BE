@@ -15,7 +15,7 @@ class TestNotificaitonCheck(IsAuthenticateTestCase):
         response = self.client.get(self.url)
 
         assert response.status_code == 200
-        assert response.data["data"]["is_unread"] == True
+        assert response.data["data"]["is_unread"]
         assert response.data["data"]["count"] == 1
 
     def test_notification_check_get_fail_not_authenticated(self):

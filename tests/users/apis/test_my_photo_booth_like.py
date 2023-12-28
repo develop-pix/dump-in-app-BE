@@ -30,7 +30,7 @@ class TestMyPhotoBoothLike(IsAuthenticateTestCase):
         assert response.data["data"]["results"][0]["photo_booth_brand_logo_image_url"] == photo_booth.photo_booth_brand.logo_image_url
         assert response.data["data"]["results"][0]["hashtag"][0]["id"] == photo_booth.photo_booth_brand.hashtag.all()[0].id
         assert response.data["data"]["results"][0]["hashtag"][0]["name"] == photo_booth.photo_booth_brand.hashtag.all()[0].name
-        assert response.data["data"]["results"][0]["is_liked"] == True
+        assert response.data["data"]["results"][0]["is_liked"]
 
     def test_my_photo_booth_like_get_success_pagination(self, photo_booth_list, valid_user):
         for photo_booth in photo_booth_list:

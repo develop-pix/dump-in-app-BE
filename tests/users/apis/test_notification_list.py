@@ -31,7 +31,7 @@ class TestNotificaitonList(IsAuthenticateTestCase):
 
         assert response.status_code == 204
         valid_notification_list[0].refresh_from_db()
-        assert valid_notification_list[0].is_deleted == True
+        assert valid_notification_list[0].is_deleted
 
     def test_notification_list_delete_fail_not_authenticated(self):
         response = self.client.delete(self.url)

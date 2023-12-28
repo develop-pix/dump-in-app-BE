@@ -27,7 +27,7 @@ class TestMyEventLike(IsAuthenticateTestCase):
         assert response.data["data"]["results"][0]["id"] == valid_event.id
         assert response.data["data"]["results"][0]["title"] == valid_event.title
         assert response.data["data"]["results"][0]["main_thumbnail_image_url"] == valid_event.main_thumbnail_image_url
-        assert response.data["data"]["results"][0]["is_liked"] == True
+        assert response.data["data"]["results"][0]["is_liked"]
 
     def test_my_event_like_get_success_pagination(self, valid_user, valid_event_list):
         for valid_event in valid_event_list:

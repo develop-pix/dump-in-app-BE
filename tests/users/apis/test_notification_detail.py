@@ -16,7 +16,7 @@ class TestNotificaitonDetail(IsAuthenticateTestCase):
         assert response.data["data"]["id"] == valid_notification.id
         assert response.data["data"]["title"] == valid_notification.title
         assert response.data["data"]["content"] == valid_notification.content
-        assert response.data["data"]["is_read"] == True
+        assert response.data["data"]["is_read"]
         assert response.data["data"]["parameter_data"] == valid_notification.parameter_data
         assert response.data["data"]["category"] == valid_notification.category.name
 

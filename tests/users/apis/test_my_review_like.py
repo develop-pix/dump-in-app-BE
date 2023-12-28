@@ -27,7 +27,7 @@ class TestMyReviewLike(IsAuthenticateTestCase):
         assert response.data["data"]["results"][0]["id"] == valid_review.id
         assert response.data["data"]["results"][0]["photo_booth_name"] == valid_review.photo_booth.name
         assert response.data["data"]["results"][0]["main_thumbnail_image_url"] == valid_review.main_thumbnail_image_url
-        assert response.data["data"]["results"][0]["is_liked"] == True
+        assert response.data["data"]["results"][0]["is_liked"]
 
     def test_my_review_like_get_success_pagination(self, valid_user, valid_review_list):
         for valid_review in valid_review_list:

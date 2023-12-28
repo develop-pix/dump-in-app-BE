@@ -24,7 +24,7 @@ class TestPhotoBoothBrandEventList(IsAuthenticateTestCase):
         assert response.data["data"][0]["id"] == valid_event.id
         assert response.data["data"][0]["title"] == valid_event.title
         assert response.data["data"][0]["main_thumbnail_image_url"] == valid_event.main_thumbnail_image_url
-        assert response.data["data"][0]["is_liked"] == False
+        assert not response.data["data"][0]["is_liked"]
 
     def test_photo_booth_brand_event_list_get_success_limit(self, valid_event_list, valid_user):
         access_token = self.obtain_token(valid_user)

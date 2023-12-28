@@ -24,7 +24,7 @@ class TestEventLike(IsAuthenticateTestCase):
         assert response.data["data"]["results"][0]["id"] == valid_event.id
         assert response.data["data"]["results"][0]["title"] == valid_event.title
         assert response.data["data"]["results"][0]["main_thumbnail_image_url"] == valid_event.main_thumbnail_image_url
-        assert response.data["data"]["results"][0]["is_liked"] == False
+        assert not response.data["data"]["results"][0]["is_liked"]
         assert response.data["data"]["results"][0]["photo_booth_brand_name"] == valid_event.photo_booth_brand.name
 
     def test_event_list_get_success_pagination(self, valid_user, valid_event_list):
@@ -54,7 +54,7 @@ class TestEventLike(IsAuthenticateTestCase):
         assert response.data["data"]["results"][0]["id"] == valid_event.id
         assert response.data["data"]["results"][0]["title"] == valid_event.title
         assert response.data["data"]["results"][0]["main_thumbnail_image_url"] == valid_event.main_thumbnail_image_url
-        assert response.data["data"]["results"][0]["is_liked"] == False
+        assert not response.data["data"]["results"][0]["is_liked"]
         assert response.data["data"]["results"][0]["photo_booth_brand_name"] == valid_event.photo_booth_brand.name
 
     def test_event_list_get_fail_not_authenticated(self):
