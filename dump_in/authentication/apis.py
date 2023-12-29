@@ -55,6 +55,7 @@ class KakaoLoginAPI(APIView):
 
     class InputSerializer(BaseSerializer):
         access_token = serializers.CharField(required=True)
+        mobile_token = serializers.CharField(required=False)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -76,11 +77,10 @@ class KakaoLoginAPI(APIView):
         """
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
-        validated_data = input_serializer.validated_data
 
         # Kakao Login Flow
         kakao_login_flow = KakaoLoginFlowService()
-        user_info = kakao_login_flow.get_user_info(access_token=validated_data["access_token"])
+        user_info = kakao_login_flow.get_user_info(access_token=input_serializer.validated_data["access_token"])
 
         # User Info Parsing
         birthyear = user_info["kakao_account"].get("birthyear")
@@ -99,6 +99,7 @@ class KakaoLoginAPI(APIView):
             birth=birth,
             gender=gender,
             social_provider=UserProvider.KAKAO.value,
+            mobile_token=input_serializer.validated_data.get("mobile_token"),
         )
 
         # User Authenticate & Generate Token
@@ -115,6 +116,7 @@ class NaverLoginAPI(APIView):
 
     class InputSerializer(BaseSerializer):
         access_token = serializers.CharField(required=True)
+        mobile_token = serializers.CharField(required=False)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -136,11 +138,10 @@ class NaverLoginAPI(APIView):
         """
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
-        validated_data = input_serializer.validated_data
 
         # Naver Login Flow
         naver_login_flow = NaverLoginFlowService()
-        user_info = naver_login_flow.get_user_info(access_token=validated_data["access_token"])
+        user_info = naver_login_flow.get_user_info(access_token=input_serializer.validated_data["access_token"])
 
         # User Info Parsing
         birthyear = user_info["birthyear"]
@@ -159,6 +160,7 @@ class NaverLoginAPI(APIView):
             birth=birth,
             gender=gender,
             social_provider=UserProvider.NAVER.value,
+            mobile_token=input_serializer.validated_data.get("mobile_token"),
         )
 
         # User Authenticate & Generate Token
@@ -238,6 +240,7 @@ class AppleLoginAPI(APIView):
             birth=None,
             gender=None,
             social_provider=UserProvider.APPLE.value,
+            mobile_token=None,
         )
 
         # User Authenticate & Generate Token
