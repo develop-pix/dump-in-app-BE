@@ -8,6 +8,7 @@ from django.utils import timezone
 from dump_in.common.exception.exceptions import ValidationException
 from dump_in.users.models import User
 from dump_in.users.selectors.users import UserSelector
+from dump_in.users.services.user_mobile_tokens import UserMobileTokenService
 
 
 class UserService:
@@ -23,10 +24,11 @@ class UserService:
         birth: Union[str, datetime, None],
         gender: Optional[str],
         social_provider: int,
+        mobile_token: Optional[str],
     ) -> User:
         user = self.user_selector.get_user_by_username_for_auth(username=social_id)
 
-        if not user:
+        if user is None:
             # Nickname exists check and Generate random nickname
             while self.user_selector.check_is_exists_user_by_nickname(nickname=nickname):
                 response = requests.get(
@@ -47,6 +49,11 @@ class UserService:
                 birth=birth,
                 gender=gender,
             )
+
+            if mobile_token is not None:
+                user_mobile_token_service = UserMobileTokenService()
+                user_mobile_token_service.update_user_mobile_token(user_id=user.id, token=mobile_token)
+
         return user
 
     @transaction.atomic
