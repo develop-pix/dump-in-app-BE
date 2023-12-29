@@ -50,7 +50,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -89,7 +89,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": None,
                 "curl_amount": True,
                 "is_public": True,
@@ -114,7 +114,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": None,
                 "is_public": True,
@@ -147,7 +147,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -172,7 +172,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -197,7 +197,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -222,7 +222,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -247,7 +247,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "date": "2023-01-01",
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -272,7 +272,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "date": "2023-01-01",
                 "frame_color": valid_review.frame_color,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -297,7 +297,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "date": "2023-01-01",
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -309,7 +309,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"camera_shot": ["This field is required."]}
 
-    def test_review_detail_put_fail_concept_names_required(self, valid_review, photo_booth, concept):
+    def test_review_detail_put_fail_concept_required(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
         self.authenticate_with_token(access_token)
         response = self.client.put(
@@ -332,7 +332,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
-        assert sorted(response.data["message"]) == sorted({"concept_names": ["This field is required."]})
+        assert sorted(response.data["message"]) == sorted({"concept": ["This field is required."]})
 
     def test_review_detail_put_fail_main_thumbnail_image_url_invalid_format(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
@@ -348,7 +348,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -374,7 +374,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -400,7 +400,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -426,7 +426,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -452,7 +452,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -478,7 +478,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -504,7 +504,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": "string",
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -530,7 +530,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": "string",
                 "curl_amount": True,
                 "is_public": True,
@@ -556,7 +556,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": "string",
                 "is_public": True,
@@ -582,7 +582,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": "string",
@@ -594,7 +594,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"is_public": ["Must be a valid boolean."]}
 
-    def test_review_detail_put_fail_concept_names_allow_empty(self, valid_review, photo_booth, concept):
+    def test_review_detail_put_fail_concept_allow_empty(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
         self.authenticate_with_token(access_token)
         response = self.client.put(
@@ -608,7 +608,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [],
+                "concept": [],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -618,7 +618,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"concept_names": ["This selection may not be empty."]}
+        assert response.data["message"] == {"concept": ["This selection may not be empty."]}
 
     def test_review_detail_put_fail_image_urls_max_length(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
@@ -634,7 +634,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -661,7 +661,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -688,7 +688,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -713,7 +713,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 0,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -739,7 +739,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 6,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -751,7 +751,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"participants": ["Ensure this value is less than or equal to 5."]}
 
-    def test_review_detail_put_fail_concept_names_max_choices(self, valid_review, photo_booth, concept):
+    def test_review_detail_put_fail_concept_max_choices(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
         self.authenticate_with_token(access_token)
         response = self.client.put(
@@ -765,7 +765,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 5,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": ["일상", "커플", "우정샷", "가족", "콜라보", "이달의 프레임"],
+                "concept": ["일상", "커플", "우정샷", "가족", "콜라보", "이달의 프레임"],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -776,10 +776,10 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {
-            "concept_names": [ErrorDetail(string="Ensure this field has no more than 5 items.", code="max_choices")]
+            "concept": [ErrorDetail(string="Ensure this field has no more than 5 items.", code="max_choices")]
         }
 
-    def test_review_detail_put_fail_concept_names_duplicate(self, valid_review, photo_booth, concept):
+    def test_review_detail_put_fail_concept_duplicate(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
         self.authenticate_with_token(access_token)
         response = self.client.put(
@@ -793,7 +793,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name, concept.name],
+                "concept": [concept.name, concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -804,7 +804,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {
-            "concept_names": [ErrorDetail(string="This list may not contain the same item twice.", code="duplicate_values")]
+            "concept": [ErrorDetail(string="This list may not contain the same item twice.", code="duplicate_values")]
         }
 
     def test_review_detail_put_fail_frame_color_choices(self, valid_review, photo_booth, concept):
@@ -821,7 +821,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": "invalid",
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -847,7 +847,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": "invalid",
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -859,7 +859,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"camera_shot": ['"invalid" is not a valid choice.']}
 
-    def test_review_detail_put_fail_concept_names_choices(self, valid_review, photo_booth, concept):
+    def test_review_detail_put_fail_concept_choices(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
         self.authenticate_with_token(access_token)
         concept.delete()
@@ -874,7 +874,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
                 "frame_color": valid_review.frame_color,
                 "participants": 1,
                 "camera_shot": valid_review.camera_shot,
-                "concept_names": ["invalid"],
+                "concept": ["invalid"],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -884,7 +884,7 @@ class TestReviewDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"concept_names": ['"invalid" is not a valid choice.']}
+        assert response.data["message"] == {"concept": ['"invalid" is not a valid choice.']}
 
     def test_review_detail_delete_success(self, valid_review):
         access_token = self.obtain_token(valid_review.user)

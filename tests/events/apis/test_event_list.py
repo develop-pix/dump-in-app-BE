@@ -47,7 +47,7 @@ class TestEventLike(IsAuthenticateTestCase):
         self.authenticate_with_token(access_token)
         response = self.client.get(
             path=self.url,
-            data={"hashtag_ids": valid_event.hashtag.first().id},
+            data={"hashtag": valid_event.hashtag.first().name},
         )
 
         assert response.status_code == 200
@@ -108,6 +108,20 @@ class TestEventLike(IsAuthenticateTestCase):
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"offset": ["Ensure this value is greater than or equal to 0."]}
+
+    def test_event_list_get_fail_hashtag_choices(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "hashtag": "invalid",
+            },
+        )
+
+        assert response.status_code == 400
+        assert response.data["code"] == "invalid_parameter_format"
+        assert response.data["message"] == {"hashtag": ['"invalid" is not a valid choice.']}
 
     def test_event_list_get_fail_limit_invalid_format(self, valid_user):
         access_token = self.obtain_token(valid_user)

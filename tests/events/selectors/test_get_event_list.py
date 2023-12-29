@@ -40,7 +40,7 @@ class TestGetEventList:
     def test_get_event_list_success_with_hashtag(self, valid_event, valid_user):
         hashtag = valid_event.hashtag.first()
 
-        event_list = self.event_selector.get_event_list({"hashtag_ids": str(hashtag.id)}, valid_user.id)
+        event_list = self.event_selector.get_event_list({"hashtag": str(hashtag.name)}, valid_user.id)
 
         assert event_list.first() == valid_event
 
@@ -60,7 +60,7 @@ class TestGetEventList:
         assert event_list.count() == 0
 
     def test_get_event_list_fail_invalid_hashtag(self, valid_event, valid_user):
-        event_list = self.event_selector.get_event_list({"hashtag_ids": "99999"}, valid_user.id)
+        event_list = self.event_selector.get_event_list({"hashtag": "string"}, valid_user.id)
 
         assert event_list.count() == 0
 

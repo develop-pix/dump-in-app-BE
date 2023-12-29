@@ -11,6 +11,7 @@ from dump_in.common.exception.exceptions import NotFoundException
 from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
 from dump_in.common.utils import inline_serializer
+from dump_in.events.enums import EventHashtag
 from dump_in.events.selectors.events import EventSelector
 from dump_in.events.services import EventService
 
@@ -23,7 +24,7 @@ class EventListAPI(APIView):
         default_limit = 10
 
     class FilterSerializer(BaseSerializer):
-        hashtag_ids = serializers.CharField(required=False, help_text="해시태그 ID를 콤마(,)로 구분하여 입력")
+        hashtag = serializers.ChoiceField(required=False, choices=[hashtag.value for hashtag in EventHashtag])
         limit = serializers.IntegerField(required=False, min_value=1, max_value=50, default=10)
         offset = serializers.IntegerField(required=False, min_value=0)
 

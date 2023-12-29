@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyDateTime, FuzzyInteger, FuzzyText
 from faker import Faker
 
+from dump_in.events.enums import EventHashtag
 from dump_in.events.models import Event, EventImage
 from dump_in.photo_booths.enums import PhotoBoothLocation
 from dump_in.photo_booths.models import (
@@ -139,7 +140,7 @@ class NotificationFactory(factory.django.DjangoModelFactory):
 
 class HashtagFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda n: n)
-    name = factory.Sequence(lambda n: f"hashtag{n}")
+    name = factory.Iterator([hashtag.value for hashtag in EventHashtag])
 
     class Meta:
         model = Hashtag

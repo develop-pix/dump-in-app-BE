@@ -291,6 +291,15 @@ class PhotoBoothLocationListAPI(APIView):
                 ),
             }
         )
+        distance = serializers.SerializerMethodField()
+
+        def get_distance(self, obj) -> str:
+            center_point = self.context["center_point"]
+            destination_point = obj.point
+            distance = center_point.distance(destination_point)
+            if distance > 0.01:
+                return f"{distance * 100:.2f} km"
+            return f"{distance * 100000:.2f} m"
 
     @swagger_auto_schema(
         tags=["포토부스"],
@@ -318,7 +327,11 @@ class PhotoBoothLocationListAPI(APIView):
             radius=filter_serializer.validated_data["radius"],
             user_id=request.user.id,
         )
-        photo_booths_data = self.OutputSerializer(photo_booths, many=True).data
+        photo_booths_data = self.OutputSerializer(
+            photo_booths,
+            many=True,
+            context={"center_point": center_point},
+        ).data
         return create_response(data=photo_booths_data, status_code=status.HTTP_200_OK)
 
 

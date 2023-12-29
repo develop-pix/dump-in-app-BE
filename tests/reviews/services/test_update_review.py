@@ -25,7 +25,7 @@ class TestUpdateReview:
         frame_color = FrameColor.BLACK.value
         participants = 1
         camera_shot = CameraShot.CLOSEUP.value
-        concept_names = [concept.name]
+        concept = [concept.name]
         goods_amount = True
         curl_amount = True
         is_public = True
@@ -40,7 +40,7 @@ class TestUpdateReview:
             frame_color=frame_color,
             participants=participants,
             camera_shot=camera_shot,
-            concept_names=concept_names,
+            concept=concept,
             goods_amount=goods_amount,
             curl_amount=curl_amount,
             is_public=is_public,
@@ -58,7 +58,7 @@ class TestUpdateReview:
         assert review.curl_amount == curl_amount
         assert review.is_public == is_public
         assert review.user == valid_review.user
-        assert review.concept.all()[0] == concept
+        assert review.concept.all()[0].name == concept[0]
         assert review.review_image.count() == len(image_urls)
         assert review.review_image.all()[0].review_image_url == image_urls[0]
         assert review.review_image.all()[1].review_image_url == image_urls[1]
@@ -72,7 +72,7 @@ class TestUpdateReview:
         frame_color = FrameColor.BLACK.value
         participants = 1
         camera_shot = CameraShot.CLOSEUP.value
-        concept_names = [concept.name]
+        concept = [concept.name]
         goods_amount = True
         curl_amount = True
         is_public = True
@@ -88,7 +88,7 @@ class TestUpdateReview:
                 frame_color=frame_color,
                 participants=participants,
                 camera_shot=camera_shot,
-                concept_names=concept_names,
+                concept=concept,
                 goods_amount=goods_amount,
                 curl_amount=curl_amount,
                 is_public=is_public,
@@ -107,7 +107,7 @@ class TestUpdateReview:
         frame_color = FrameColor.BLACK.value
         participants = 1
         camera_shot = CameraShot.CLOSEUP.value
-        concept_names = [concept.name]
+        concept = [concept.name]
         goods_amount = True
         curl_amount = True
         is_public = True
@@ -123,7 +123,7 @@ class TestUpdateReview:
                 frame_color=frame_color,
                 participants=participants,
                 camera_shot=camera_shot,
-                concept_names=concept_names,
+                concept=concept,
                 goods_amount=goods_amount,
                 curl_amount=curl_amount,
                 is_public=is_public,
@@ -142,7 +142,7 @@ class TestUpdateReview:
         frame_color = FrameColor.BLACK.value
         participants = 1
         camera_shot = CameraShot.CLOSEUP.value
-        concept_names = [concept.name]
+        concept = [concept.name]
         goods_amount = True
         curl_amount = True
         is_public = True
@@ -158,7 +158,7 @@ class TestUpdateReview:
                 frame_color=frame_color,
                 participants=participants,
                 camera_shot=camera_shot,
-                concept_names=concept_names,
+                concept=concept,
                 goods_amount=goods_amount,
                 curl_amount=curl_amount,
                 is_public=is_public,

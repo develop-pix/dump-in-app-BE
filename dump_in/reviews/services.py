@@ -25,7 +25,7 @@ class ReviewService:
         frame_color: str,
         participants: int,
         camera_shot: str,
-        concept_names: List[str],
+        concept: List[str],
         goods_amount: Optional[bool],
         curl_amount: Optional[bool],
         is_public: bool,
@@ -63,7 +63,7 @@ class ReviewService:
             )
 
         concept_selector = ConceptSelector()
-        concepts = concept_selector.get_concept_queryset_by_names(concept_names=concept_names)
+        concepts = concept_selector.get_concept_queryset_by_names(concept=concept)
         review.concept.set(concepts)
 
         return review
@@ -80,7 +80,7 @@ class ReviewService:
         frame_color: str,
         participants: int,
         camera_shot: str,
-        concept_names: List[str],
+        concept: List[str],
         goods_amount: Optional[bool],
         curl_amount: Optional[bool],
         is_public: bool,
@@ -126,7 +126,7 @@ class ReviewService:
             )
 
         concept_selector = ConceptSelector()
-        concepts = concept_selector.get_concept_queryset_by_names(concept_names=concept_names)
+        concepts = concept_selector.get_concept_queryset_by_names(concept=concept)
 
         review.concept.clear()
         review.concept.set(concepts)

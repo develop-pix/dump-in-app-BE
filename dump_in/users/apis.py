@@ -407,7 +407,7 @@ class UserMobileTokenAPI(APIView):
     def post(self, request: Request) -> Response:
         """
         인증되지 않은 유저가 모바일 토큰을 등록합니다.
-        url: /app/api/auth/users/mobile-token
+        url: /app/api/users/mobile-token
         """
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)

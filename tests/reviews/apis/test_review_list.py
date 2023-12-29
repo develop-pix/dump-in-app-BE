@@ -252,7 +252,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -279,7 +279,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "curl_amount": True,
                 "goods_amount": None,
                 "is_public": True,
@@ -307,7 +307,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "curl_amount": None,
                 "goods_amount": True,
                 "is_public": True,
@@ -341,7 +341,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -366,7 +366,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -391,7 +391,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -416,7 +416,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -441,7 +441,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "date": "2023-01-01",
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -466,7 +466,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "date": "2023-01-01",
                 "frame_color": FrameColor.BLACK.value,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -491,7 +491,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "date": "2023-01-01",
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -503,7 +503,7 @@ class TestReviewList(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"camera_shot": ["This field is required."]}
 
-    def test_review_list_post_fail_concept_names_required(self, valid_user, photo_booth, concept):
+    def test_review_list_post_fail_concept_required(self, valid_user, photo_booth, concept):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.post(
@@ -526,7 +526,7 @@ class TestReviewList(IsAuthenticateTestCase):
 
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"concept_names": ["This field is required."]}
+        assert response.data["message"] == {"concept": ["This field is required."]}
 
     def test_review_list_post_fail_is_public_required(self, valid_user, photo_booth, concept):
         access_token = self.obtain_token(valid_user)
@@ -542,7 +542,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
             },
@@ -567,7 +567,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -593,7 +593,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -619,7 +619,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -645,7 +645,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -671,7 +671,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -697,7 +697,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -723,7 +723,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": "test",
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -749,7 +749,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": "test",
                 "curl_amount": True,
                 "is_public": True,
@@ -775,7 +775,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": "test",
                 "is_public": True,
@@ -801,7 +801,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": "test",
@@ -813,7 +813,7 @@ class TestReviewList(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"is_public": ["Must be a valid boolean."]}
 
-    def test_review_post_put_fail_concept_names_allow_empty(self, valid_user, photo_booth, concept):
+    def test_review_post_put_fail_concept_allow_empty(self, valid_user, photo_booth, concept):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.post(
@@ -827,7 +827,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [],
+                "concept": [],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -837,7 +837,7 @@ class TestReviewList(IsAuthenticateTestCase):
 
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"concept_names": ["This selection may not be empty."]}
+        assert response.data["message"] == {"concept": ["This selection may not be empty."]}
 
     def test_review_list_post_fail_image_urls_max_value(self, valid_user, photo_booth, concept):
         access_token = self.obtain_token(valid_user)
@@ -854,7 +854,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -881,7 +881,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -907,7 +907,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -933,7 +933,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": participants,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -960,7 +960,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": participants,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -972,7 +972,7 @@ class TestReviewList(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"participants": ["Ensure this value is less than or equal to 5."]}
 
-    def test_review_list_post_fail_concept_names_max_choices(self, valid_user, photo_booth, concept):
+    def test_review_list_post_fail_concept_max_choices(self, valid_user, photo_booth, concept):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.post(
@@ -986,7 +986,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": ["일상", "커플", "우정샷", "가족", "콜라보", "이달의 프레임"],
+                "concept": ["일상", "커플", "우정샷", "가족", "콜라보", "이달의 프레임"],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -997,10 +997,10 @@ class TestReviewList(IsAuthenticateTestCase):
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {
-            "concept_names": [ErrorDetail(string="Ensure this field has no more than 5 items.", code="max_choices")]
+            "concept": [ErrorDetail(string="Ensure this field has no more than 5 items.", code="max_choices")]
         }
 
-    def test_review_detail_put_fail_concept_names_duplicate(self, valid_user, photo_booth, concept):
+    def test_review_detail_put_fail_concept_duplicate(self, valid_user, photo_booth, concept):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.post(
@@ -1014,7 +1014,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name, concept.name],
+                "concept": [concept.name, concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -1025,7 +1025,7 @@ class TestReviewList(IsAuthenticateTestCase):
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {
-            "concept_names": [ErrorDetail(string="This list may not contain the same item twice.", code="duplicate_values")]
+            "concept": [ErrorDetail(string="This list may not contain the same item twice.", code="duplicate_values")]
         }
 
     def test_review_list_post_fail_frame_color_choice(self, valid_user, photo_booth, concept):
@@ -1042,7 +1042,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": "test",
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -1068,7 +1068,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": "test",
-                "concept_names": [concept.name],
+                "concept": [concept.name],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -1080,7 +1080,7 @@ class TestReviewList(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"camera_shot": ['"test" is not a valid choice.']}
 
-    def test_review_list_post_fail_concept_names_choices(self, valid_user, photo_booth, concept):
+    def test_review_list_post_fail_concept_choices(self, valid_user, photo_booth, concept):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.post(
@@ -1094,7 +1094,7 @@ class TestReviewList(IsAuthenticateTestCase):
                 "frame_color": FrameColor.BLACK.value,
                 "participants": 1,
                 "camera_shot": CameraShot.CLOSEUP.value,
-                "concept_names": ["test"],
+                "concept": ["test"],
                 "goods_amount": True,
                 "curl_amount": True,
                 "is_public": True,
@@ -1104,4 +1104,4 @@ class TestReviewList(IsAuthenticateTestCase):
 
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"concept_names": [ErrorDetail(string='"test" is not a valid choice.', code="invalid_choice")]}
+        assert response.data["message"] == {"concept": [ErrorDetail(string='"test" is not a valid choice.', code="invalid_choice")]}

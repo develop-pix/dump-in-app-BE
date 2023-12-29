@@ -4,15 +4,15 @@ from dump_in.events.models import Event
 
 
 class EventFilter(django_filters.FilterSet):
-    hashtag_ids = django_filters.CharFilter(method="filter_hashtag_ids")
+    hashtag = django_filters.CharFilter(method="filter_hashtag")
 
-    def filter_hashtag_ids(self, queryset, name, value):
+    def filter_hashtag(self, queryset, name, value):
         if value not in (None, ""):
             values = value.split(",")
-            return queryset.filter(hashtag__id__in=values)
+            return queryset.filter(hashtag__name__in=values)
 
     class Meta:
         model = Event
         fields = [
-            "hashtag_ids",
+            "hashtag",
         ]
