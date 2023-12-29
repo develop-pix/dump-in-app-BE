@@ -6,7 +6,7 @@ from dump_in.common.exception.exceptions import AuthenticationFailedException
 
 class TestKakaoLoginFlow:
     def setup_method(self):
-        self.service = KakaoLoginFlowService()
+        self.kakao_login_flow_service = KakaoLoginFlowService()
 
     def test_get_user_info_success(self, mocker):
         mock_response = mocker.Mock()
@@ -25,7 +25,7 @@ class TestKakaoLoginFlow:
         """
         mocker.patch("dump_in.authentication.services.kakao_oauth.requests.get", return_value=mock_response)
         access_token = "test_access_token"
-        user_info = self.service.get_user_info(access_token)
+        user_info = self.kakao_login_flow_service.get_user_info(access_token)
 
         assert user_info["id"] == 123456789
         assert user_info["kakao_account"]["profile"]["nickname"] == "test_nickname"
@@ -38,7 +38,7 @@ class TestKakaoLoginFlow:
         mocker.patch("dump_in.authentication.services.kakao_oauth.requests.get", return_value=mock_response)
         access_token = "test_access_token"
         with pytest.raises(AuthenticationFailedException) as e:
-            self.service.get_user_info(access_token)
+            self.kakao_login_flow_service.get_user_info(access_token)
 
         assert e.value.detail == "Failed to get user info from Kakao."
         assert e.value.status_code == 401

@@ -64,7 +64,7 @@ def handle_api_exception(exc: Exception, context: dict) -> Optional[Response]:
 
     # 프로젝트 내의 모든 익셉션은 APIException 객체여야만 합니다.
     # APIException 객체가 아닌 익셉션은 처리할 수 없습니다.
-    if not isinstance(exc, APIException):
+    if isinstance(exc, APIException) is False:
         return None
 
     message = getattr(exc, "detail")
