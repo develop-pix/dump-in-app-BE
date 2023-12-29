@@ -23,6 +23,7 @@ from dump_in.users.models import (
     Notification,
     NotificationCategory,
     User,
+    UserMobileToken,
     UserSocialProvider,
 )
 
@@ -92,6 +93,15 @@ class UserFactory(factory.django.DjangoModelFactory):
         if extracted:
             for group in extracted:
                 self.groups.add(group)
+
+
+class UserMobileTokenFactory(factory.django.DjangoModelFactory):
+    id = factory.Sequence(lambda n: n)
+    token = factory.LazyAttribute(lambda _: faker.unique.uuid4())
+    user = factory.SubFactory(UserFactory)
+
+    class Meta:
+        model = UserMobileToken
 
 
 class NotificationCategoryFactory(factory.django.DjangoModelFactory):

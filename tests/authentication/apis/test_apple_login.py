@@ -4,7 +4,7 @@ from django.urls import reverse
 class TestAppleLoginRedirect:
     url = reverse("api-auth:apple-login-redirect")
 
-    def test_apple_login_redirect_api_success(self, api_client, mocker):
+    def test_apple_login_redirect_api_get_success(self, api_client, mocker):
         mock_response = mocker.Mock()
         mock_response.status_code = 200
         mock_response.url = "https://appleid.apple.com/auth/authorize"
@@ -16,7 +16,7 @@ class TestAppleLoginRedirect:
         assert response.status_code == 302
         assert response.url == "https://appleid.apple.com/auth/authorize"
 
-    def test_apple_login_redirect_api_fail(self, api_client, mocker):
+    def test_apple_login_redirect_api_get_fail(self, api_client, mocker):
         mock_response = mocker.Mock()
         mock_response.status_code = 400
 
@@ -32,7 +32,7 @@ class TestAppleLoginRedirect:
 class TestAppleLogin:
     url = reverse("api-auth:apple-login-callback")
 
-    def test_apple_login_api_success(self, api_client, mocker, user_social_provider, group):
+    def test_apple_login_api_post_success(self, api_client, mocker, user_social_provider, group):
         user_info_response = {
             "sub": "001",
             "email": "test_email",
@@ -53,7 +53,7 @@ class TestAppleLogin:
         assert response.data["data"]["access_token"] is not None
         assert response.data["data"]["refresh_token"] is not None
 
-    def test_apple_login_api_fail_not_code(self, api_client):
+    def test_apple_login_api_post_fail_not_code(self, api_client):
         response = api_client.post(path=self.url)
 
         assert response.status_code == 401

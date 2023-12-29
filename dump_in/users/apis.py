@@ -1,6 +1,6 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,6 +16,7 @@ from dump_in.reviews.selectors.reviews import ReviewSelector
 from dump_in.users.selectors.notifications import NotificationSelector
 from dump_in.users.selectors.users import UserSelector
 from dump_in.users.services.notifications import NotificationService
+from dump_in.users.services.user_mobile_tokens import UserMobileTokenService
 from dump_in.users.services.users import UserService
 
 
@@ -61,9 +62,9 @@ class UserDetailAPI(APIView):
         인증된 유저가 자신의 정보를 수정합니다. (닉네임)
         url: /app/api/auth/users/detail
         """
-        user_service = UserService()
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
+        user_service = UserService()
         user = user_service.update_user(user_id=request.user.id, nickname=input_serializer.validated_data["nickname"])
         user_data = self.OutputSerializer(user).data
         return create_response(data=user_data, status_code=status.HTTP_200_OK)
@@ -382,3 +383,35 @@ class NotificationDetailAPI(APIView):
         notification = notification_service.read_notification(notification_id=notification_id, user_id=request.user.id)
         notification_data = self.OutputSerializer(notification).data
         return create_response(data=notification_data, status_code=status.HTTP_200_OK)
+
+
+class UserMobileTokenAPI(APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    class InputSerializer(BaseSerializer):
+        mobile_token = serializers.CharField(required=True, max_length=512)
+
+    class OutputSerializer(BaseSerializer):
+        id = serializers.IntegerField()
+        mobile_token = serializers.CharField(source="token")
+
+    @swagger_auto_schema(
+        tags=["유저"],
+        operation_summary="모바일 토큰 등록",
+        request_body=InputSerializer,
+        responses={
+            status.HTTP_201_CREATED: BaseResponseSerializer(data_serializer=OutputSerializer),
+        },
+    )
+    def post(self, request: Request) -> Response:
+        """
+        인증되지 않은 유저가 모바일 토큰을 등록합니다.
+        url: /app/api/auth/users/mobile-token
+        """
+        input_serializer = self.InputSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        user_mobile_token_service = UserMobileTokenService()
+        user_mobile_token = user_mobile_token_service.create_user_mobile_token(token=input_serializer.validated_data["mobile_token"])
+        user_mobile_token_data = self.OutputSerializer(user_mobile_token).data
+        return create_response(data=user_mobile_token_data, status_code=status.HTTP_201_CREATED)

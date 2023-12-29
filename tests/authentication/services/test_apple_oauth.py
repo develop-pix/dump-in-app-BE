@@ -15,7 +15,7 @@ from dump_in.common.exception.exceptions import AuthenticationFailedException
 
 class TestAppleLoginFlow:
     def setup_method(self):
-        self.service = AppleLoginFlowService()
+        self.apple_login_flow_service = AppleLoginFlowService()
 
     def test_get_authorization_url_success(self, mocker):
         mock_response = mocker.Mock()
@@ -24,10 +24,13 @@ class TestAppleLoginFlow:
 
         mocker.patch("dump_in.authentication.services.apple_oauth.requests.get", return_value=mock_response)
 
-        authorization_url = self.service.get_authorization_url()
+        authorization_url = self.apple_login_flow_service.get_authorization_url()
         assert authorization_url == "https://appleid.apple.com/auth/authorize"
 
     def test_get_authorization_url_fail_response_not_200(self, mocker):
+        """
+        get_authorization_url() 메서드 테스트 - 응답 코드가 200이 아닌 경우
+        """
         mock_response = mocker.Mock()
         mock_response.status_code = 401
         mock_response.url = "https://appleid.apple.com/auth/authorize"
@@ -35,7 +38,7 @@ class TestAppleLoginFlow:
         mocker.patch("dump_in.authentication.services.apple_oauth.requests.get", return_value=mock_response)
 
         with pytest.raises(AuthenticationFailedException) as e:
-            self.service.get_authorization_url()
+            self.apple_login_flow_service.get_authorization_url()
 
         assert e.value.detail == "Failed to get authorization url from Apple."
         assert e.value.status_code == 401
@@ -55,7 +58,7 @@ class TestAppleLoginFlow:
 
         mocker.patch("dump_in.authentication.services.apple_oauth.requests.post", return_value=mock_response)
 
-        token = self.service.get_id_token("test_code")
+        token = self.apple_login_flow_service.get_id_token("test_code")
 
         assert token is not None
 
@@ -67,7 +70,7 @@ class TestAppleLoginFlow:
         mocker.patch("dump_in.authentication.services.apple_oauth.requests.post", return_value=mock_response)
 
         with pytest.raises(AuthenticationFailedException) as e:
-            self.service.get_id_token("test_code")
+            self.apple_login_flow_service.get_id_token("test_code")
 
         assert e.value.status_code == 401
         assert e.value.detail == "Failed to get access token from Apple."

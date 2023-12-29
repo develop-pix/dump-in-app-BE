@@ -9,6 +9,7 @@ from dump_in.users.apis import (
     NotificationDetailAPI,
     NotificationListAPI,
     UserDetailAPI,
+    UserMobileTokenAPI,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path("notifications", NotificationListAPI.as_view(), name="user-notification-list"),
     path("notifications/check", NotificationCheckAPI.as_view(), name="user-notification-check"),
     path("notifications/<int:notification_id>", NotificationDetailAPI.as_view(), name="user-notification-detail"),
+    path("mobile-token", UserMobileTokenAPI.as_view(), name="user-mobile-token"),
 ]

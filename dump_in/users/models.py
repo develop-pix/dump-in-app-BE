@@ -62,21 +62,22 @@ class UserSocialProvider(SimpleModel):
         verbose_name_plural = "user social providers"
 
 
-class UserMobileUUID(BaseModel):
+class UserMobileToken(BaseModel):
     user = models.ForeignKey(
         "User",
-        on_delete=models.CASCADE,
-        related_name="mobile_uuids",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="mobile_tokens",
     )
-    uuid = models.UUIDField()
+    token = models.CharField(max_length=512, unique=True)
 
     def __str__(self):
         return f"[{self.id}]: {self.user_id}"
 
     class Meta:
-        db_table = "user_mobile_uuid"
-        verbose_name = "user mobile uuid"
-        verbose_name_plural = "user mobile uuids"
+        db_table = "user_mobile_token"
+        verbose_name = "user mobile token"
+        verbose_name_plural = "user mobile tokens"
 
 
 class Notification(BaseModel):
