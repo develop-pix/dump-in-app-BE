@@ -16,6 +16,7 @@ from tests.factories import (
     ReviewFactory,
     ReviewImageFactory,
     UserFactory,
+    UserMobileTokenFactory,
     UserSocialProviderFactory,
 )
 
@@ -78,6 +79,11 @@ def inactive_user(db):
         is_admin=False,
         is_active=False,
     )
+
+
+@pytest.fixture
+def valid_user_mobile_token(db):
+    return UserMobileTokenFactory()
 
 
 @pytest.fixture
