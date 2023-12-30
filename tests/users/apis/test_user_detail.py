@@ -31,19 +31,19 @@ class TestUserDetail(IsAuthenticateTestCase):
         self.authenticate_with_token(access_token)
         response = self.client.put(
             self.url,
-            data={"nickname": "test_nickname"},
+            data={"nickname": "nickname"},
             format="json",
         )
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == valid_user.id
         assert response.data["data"]["email"] == valid_user.email
-        assert response.data["data"]["nickname"] == "test_nickname"
+        assert response.data["data"]["nickname"] == "nickname"
 
     def test_user_detail_put_fail_not_authenticated(self):
         response = self.client.put(
             self.url,
-            data={"nickname": "test_nickname"},
+            data={"nickname": "nickname"},
             format="json",
         )
 
@@ -71,7 +71,7 @@ class TestUserDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 400
         assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"nickname": ["Ensure this field has no more than 16 characters."]}
+        assert response.data["message"] == {"nickname": ["Ensure this field has no more than 10 characters."]}
 
     def test_user_detail_put_fail_nickname_invalid_format(self, valid_user):
         access_token = self.obtain_token(valid_user)

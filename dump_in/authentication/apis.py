@@ -1,9 +1,7 @@
 from datetime import datetime
 
-from django.shortcuts import redirect
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.parsers import FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -16,7 +14,6 @@ from dump_in.authentication.services.auth import AuthService
 from dump_in.authentication.services.kakao_oauth import KakaoLoginFlowService
 from dump_in.authentication.services.naver_oauth import NaverLoginFlowService
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
-from dump_in.common.exception.exceptions import AuthenticationFailedException
 from dump_in.common.response import create_response
 from dump_in.users.enums import UserProvider
 from dump_in.users.services.users import UserService
@@ -78,11 +75,17 @@ class KakaoLoginAPI(APIView):
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
 
+        mobile_token = input_serializer.validated_data.get("mobile_token")
+        access_token = input_serializer.validated_data["access_token"]
+
         # Kakao Login Flow
         kakao_login_flow = KakaoLoginFlowService()
-        user_info = kakao_login_flow.get_user_info(access_token=input_serializer.validated_data["access_token"])
+        user_info = kakao_login_flow.get_user_info(access_token=access_token)
 
         # User Info Parsing
+        social_id = user_info["id"]
+        nickname = user_info["kakao_account"]["profile"]["nickname"]
+        email = user_info["kakao_account"]["email"]
         birthyear = user_info["kakao_account"].get("birthyear")
         birthday = user_info["kakao_account"].get("birthday")
         gender = user_info.get("gender")
@@ -93,13 +96,13 @@ class KakaoLoginAPI(APIView):
         # Create Social User
         user_service = UserService()
         user = user_service.create_social_user(
-            social_id=user_info["id"],
-            nickname=user_info["kakao_account"]["profile"]["nickname"],
-            email=user_info["kakao_account"]["email"],
+            social_id=social_id,
+            nickname=nickname,
+            email=email,
             birth=birth,
             gender=gender,
             social_provider=UserProvider.KAKAO.value,
-            mobile_token=input_serializer.validated_data.get("mobile_token"),
+            mobile_token=mobile_token,
         )
 
         # User Authenticate & Generate Token
@@ -139,11 +142,17 @@ class NaverLoginAPI(APIView):
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
 
+        access_token = input_serializer.validated_data["access_token"]
+        mobile_token = input_serializer.validated_data.get("mobile_token")
+
         # Naver Login Flow
         naver_login_flow = NaverLoginFlowService()
-        user_info = naver_login_flow.get_user_info(access_token=input_serializer.validated_data["access_token"])
+        user_info = naver_login_flow.get_user_info(access_token=access_token)
 
         # User Info Parsing
+        social_id = user_info["id"]
+        nickname = user_info["nickname"]
+        email = user_info["email"]
         birthyear = user_info["birthyear"]
         birthday = user_info["birthday"]
         gender = user_info["gender"]
@@ -154,13 +163,13 @@ class NaverLoginAPI(APIView):
         # Create Social User
         user_service = UserService()
         user = user_service.create_social_user(
-            social_id=user_info["id"],
-            nickname=user_info["nickname"],
-            email=user_info["email"],
+            social_id=social_id,
+            nickname=nickname,
+            email=email,
             birth=birth,
             gender=gender,
             social_provider=UserProvider.NAVER.value,
-            mobile_token=input_serializer.validated_data.get("mobile_token"),
+            mobile_token=mobile_token,
         )
 
         # User Authenticate & Generate Token
@@ -171,31 +180,13 @@ class NaverLoginAPI(APIView):
         return create_response(data=token_data, status_code=status.HTTP_200_OK)
 
 
-class AppleLoginRedirectAPI(APIView):
-    authentication_classes = ()
-    permission_classes = (AllowAny,)
-
-    @swagger_auto_schema(
-        tags=["인증"],
-        operation_summary="애플 로그인 리다이렉트",
-    )
-    def get(self, request: Request):
-        """
-        애플 로그인을 위한 리다이렉트 URL로 이동합니다.
-        url: /app/api/auth/apple/redirect
-        """
-        apple_login_flow = AppleLoginFlowService()
-        authorization_url = apple_login_flow.get_authorization_url()
-        return redirect(authorization_url)
-
-
 class AppleLoginAPI(APIView):
     permission_classes = (AllowAny,)
     authentication_classes = ()
-    parser_classes = (FormParser,)
 
     class InputSerializer(BaseSerializer):
-        code = serializers.CharField(required=False)
+        identify_token = serializers.CharField(required=True)
+        mobile_token = serializers.CharField(required=False)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -203,7 +194,7 @@ class AppleLoginAPI(APIView):
 
     @swagger_auto_schema(
         tags=["인증"],
-        operation_summary="애플 로그인 콜백",
+        operation_summary="애플 로그인",
         request_body=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(OutputSerializer),
@@ -211,36 +202,33 @@ class AppleLoginAPI(APIView):
     )
     def post(self, request: Request) -> Response:
         """
-        애플 로그인 콜백 API 입니다. 애플 로그인을 완료하면, 애플에서 전달받은 정보를 토대로
-        앱 유저를 생성하고, 액세스 토큰과 리프레쉬 토큰을 발급합니다.
-        url: /app/api/auth/apple/callback
+        애플 로그인 API 입니다. 애플에서 전달받은 토큰을 토대로 앱 유저를 생성하고,
+        액세스 토큰과 리프레쉬 토큰을 발급합니다.
+        url: /app/api/auth/apple/login
         """
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
-        validated_data = input_serializer.validated_data
 
-        code = validated_data.get("code")
-
-        if code is None:
-            raise AuthenticationFailedException("Code is not provided")
+        identify_token = input_serializer.validated_data["identify_token"]
+        mobile_token = input_serializer.validated_data.get("mobile_token")
 
         # Apple Login Flow
         apple_login_flow = AppleLoginFlowService()
-        token_decoded = apple_login_flow.get_id_token(code=code)
+        user_info = apple_login_flow.get_user_info(identify_token=identify_token)
 
-        email = token_decoded.get("email", None)
-        nickname = email.split("@")[0] if email else None
+        social_id = user_info["sub"]
+        email = user_info.get("email", None)
 
         # Create Social User
         user_service = UserService()
         user = user_service.create_social_user(
-            social_id=token_decoded["sub"],
-            nickname=nickname,
+            social_id=social_id,
+            nickname=None,
             email=email,
             birth=None,
             gender=None,
             social_provider=UserProvider.APPLE.value,
-            mobile_token=None,
+            mobile_token=mobile_token,
         )
 
         # User Authenticate & Generate Token

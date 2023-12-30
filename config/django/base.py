@@ -202,7 +202,6 @@ CACHES = {
 }
 
 from config.settings.cors import *  # noqa
-from config.settings.oauth import *  # noqa
 from config.settings.jwt import *  # noqa
 from config.settings.celery import *  # noqa
 from config.settings.slack import *  # noqa

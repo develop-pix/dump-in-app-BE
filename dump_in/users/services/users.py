@@ -19,7 +19,7 @@ class UserService:
     def create_social_user(
         self,
         email: str,
-        nickname: str,
+        nickname: Optional[str],
         social_id: str,
         birth: Union[str, datetime, None],
         gender: Optional[str],
@@ -30,13 +30,13 @@ class UserService:
 
         if user is None:
             # Nickname exists check and Generate random nickname
-            while self.user_selector.check_is_exists_user_by_nickname(nickname=nickname):
+            while nickname is None or self.user_selector.check_is_exists_user_by_nickname(nickname=nickname):
                 response = requests.get(
                     "https://nickname.hwanmoo.kr",
                     params={
                         "format": "json",
                         "count": "1",
-                        "max_length": "16",
+                        "max_length": "10",
                     },
                 )
                 nickname = response.json()["words"][0]
