@@ -25,7 +25,7 @@ class UserDetailAPI(APIView):
     permission_classes = (IsAuthenticated,)
 
     class InputSerializer(BaseSerializer):
-        nickname = serializers.CharField(required=True, max_length=16)
+        nickname = serializers.CharField(required=True, max_length=10)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
