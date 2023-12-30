@@ -1,15 +1,6 @@
-import json
-
-import jwt
 import pytest
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.test import override_settings
 
-from dump_in.authentication.services.apple_oauth import (
-    AppleLoginFlowService,
-    apple_login_get_credentials,
-)
+from dump_in.authentication.services.apple_oauth import AppleLoginFlowService
 from dump_in.common.exception.exceptions import AuthenticationFailedException
 
 
@@ -17,96 +8,38 @@ class TestAppleLoginFlow:
     def setup_method(self):
         self.apple_login_flow_service = AppleLoginFlowService()
 
-    def test_get_authorization_url_success(self, mocker):
-        mock_response = mocker.Mock()
-        mock_response.status_code = 200
-        mock_response.url = "https://appleid.apple.com/auth/authorize"
+    def test_get_user_info_success(self):
+        identify_token = (
+            "eyJraWQiOiJmaDZCczhDIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL2FwcGx"
+            "laWQuYXBwbGUuY29tIiwiYXVkIjoic3RyaW5nIiwiZXhwIjoxNzA0MDEzNjY3LCJpYXQiO"
+            "jE3MDM5MjcyNjcsInN1YiI6InN0cmluZyIsIm5vbmNlIjoic3RyaW5nIiwiY19oYXNoIjo"
+            "ic3RyaW5nIiwiZW1haWwiOiJzdHJpbmdAc3RyaW5nLmNvbSIsImVtYWlsX3ZlcmlmaWVkIj"
+            "oidHJ1ZSIsImF1dGhfdGltZSI6MTcwMzkyNzI2Nywibm9uY2Vfc3VwcG9ydGVkIjp0cnVlL"
+            "CJyZWFsX3VzZXJfc3RhdHVzIjoyfQ.Y_ojDrw0N-_Sv3Ld4TwyuqzCYlQtkbj8uCKB13BeDy"
+            "ZjNmXhdCYZKa9dQLKE3zStm-F1vuA18cqBuuicrWdsEwKLHDTIY34-FiNu3L0oqEIRzI6hF--"
+            "CgnN5o3FNCCpHTaESD942GoFgn0B3ip-0512kaEfHVkm8t62Mikb4jJAqZx95fz4zHujtKZfVL"
+            "jHDFBg3nKlZ0az94LrUi8PYqsKxwG-2Sh72NQeZJVdtws5cckc6gQBmKVlanz5YCkiE4NipaHlY"
+            "Bc5N8Hn_ShxaQZqwAqIu3ROlkue71ywvhXUU_rxjJf7Gs4dzHZd7LdOds6VZdRpcctW8g58CcXT5LA"
+        )
+        user_info = self.apple_login_flow_service.get_user_info(identify_token)
 
-        mocker.patch("dump_in.authentication.services.apple_oauth.requests.get", return_value=mock_response)
+        assert user_info["iss"] == "https://appleid.apple.com"
+        assert user_info["aud"] == "string"
+        assert user_info["exp"] == 1704013667
+        assert user_info["iat"] == 1703927267
+        assert user_info["sub"] == "string"
+        assert user_info["nonce"] == "string"
+        assert user_info["c_hash"] == "string"
+        assert user_info["email"] == "string@string.com"
+        assert user_info["email_verified"] == "true"
+        assert user_info["auth_time"] == 1703927267
+        assert user_info["nonce_supported"] is True
+        assert user_info["real_user_status"] == 2
 
-        authorization_url = self.apple_login_flow_service.get_authorization_url()
-        assert authorization_url == "https://appleid.apple.com/auth/authorize"
-
-    def test_get_authorization_url_fail_response_not_200(self, mocker):
-        """
-        get_authorization_url() 메서드 테스트 - 응답 코드가 200이 아닌 경우
-        """
-        mock_response = mocker.Mock()
-        mock_response.status_code = 401
-        mock_response.url = "https://appleid.apple.com/auth/authorize"
-
-        mocker.patch("dump_in.authentication.services.apple_oauth.requests.get", return_value=mock_response)
-
+    def test_get_user_info_fail_invalid_token(self):
+        identify_token = "wrong_token"
         with pytest.raises(AuthenticationFailedException) as e:
-            self.apple_login_flow_service.get_authorization_url()
+            self.apple_login_flow_service.get_user_info(identify_token)
 
-        assert e.value.detail == "Failed to get authorization url from Apple."
-        assert e.value.status_code == 401
-
-    def test_get_id_token_success(self, mocker):
-        id_token = """
-        {
-            "sub": "001",
-            "email": "email"
-        }
-        """
-        id_token_encoded = jwt.encode(json.loads(id_token), "", algorithm="HS256")
-
-        mock_response = mocker.Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"id_token": id_token_encoded}
-
-        mocker.patch("dump_in.authentication.services.apple_oauth.requests.post", return_value=mock_response)
-
-        token = self.apple_login_flow_service.get_id_token("test_code")
-
-        assert token is not None
-
-    def test_get_id_token_fail_response_not_200(self, mocker):
-        mock_response = mocker.Mock()
-        mock_response.status_code = 401
-        mock_response.side_effect = AuthenticationFailedException("Failed to get access token from Apple.")
-
-        mocker.patch("dump_in.authentication.services.apple_oauth.requests.post", return_value=mock_response)
-
-        with pytest.raises(AuthenticationFailedException) as e:
-            self.apple_login_flow_service.get_id_token("test_code")
-
-        assert e.value.status_code == 401
-        assert e.value.detail == "Failed to get access token from Apple."
-
-    def test_apple_login_get_credentials_success(self):
-        credentials = apple_login_get_credentials()
-
-        assert credentials.team_id == settings.APPLE_TEAM_ID
-        assert credentials.client_id == settings.APPLE_CLIENT_ID
-        assert credentials.key_id == settings.APPLE_KEY_ID
-        assert credentials.private_key == settings.APPLE_PRIVATE_KEY
-
-    @override_settings(APPLE_TEAM_ID=None)
-    def test_apple_login_get_credentials_fail_team_id_missing(self):
-        with pytest.raises(ImproperlyConfigured) as e:
-            apple_login_get_credentials()
-
-        assert str(e.value) == "APPLE_TEAM_ID missing in env."
-
-    @override_settings(APPLE_CLIENT_ID=None)
-    def test_apple_login_get_credentials_fail_client_id_missing(self):
-        with pytest.raises(ImproperlyConfigured) as e:
-            apple_login_get_credentials()
-
-        assert str(e.value) == "APPLE_API_KEY missing in env."
-
-    @override_settings(APPLE_KEY_ID=None)
-    def test_apple_login_get_credentials_fail_key_id_missing(self):
-        with pytest.raises(ImproperlyConfigured) as e:
-            apple_login_get_credentials()
-
-        assert str(e.value) == "APPLE_KEY_ID missing in env."
-
-    @override_settings(APPLE_PRIVATE_KEY=None)
-    def test_apple_login_get_credentials_fail_private_key_missing(self):
-        with pytest.raises(ImproperlyConfigured) as e:
-            apple_login_get_credentials()
-
-        assert str(e.value) == "APPLE_PRIVATE_KEY missing in env."
+        assert str(e.value) == "Token is invalid"
+        assert isinstance(e.value, AuthenticationFailedException)
