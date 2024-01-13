@@ -86,7 +86,7 @@ jobs:
           echo "aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY" >> deploy.sh
           echo "sudo docker compose -f /home/ubuntu/docker-compose.yml down" >> deploy.sh
           echo "sudo docker images -q | xargs sudo docker rmi -f" >> deploy.sh
-          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d" >> deploy.sh
+          echo "sudo docker compose -f /home/ubuntu/docker-compose.yml up -d --build" >> deploy.sh
 
       - name: Upload to S3
         env:
