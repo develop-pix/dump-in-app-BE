@@ -1,7 +1,7 @@
 from django.contrib.gis.geos import Point
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,8 +22,8 @@ from dump_in.reviews.selectors.reviews import ReviewSelector
 
 
 class PhotoBoothBrandListAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
@@ -49,8 +49,8 @@ class PhotoBoothBrandListAPI(APIView):
 
 
 class PhotoBoothBrandDetailAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
@@ -106,7 +106,7 @@ class PhotoBoothBrandDetailAPI(APIView):
 
 class PhotoBoothBrandEventListAPI(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
         limit = serializers.IntegerField(default=15, min_value=1, max_value=50)
@@ -117,7 +117,7 @@ class PhotoBoothBrandEventListAPI(APIView):
         main_thumbnail_image_url = serializers.URLField()
         start_date = serializers.DateField()
         end_date = serializers.DateField()
-        is_liked = serializers.BooleanField()
+        is_liked = serializers.BooleanField(default=None)
 
     @swagger_auto_schema(
         tags=["포토부스"],
@@ -151,8 +151,8 @@ class PhotoBoothBrandEventListAPI(APIView):
 
 
 class PhotoBoothBrandReviewListAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
         limit = serializers.IntegerField(default=15, min_value=1, max_value=50)
@@ -207,8 +207,8 @@ class PhotoBoothBrandReviewListAPI(APIView):
 
 
 class PhotoBoothLocationSearchAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
         photo_booth_brand_name = serializers.CharField(required=True, max_length=64)
@@ -265,7 +265,7 @@ class PhotoBoothLocationSearchAPI(APIView):
 
 class PhotoBoothLocationListAPI(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
         latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
@@ -277,7 +277,7 @@ class PhotoBoothLocationListAPI(APIView):
         name = serializers.CharField()
         latitude = serializers.FloatField()
         longitude = serializers.FloatField()
-        is_liked = serializers.BooleanField()
+        is_liked = serializers.BooleanField(default=None)
         photo_booth_brand = inline_serializer(
             fields={
                 "name": serializers.CharField(),
@@ -337,7 +337,7 @@ class PhotoBoothLocationListAPI(APIView):
 
 class PhotoBoothDetailAPI(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
         latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
@@ -351,7 +351,7 @@ class PhotoBoothDetailAPI(APIView):
         street_address = serializers.CharField()
         road_address = serializers.CharField()
         operation_time = serializers.CharField()
-        is_liked = serializers.BooleanField()
+        is_liked = serializers.BooleanField(default=None)
         photo_booth_brand = inline_serializer(
             fields={
                 "name": serializers.CharField(),
@@ -425,7 +425,7 @@ class PhotoBoothDetailAPI(APIView):
                 "street_address": photo_booth.street_address,
                 "road_address": photo_booth.road_address,
                 "operation_time": photo_booth.operation_time,
-                "is_liked": getattr(photo_booth, "is_liked", False),
+                "is_liked": getattr(photo_booth, "is_liked", None),
                 "photo_booth_brand": {
                     "name": getattr(photo_booth.photo_booth_brand, "name", None),
                     "image": photo_booth_brand_image,
@@ -465,8 +465,8 @@ class PhotoBoothLikeAPI(APIView):
 
 
 class PhotoBoothReviewListAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
         limit = serializers.IntegerField(default=15, min_value=1, max_value=50)

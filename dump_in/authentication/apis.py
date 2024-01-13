@@ -114,8 +114,8 @@ class KakaoLoginAPI(APIView):
 
 
 class NaverLoginAPI(APIView):
-    permission_classes = (AllowAny,)
     authentication_classes = ()
+    permission_classes = (AllowAny,)
 
     class InputSerializer(BaseSerializer):
         access_token = serializers.CharField(required=True)
@@ -181,8 +181,8 @@ class NaverLoginAPI(APIView):
 
 
 class AppleLoginAPI(APIView):
-    permission_classes = (AllowAny,)
     authentication_classes = ()
+    permission_classes = (AllowAny,)
 
     class InputSerializer(BaseSerializer):
         identify_token = serializers.CharField(required=True)

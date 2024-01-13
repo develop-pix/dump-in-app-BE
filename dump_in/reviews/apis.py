@@ -2,7 +2,7 @@ from django.core.validators import MaxValueValidator
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,7 +21,12 @@ from dump_in.reviews.services import ReviewService
 
 class ReviewListAPI(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return (IsAuthenticated(),)
+        return super().get_permissions()
 
     class Pagination(LimitOffsetPagination):
         default_limit = 10
@@ -52,7 +57,7 @@ class ReviewListAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 포토부스에 대한 리뷰 목록을 조회합니다.
+        포토부스에 대한 리뷰 목록을 조회합니다.
         url: /app/api/reviews/
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -105,7 +110,7 @@ class ReviewListAPI(APIView):
 
 class ReviewListCountAPI(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
         photo_booth_location = CustomMultipleChoiceField(
@@ -144,6 +149,11 @@ class ReviewDetailAPI(APIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return (AllowAny(),)
+        return super().get_permissions()
+
     class GetOutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
         image = inline_serializer(
@@ -161,8 +171,8 @@ class ReviewDetailAPI(APIView):
                 "name": serializers.CharField(),
             },
         )
-        is_mine = serializers.BooleanField()
-        is_liked = serializers.BooleanField()
+        is_mine = serializers.BooleanField(default=None)
+        is_liked = serializers.BooleanField(default=None)
         user_nickname = serializers.CharField(source="user.nickname")
         created_at = serializers.DateTimeField()
         updated_at = serializers.DateTimeField()
@@ -188,7 +198,7 @@ class ReviewDetailAPI(APIView):
     )
     def get(self, request: Request, review_id: int) -> Response:
         """
-        인증된 사용자가 포토부스에 대한 리뷰를 조회합니다.
+        포토부스에 대한 리뷰를 조회합니다.
         url: /app/api/reviews/<int:review_id>
         """
         review_service = ReviewService()
