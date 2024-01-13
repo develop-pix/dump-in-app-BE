@@ -155,7 +155,7 @@ def photo_booth_list(db, photo_booth_brand):
 
 @pytest.fixture
 def concept(db):
-    return ConceptFactory(id=1)
+    return ConceptFactory()
 
 
 @pytest.fixture

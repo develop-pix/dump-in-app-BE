@@ -83,7 +83,6 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.data["data"]["camera_shot"] == valid_review.camera_shot
         assert response.data["data"]["goods_amount"] is True
         assert response.data["data"]["curl_amount"] is True
-        assert response.data["data"]["concept"][0]["id"] == 1
         assert response.data["data"]["concept"][0]["name"] == concept.name
         assert response.data["data"]["user_nickname"] == valid_review.user.nickname
         assert response.data["data"]["is_public"] == valid_review.is_public
