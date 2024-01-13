@@ -44,6 +44,11 @@ class TestGetEventList:
 
         assert event_list.first() == valid_event
 
+    def test_get_event_list_success_user_id_none(self, valid_event, valid_user):
+        event_list = self.event_selector.get_event_list({}, None)
+
+        assert event_list.first() == valid_event
+
     def test_get_event_list_fail_does_not_exist(self, valid_user):
         event_list = self.event_selector.get_event_list({}, valid_user.id)
 

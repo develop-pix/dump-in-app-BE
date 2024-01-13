@@ -51,7 +51,7 @@ class TestPhotoBoothBrandReviewtList(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert len(response.data["data"]) == 3
 
-    def test_photo_booth_brand_review_list_get_fail_not_authenticated(self, valid_review):
+    def test_photo_booth_brand_review_list_get_success_anonymous_user(self, valid_review):
         response = self.client.get(
             path=reverse(
                 "api-photo-booths:photo-booth-brand-review-list",
@@ -61,9 +61,20 @@ class TestPhotoBoothBrandReviewtList(IsAuthenticateTestCase):
             ),
         )
 
-        assert response.status_code == 401
-        assert response.data["code"] == "not_authenticated"
-        assert response.data["message"] == "Authentication credentials were not provided."
+        assert response.status_code == 200
+        assert len(response.data["data"]) == 1
+        assert response.data["data"][0]["id"] == valid_review.id
+        assert response.data["data"][0]["main_thumbnail_image_url"] == valid_review.main_thumbnail_image_url
+        assert response.data["data"][0]["content"] == valid_review.content
+        assert response.data["data"][0]["frame_color"] == valid_review.frame_color
+        assert response.data["data"][0]["participants"] == valid_review.participants
+        assert response.data["data"][0]["camera_shot"] == valid_review.camera_shot
+        assert response.data["data"][0]["goods_amount"] == valid_review.goods_amount
+        assert response.data["data"][0]["curl_amount"] == valid_review.curl_amount
+        assert response.data["data"][0]["concept"][0]["id"] == valid_review.concept.all()[0].id
+        assert response.data["data"][0]["concept"][0]["name"] == valid_review.concept.all()[0].name
+        assert response.data["data"][0]["created_at"] == valid_review.created_at.astimezone(pytz.timezone("Asia/Seoul")).isoformat()
+        assert response.data["data"][0]["updated_at"] == valid_review.updated_at.astimezone(pytz.timezone("Asia/Seoul")).isoformat()
 
     def test_photo_booth_brand_review_list_get_fail_limit_min_value(self, valid_review, valid_user):
         access_token = self.obtain_token(valid_user)

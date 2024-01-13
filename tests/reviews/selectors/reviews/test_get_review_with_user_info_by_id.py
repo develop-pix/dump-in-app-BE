@@ -36,6 +36,11 @@ class TestGetReviewWithUserInfoById:
 
         assert review_with_user_info.is_liked is False
 
+    def test_get_review_with_user_info_by_id_success_user_id_none(self, valid_review):
+        review_with_user_info = self.review_selector.get_review_with_user_info_by_id(valid_review.id, None)
+
+        assert review_with_user_info == valid_review
+
     def test_get_review_with_user_info_by_id_fail_does_not_exist(self, valid_user):
         review_with_user_info = self.review_selector.get_review_with_user_info_by_id(999, valid_user.id)
 

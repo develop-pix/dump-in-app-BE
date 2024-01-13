@@ -48,12 +48,18 @@ class TestPhotoBoothLocationList(IsAuthenticateTestCase):
         assert response.data["data"][0]["photo_booth_brand"]["hashtag"][0]["id"] == photo_booth.photo_booth_brand.hashtag.all()[0].id
         assert response.data["data"][0]["photo_booth_brand"]["hashtag"][0]["name"] == photo_booth.photo_booth_brand.hashtag.all()[0].name
 
-    def test_photo_booth_location_list_get_fail_not_authenticated(self):
-        response = self.client.get(self.url)
+    def test_photo_booth_location_list_get_success_anonymous_user(self, photo_booth_list, valid_user):
+        response = self.client.get(
+            path=self.url,
+            data={
+                "longitude": 126.97151987127677,
+                "latitude": 37.55558726825372,
+                "radius": 1.5,
+            },
+        )
 
-        assert response.status_code == 401
-        assert response.data["code"] == "not_authenticated"
-        assert response.data["message"] == "Authentication credentials were not provided."
+        assert response.status_code == 200
+        assert len(response.data["data"]) == len(photo_booth_list)
 
     def test_photo_booth_location_list_get_fail_radis_required(self, valid_user):
         access_token = self.obtain_token(valid_user)

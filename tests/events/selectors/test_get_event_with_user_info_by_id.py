@@ -26,6 +26,11 @@ class TestGetEventWithUserInfoById:
 
         assert event.is_liked is False
 
+    def test_get_evnet_with_user_info_by_id_success_user_id_none(self, valid_event):
+        event = self.event_selector.get_event_with_user_info_by_id(valid_event.id, None)
+
+        assert event == valid_event
+
     def test_get_event_with_user_info_by_id_fail_does_not_exist(self, valid_event, valid_user):
         event = self.event_selector.get_event_with_user_info_by_id(valid_event.id + 1, valid_user.id)
 
