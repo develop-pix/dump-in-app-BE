@@ -16,33 +16,37 @@ class PhotoBoothSelector:
 
     def get_photo_booth_with_user_info_by_id(self, photo_booth_id: str, user_id) -> Optional[PhotoBooth]:
         try:
-            return PhotoBooth.objects.annotate(
-                is_liked=Case(
-                    When(userphotoboothlikelog__user_id=user_id, then=True),
-                    default=False,
-                    output_field=BooleanField(),
-                ),
-            ).get(id=photo_booth_id)
+            qs = PhotoBooth.objects.filter(id=photo_booth_id)
+
+            if user_id:
+                qs = qs.annotate(
+                    is_liked=Case(
+                        When(userphotoboothlikelog__user_id=user_id, then=True),
+                        default=False,
+                        output_field=BooleanField(),
+                    ),
+                )
+            return qs.get()
         except PhotoBooth.DoesNotExist:
             return None
 
     def get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
         self, center_point: Point, radius: int, user_id
     ) -> QuerySet[PhotoBooth]:
-        return (
+        qs = (
             PhotoBooth.objects.select_related("photo_booth_brand")
             .prefetch_related("photo_booth_brand__hashtag")
-            .annotate(
+            .filter(point__distance_lte=(center_point, Distance(km=radius)))
+        )
+        if user_id:
+            qs = qs.annotate(
                 is_liked=Case(
                     When(userphotoboothlikelog__user_id=user_id, then=True),
                     default=False,
                     output_field=BooleanField(),
                 ),
             )
-            .filter(
-                point__distance_lte=(center_point, Distance(km=radius)),
-            )
-        )
+        return qs
 
     def get_nearby_photo_booth_queryset_by_brand_name(
         self, center_point: Point, radius: int, photo_booth_brand_name: str

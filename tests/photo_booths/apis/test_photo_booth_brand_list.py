@@ -17,9 +17,8 @@ class TestPhotoBoothBrandList(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert len(response.data["data"]) == 3
 
-    def test_photo_booth_brand_list_get_fail_not_authenticated(self):
+    def test_photo_booth_brand_list_get_success_anonymous_user(self, photo_booth_brand_list):
         response = self.client.get(self.url)
 
-        assert response.status_code == 401
-        assert response.data["code"] == "not_authenticated"
-        assert response.data["message"] == "Authentication credentials were not provided."
+        assert response.status_code == 200
+        assert len(response.data["data"]) == 3

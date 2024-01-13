@@ -35,6 +35,11 @@ class TestGetEventQuerysetByPhotoBoothBrandId:
         assert event_queryset.first() == valid_event
         assert event_queryset.first().is_liked is False
 
+    def test_get_event_queryset_by_photo_booth_brand_id_success_user_id_none(self, valid_event):
+        event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(valid_event.photo_booth_brand_id, None)
+
+        assert event_queryset.first() == valid_event
+
     def test_get_event_queryset_by_photo_booth_brand_id_fail_does_not_exist(self, valid_event, valid_user):
         event_queryset = self.event_selector.get_event_queryset_by_photo_booth_brand_id(valid_event.photo_booth_brand_id + 1, valid_user.id)
 

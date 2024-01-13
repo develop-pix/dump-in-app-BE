@@ -28,6 +28,11 @@ class TestGetPhotoBoothWithdUserInfoById:
 
         assert photo_booth_data.is_liked is False
 
+    def test_get_photo_booth_with_user_info_by_id_success_user_id_none(self, photo_booth):
+        photo_booth_data = self.photo_booth_selector.get_photo_booth_with_user_info_by_id(photo_booth.id, None)
+
+        assert str(photo_booth_data.id) == photo_booth.id
+
     def test_get_photo_booth_with_user_info_by_id_fail_does_not_exist(self, valid_user):
         photo_booth_data = self.photo_booth_selector.get_photo_booth_with_user_info_by_id(uuid.uuid4(), valid_user.id)
 

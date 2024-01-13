@@ -26,12 +26,11 @@ class TestReviewListCount(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert response.data["data"]["count"] == len(valid_review_list_frame_color)
 
-    def test_review_list_count_get_fail_not_authenticated(self):
+    def test_review_list_count_get_success_anonymous_user(self, valid_review_list, valid_user):
         response = self.client.get(self.url)
 
-        assert response.status_code == 401
-        assert response.data["code"] == "not_authenticated"
-        assert response.data["message"] == "Authentication credentials were not provided."
+        assert response.status_code == 200
+        assert response.data["data"]["count"] == 10
 
     def test_review_list_count_get_fail_photo_booth_location_duplicate(self, valid_review_list_photo_booth_location, valid_user):
         access_token = self.obtain_token(valid_user)

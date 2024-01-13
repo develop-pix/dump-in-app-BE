@@ -1,6 +1,6 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,7 +18,7 @@ from dump_in.events.services import EventService
 
 class EventListAPI(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
 
     class Pagination(LimitOffsetPagination):
         default_limit = 10
@@ -34,7 +34,7 @@ class EventListAPI(APIView):
         main_thumbnail_image_url = serializers.URLField()
         start_date = serializers.DateField()
         end_date = serializers.DateField()
-        is_liked = serializers.BooleanField()
+        is_liked = serializers.BooleanField(default=None)
         photo_booth_brand_name = serializers.CharField(source="photo_booth_brand.name")
 
     @swagger_auto_schema(
@@ -47,7 +47,7 @@ class EventListAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 이벤트 목록을 조회합니다.
+        이벤트 목록을 조회합니다.
         url: /app/api/events/
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -69,7 +69,7 @@ class EventListAPI(APIView):
 
 class EventDetailAPI(APIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
@@ -78,7 +78,7 @@ class EventDetailAPI(APIView):
         main_thumbnail_image_url = serializers.URLField()
         start_date = serializers.DateField()
         end_date = serializers.DateField()
-        is_liked = serializers.BooleanField()
+        is_liked = serializers.BooleanField(default=None)
         hashtag = inline_serializer(
             many=True,
             fields={
@@ -104,7 +104,7 @@ class EventDetailAPI(APIView):
     )
     def get(self, request: Request, event_id: int) -> Response:
         """
-        인증된 사용자가 이벤트 상세를 조회합니다.
+        이벤트 상세를 조회합니다.
         url: /app/api/events/<int:event_id>
         """
         event_selector = EventSelector()

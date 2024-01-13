@@ -23,8 +23,10 @@ class ReviewSelector:
 
     def get_review_with_user_info_by_id(self, review_id: int, user_id) -> Optional[Review]:
         try:
-            return (
-                Review.objects.annotate(
+            qs = Review.objects.filter(id=review_id, is_deleted=False)
+
+            if user_id:
+                qs = qs.annotate(
                     is_liked=Case(
                         When(userreviewlikelog__user_id=user_id, then=True),
                         default=False,
@@ -36,9 +38,8 @@ class ReviewSelector:
                         output_field=BooleanField(),
                     ),
                 )
-                .filter(id=review_id, is_deleted=False)
-                .get()
-            )
+
+            return qs.get()
         except Review.DoesNotExist:
             return None
 
