@@ -1,11 +1,11 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from rest_framework import status
 from rest_framework.response import Response
 
 
 def create_response(
-    data: Optional[dict] = None,
+    data: Optional[Union[dict, list]] = None,
     code: Optional[str] = "request_success",
     message: Optional[str] = "Request was successful.",
     status_code: int = status.HTTP_200_OK,
@@ -17,7 +17,7 @@ def create_response(
     생성된 응답은 프로젝트의 모든 API에서 공통적으로 사용됩니다.
 
     Args:
-        data (Optional[dict], optional): 응답 데이터를 담는 딕셔너리입니다. 기본값은 빈 딕셔너리입니다.
+        data (Optional[dict], optional): 응답 데이터를 담는 딕셔너리 또는 리스트입니다. 기본값은 리스트입니다.
         code (Optional[str], optional): 응답 코드를 나타내는 문자열입니다. 기본값은 "request_success"입니다.
         message (Optional[str], optional): 자세한 응답 메시지를 나타내는 문자열입니다. 기본값은 "Request was successful."입니다.
         status_code (status, optional): 응답의 HTTP 상태 코드입니다. 기본값은 HTTP 200 OK입니다.
@@ -30,5 +30,5 @@ def create_response(
     json_data["success"] = True if status.is_success(status_code) else False
     json_data["code"] = code
     json_data["message"] = message
-    json_data["data"] = data
+    json_data["data"] = data if data is not None else []
     return Response(json_data, status=status_code, **kwargs)
