@@ -30,5 +30,5 @@ def create_response(
     json_data["success"] = True if status.is_success(status_code) else False
     json_data["code"] = code
     json_data["message"] = message
-    json_data["data"] = data or {}
+    json_data["data"] = data
     return Response(json_data, status=status_code, **kwargs)
