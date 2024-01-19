@@ -228,7 +228,7 @@ def valid_review_bulk(db):
         photo_booth_brand=photo_booth_brand,
     )
     concept_list = ConceptFactory.create_batch(30)
-    review_list = ReviewFactory.create_batch(size=100, photo_booth=photo_booth, concept=concept_list)
+    review_list = ReviewFactory.create_batch(size=300, photo_booth=photo_booth, concept=concept_list)
 
     for review in review_list:
         ReviewImageFactory.create_batch(5, review=review)
