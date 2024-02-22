@@ -21,7 +21,7 @@ class ReviewSelector:
         except Review.DoesNotExist:
             return None
 
-    def get_review_with_user_info_by_id(self, review_id: int, user_id) -> Optional[Review]:
+    def get_review_with_user_info_by_id_and_user_id(self, review_id: int, user_id) -> Optional[Review]:
         try:
             qs = Review.objects.filter(id=review_id, is_deleted=False)
 

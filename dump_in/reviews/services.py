@@ -172,7 +172,10 @@ class ReviewService:
     @transaction.atomic
     def view_count_up(self, review_id: int, user_id) -> Review:
         review_selector = ReviewSelector()
-        review = review_selector.get_review_with_user_info_by_id(review_id=review_id, user_id=user_id)
+        review = review_selector.get_review_with_user_info_by_id_and_user_id(
+            review_id=review_id,
+            user_id=user_id,
+        )
 
         if review is None:
             raise NotFoundException("Review does not exist")

@@ -14,6 +14,9 @@ class TestReviewDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == valid_review.id
+        assert str(response.data["data"]["photo_booth_id"]) == str(valid_review.photo_booth.id)
+        assert response.data["data"]["photo_booth_name"] == valid_review.photo_booth.name
+        assert response.data["data"]["photo_booth_brand_name"] == valid_review.photo_booth.photo_booth_brand.name
         assert response.data["data"]["main_thumbnail_image_url"] == valid_review.main_thumbnail_image_url
         assert response.data["data"]["content"] == valid_review.content
         assert response.data["data"]["date"] == valid_review.date
@@ -34,6 +37,9 @@ class TestReviewDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == valid_review.id
+        assert str(response.data["data"]["photo_booth_id"]) == str(valid_review.photo_booth.id)
+        assert response.data["data"]["photo_booth_name"] == valid_review.photo_booth.name
+        assert response.data["data"]["photo_booth_brand_name"] == valid_review.photo_booth.photo_booth_brand.name
         assert response.data["data"]["main_thumbnail_image_url"] == valid_review.main_thumbnail_image_url
         assert response.data["data"]["content"] == valid_review.content
         assert response.data["data"]["date"] == valid_review.date
@@ -48,7 +54,6 @@ class TestReviewDetail(IsAuthenticateTestCase):
         assert response.data["data"]["is_mine"] is None
         assert response.data["data"]["is_public"] == valid_review.is_public
         assert response.data["data"]["user_nickname"] == valid_review.user.nickname
-        assert str(response.data["data"]["photo_booth_id"]) == str(valid_review.photo_booth.id)
 
     def test_review_detail_put_success(self, valid_review, photo_booth, concept):
         access_token = self.obtain_token(valid_review.user)
