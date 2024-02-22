@@ -156,6 +156,9 @@ class ReviewDetailAPI(APIView):
 
     class GetOutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
+        photo_booth_id = serializers.UUIDField(source="photo_booth.id")
+        photo_booth_name = serializers.CharField(source="photo_booth.name")
+        photo_booth_brand_name = serializers.CharField(source="photo_booth.photo_booth_brand.name")
         image = inline_serializer(
             many=True,
             fields={
@@ -187,7 +190,6 @@ class ReviewDetailAPI(APIView):
         is_public = serializers.BooleanField()
         view_count = serializers.IntegerField()
         like_count = serializers.IntegerField()
-        photo_booth_id = serializers.UUIDField()
 
     @swagger_auto_schema(
         tags=["리뷰"],
