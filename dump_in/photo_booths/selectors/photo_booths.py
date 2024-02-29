@@ -14,6 +14,9 @@ class PhotoBoothSelector:
         except PhotoBooth.DoesNotExist:
             return None
 
+    def get_photo_booth_queryset_by_name(self, name: str) -> QuerySet[PhotoBooth]:
+        return PhotoBooth.objects.filter(name__icontains=name)
+
     def get_photo_booth_with_user_info_by_id(self, photo_booth_id: str, user_id) -> Optional[PhotoBooth]:
         try:
             qs = PhotoBooth.objects.filter(id=photo_booth_id)
