@@ -14,6 +14,7 @@ from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
 from dump_in.common.utils import inline_serializer
 from dump_in.photo_booths.enums import PhotoBoothLocation
+from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 from dump_in.reviews.enums import CameraShot, Concept, FrameColor, Participants
 from dump_in.reviews.selectors.reviews import ReviewSelector
 from dump_in.reviews.services import ReviewService
@@ -317,3 +318,47 @@ class ReviewLikeAPI(APIView):
         review, is_liked = review_service.like_review(review_id=review_id, user=request.user)
         review_data = self.OutputSerializer(data={"id": review.id, "is_liked": is_liked}).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)
+
+
+class ReviewPhotoBoothLocationSearchAPI(APIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
+    class FilterSerializer(BaseSerializer):
+        photo_booth_name = serializers.CharField(required=True, max_length=64)
+        limit = serializers.IntegerField(required=False, min_value=1, max_value=50, default=10)
+        offset = serializers.IntegerField(required=False, min_value=0)
+
+    class OutputSerializer(BaseSerializer):
+        id = serializers.UUIDField()
+        name = serializers.CharField()
+
+    @swagger_auto_schema(
+        tags=["리뷰"],
+        operation_summary="리뷰 포토부스 지점 위치 검색",
+        query_serializer=FilterSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """
+        인증된 사용자가 리뷰 수정, 저장의 포토부스 지점 위치를 검색합니다.
+        url: /app/api/reviews/photo-booths/locations/search
+        """
+        filter_serializer = self.FilterSerializer(data=request.query_params)
+        filter_serializer.is_valid(raise_exception=True)
+
+        photo_booths_selector = PhotoBoothSelector()
+        photo_booths = photo_booths_selector.get_photo_booth_queryset_by_name(name=filter_serializer.validated_data["photo_booth_name"])
+        photo_booths_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=photo_booths,
+            request=request,
+            view=self,
+        )
+        return create_response(data=photo_booths_data, status_code=status.HTTP_200_OK)
