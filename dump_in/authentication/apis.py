@@ -52,7 +52,7 @@ class KakaoLoginAPI(APIView):
 
     class InputSerializer(BaseSerializer):
         access_token = serializers.CharField(required=True)
-        mobile_token = serializers.CharField(required=False)
+        mobile_token = serializers.CharField(required=False, allow_null=True, default=None)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -119,7 +119,7 @@ class NaverLoginAPI(APIView):
 
     class InputSerializer(BaseSerializer):
         access_token = serializers.CharField(required=True)
-        mobile_token = serializers.CharField(required=False)
+        mobile_token = serializers.CharField(required=False, allow_null=True, default=None)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
@@ -186,7 +186,7 @@ class AppleLoginAPI(APIView):
 
     class InputSerializer(BaseSerializer):
         identify_token = serializers.CharField(required=True)
-        mobile_token = serializers.CharField(required=False)
+        mobile_token = serializers.CharField(required=False, allow_null=True, default=None)
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
