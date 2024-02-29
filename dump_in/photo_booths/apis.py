@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib.gis.geos import Point
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import serializers, status
@@ -340,8 +342,8 @@ class PhotoBoothDetailAPI(APIView):
     permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
-        latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
-        longitude = serializers.FloatField(required=True, min_value=-180, max_value=180)
+        latitude = serializers.FloatField(required=False, min_value=-90, max_value=90)
+        longitude = serializers.FloatField(required=False, min_value=-180, max_value=180)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
@@ -373,13 +375,15 @@ class PhotoBoothDetailAPI(APIView):
         )
         distance = serializers.SerializerMethodField()
 
-        def get_distance(self, obj) -> str:
+        def get_distance(self, obj) -> Optional[str]:
             center_point = self.context["center_point"]
-            destination_point = obj.get("point")
-            distance = center_point.distance(destination_point)
-            if distance > 0.01:
-                return f"{distance * 100:.2f} km"
-            return f"{distance * 100000:.2f} m"
+            if center_point is not None:
+                destination_point = obj.get("point")
+                distance = center_point.distance(destination_point)
+                if distance > 0.01:
+                    return f"{distance * 100:.2f} km"
+                return f"{distance * 100000:.2f} m"
+            return None
 
     @swagger_auto_schema(
         tags=["포토부스"],
@@ -396,11 +400,18 @@ class PhotoBoothDetailAPI(APIView):
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
-        center_point = Point(
-            x=filter_serializer.validated_data["longitude"],
-            y=filter_serializer.validated_data["latitude"],
-            srid=4326,
-        )
+
+        longitude = filter_serializer.validated_data.get("longitude")
+        latitude = filter_serializer.validated_data.get("latitude")
+        center_point = None
+
+        if longitude is not None and latitude is not None:
+            center_point = Point(
+                x=longitude,
+                y=latitude,
+                srid=4326,
+            )
+
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_with_user_info_by_id(
             photo_booth_id=photo_booth_id,
