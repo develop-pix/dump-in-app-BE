@@ -17,7 +17,7 @@ class TestGetUnreadNotificationCountByUserId:
     def test_get_unread_notification_count_by_user_id_success_multiple_notification(self, valid_notification_list):
         count = self.notification_selector.get_unread_notification_count_by_user_id(user_id=valid_notification_list[0].user_id)
 
-        assert count == 100
+        assert count == 10
 
     def test_get_unread_notification_count_by_user_id_fail_does_not_exist(self):
         count = self.notification_selector.get_unread_notification_count_by_user_id(user_id=999)

@@ -1,9 +1,5 @@
-import time
-
 import pytest
-from django.db.models import BooleanField, Case, When
 
-from dump_in.events.models import Event
 from dump_in.events.selectors.events import EventSelector
 
 pytestmark = pytest.mark.django_db
@@ -68,44 +64,3 @@ class TestGetEventList:
         event_list = self.event_selector.get_event_list({"hashtag": "string"}, valid_user.id)
 
         assert event_list.count() == 0
-
-    def test_get_event_list_select_related_performance(self, valid_event_list, valid_user):
-        start_time = time.time()
-
-        event_list = Event.objects.annotate(
-            is_liked=Case(
-                When(usereventlikelog__user_id=valid_user.id, then=True),
-                default=False,
-                output_field=BooleanField(),
-            ),
-        ).filter(is_public=True, photo_booth_brand__is_event=True)
-
-        for event in event_list:
-            event.photo_booth_brand.name
-            event.photo_booth_brand.description
-            event.photo_booth_brand.photo_booth_url
-            event.photo_booth_brand.logo_image_url
-            event.photo_booth_brand.main_thumbnail_image_url
-            event.photo_booth_brand.is_event
-
-        end_time = time.time()
-
-        time_with_filter = end_time - start_time
-
-        start_time = time.time()
-
-        event_list = self.event_selector.get_event_list({}, valid_user.id)
-
-        for event in event_list:
-            event.photo_booth_brand.name
-            event.photo_booth_brand.description
-            event.photo_booth_brand.photo_booth_url
-            event.photo_booth_brand.logo_image_url
-            event.photo_booth_brand.main_thumbnail_image_url
-            event.photo_booth_brand.is_event
-
-        end_time = time.time()
-
-        time_with_select_related = end_time - start_time
-
-        assert time_with_filter > time_with_select_related

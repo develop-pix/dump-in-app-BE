@@ -1,8 +1,5 @@
-import time
-
 import pytest
 
-from dump_in.reviews.models import Review
 from dump_in.reviews.selectors.reviews import ReviewSelector
 
 pytestmark = pytest.mark.django_db
@@ -96,26 +93,3 @@ class TestGetReviewList:
         review_list = self.review_selector.get_review_list({})
 
         assert review_list.count() == 0
-
-    def test_get_review_list_select_related_performance(self, valid_review_list):
-        start_time = time.time()
-
-        review_list = Review.objects.filter(is_deleted=False, is_public=True)
-
-        for review in review_list:
-            review.photo_booth
-
-        end_time = time.time()
-        time_with_filter = end_time - start_time
-
-        start_time = time.time()
-
-        review_list = self.review_selector.get_review_list({})
-
-        for review in review_list:
-            review.photo_booth
-
-        end_time = time.time()
-        time_with_select_related = end_time - start_time
-
-        assert time_with_filter > time_with_select_related

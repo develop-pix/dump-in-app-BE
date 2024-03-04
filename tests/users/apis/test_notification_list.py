@@ -15,7 +15,7 @@ class TestNotificaitonList(IsAuthenticateTestCase):
         response = self.client.get(self.url)
 
         assert response.status_code == 200
-        assert len(response.data["data"]) == 100
+        assert len(response.data["data"]) == 10
 
     def test_notification_list_get_fail_not_authenticated(self):
         response = self.client.get(self.url)

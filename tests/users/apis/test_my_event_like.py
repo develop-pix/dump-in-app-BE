@@ -44,7 +44,7 @@ class TestMyEventLike(IsAuthenticateTestCase):
         )
 
         assert response.status_code == 200
-        assert response.data["data"]["count"] == 100
+        assert response.data["data"]["count"] == 10
         assert len(response.data["data"]["results"]) == 10
 
     def test_my_event_like_get_fail_not_authenticated(self):

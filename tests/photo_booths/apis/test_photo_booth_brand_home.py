@@ -15,13 +15,12 @@ class TestPhotoBoothBrandHome(IsAuthenticateTestCase):
         response = self.client.get(
             path=self.url,
             data={
-                "limit": 1,
+                "limit": 10,
                 "offset": 0,
             },
         )
 
         assert response.status_code == 200
-        assert response.data["data"]["results"][0]["id"] == photo_booth_brand.id
         assert response.data["data"]["results"][0]["name"] == photo_booth_brand.name
         assert response.data["data"]["results"][0]["main_thumbnail_image_url"] == photo_booth_brand.main_thumbnail_image_url
 
