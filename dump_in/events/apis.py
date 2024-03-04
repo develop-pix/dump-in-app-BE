@@ -42,7 +42,7 @@ class EventListAPI(APIView):
         operation_summary="이벤트 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:
@@ -88,7 +88,7 @@ class EventHomeAPI(APIView):
         operation_summary="이벤트 홈 목록 조회",
         query_serializer=InputSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:

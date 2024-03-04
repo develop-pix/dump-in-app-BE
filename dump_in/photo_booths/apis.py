@@ -72,7 +72,10 @@ class PhotoBoothBrandHomeAPI(APIView):
         operation_summary="포토부스 업체 홈 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(
+                data_serializer=OutputSerializer,
+                pagination_serializer=True,
+            ),
         },
     )
     def get(self, request: Request) -> Response:
@@ -169,7 +172,7 @@ class PhotoBoothBrandEventListAPI(APIView):
         tags=["포토부스"],
         operation_summary="포토부스 업체 이벤트 목록 조회",
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, data_serializer_many=True),
         },
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
@@ -226,7 +229,7 @@ class PhotoBoothBrandReviewListAPI(APIView):
         tags=["포토부스"],
         operation_summary="포토부스 업체 리뷰 목록 조회",
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, data_serializer_many=True),
         },
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
@@ -550,7 +553,7 @@ class PhotoBoothReviewListAPI(APIView):
         operation_summary="포토부스 지점 리뷰 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, data_serializer_many=True),
         },
     )
     def get(self, request: Request, photo_booth_id: str) -> Response:
