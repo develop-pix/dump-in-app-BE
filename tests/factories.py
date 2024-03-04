@@ -28,7 +28,7 @@ from dump_in.users.models import (
     UserSocialProvider,
 )
 
-faker = Faker()
+faker = Faker("ko_KR")
 
 
 class UserSocialProviderFactory(factory.django.DjangoModelFactory):
@@ -148,7 +148,7 @@ class HashtagFactory(factory.django.DjangoModelFactory):
 
 class PhotoBoothBrandFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda n: n)
-    name = FuzzyText(length=64)
+    name = faker.text(max_nb_chars=64)
     description = FuzzyText(length=128)
     photo_booth_url = faker.url()
     main_thumbnail_image_url = faker.image_url()

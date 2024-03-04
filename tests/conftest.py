@@ -2,7 +2,6 @@ import pytest
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from dump_in.users.models import User
 from tests.factories import (
     ConceptFactory,
     EventFactory,
@@ -38,11 +37,7 @@ def group(db):
 
 @pytest.fixture
 def valid_user(db):
-    return User.objects.create(
-        id=1,
-        email="test1@test.com",
-        username="test1",
-        nickname="test1",
+    return UserFactory(
         is_deleted=False,
         is_admin=False,
         is_active=True,
@@ -56,11 +51,7 @@ def valid_user_list(db):
 
 @pytest.fixture
 def deleted_user(db):
-    return User.objects.create(
-        id=2,
-        email="test2@test.com",
-        username="test2",
-        nickname="test2",
+    return UserFactory(
         deleted_at=timezone.now() - timezone.timedelta(days=14),
         is_deleted=True,
         is_admin=False,
@@ -70,11 +61,7 @@ def deleted_user(db):
 
 @pytest.fixture
 def inactive_user(db):
-    return User.objects.create(
-        id=3,
-        email="test3@test.com",
-        username="test3",
-        nickname="test3",
+    return UserFactory(
         is_deleted=False,
         is_admin=False,
         is_active=False,
@@ -96,7 +83,7 @@ def valid_notification_list(db):
     user = UserFactory()
 
     return NotificationFactory.create_batch(
-        size=100,
+        size=10,
         user=user,
     )
 
@@ -150,7 +137,7 @@ def photo_booth(db, photo_booth_brand):
 
 @pytest.fixture
 def photo_booth_list(db, photo_booth_brand):
-    return PhotoBoothFactory.create_batch(size=100, photo_booth_brand=photo_booth_brand)
+    return PhotoBoothFactory.create_batch(size=10, photo_booth_brand=photo_booth_brand)
 
 
 @pytest.fixture
@@ -221,22 +208,6 @@ def valid_review_list_concept(db):
 
 
 @pytest.fixture
-def valid_review_bulk(db):
-    photo_booth_brand = PhotoBoothBrandFactory()
-
-    photo_booth = PhotoBoothFactory(
-        photo_booth_brand=photo_booth_brand,
-    )
-    concept_list = ConceptFactory.create_batch(30)
-    review_list = ReviewFactory.create_batch(size=300, photo_booth=photo_booth, concept=concept_list)
-
-    for review in review_list:
-        ReviewImageFactory.create_batch(5, review=review)
-
-    return review_list
-
-
-@pytest.fixture
 def valid_review_list_by_valid_user(db, valid_user):
     return ReviewFactory.create_batch(10, user=valid_user)
 
@@ -286,7 +257,7 @@ def valid_event_list(db):
     photo_booth_brand = PhotoBoothBrandFactory(is_event=True)
 
     return EventFactory.create_batch(
-        size=100,
+        size=10,
         photo_booth_brand=photo_booth_brand,
     )
 

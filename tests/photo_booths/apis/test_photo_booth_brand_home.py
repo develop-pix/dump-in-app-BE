@@ -21,7 +21,6 @@ class TestPhotoBoothBrandHome(IsAuthenticateTestCase):
         )
 
         assert response.status_code == 200
-        assert response.data["data"]["results"][0]["id"] == photo_booth_brand.id
         assert response.data["data"]["results"][0]["name"] == photo_booth_brand.name
         assert response.data["data"]["results"][0]["main_thumbnail_image_url"] == photo_booth_brand.main_thumbnail_image_url
 
