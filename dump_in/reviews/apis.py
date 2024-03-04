@@ -53,7 +53,7 @@ class ReviewListAPI(APIView):
         operation_summary="리뷰 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:
@@ -341,7 +341,7 @@ class ReviewPhotoBoothLocationSearchAPI(APIView):
         operation_summary="리뷰 포토부스 지점 위치 검색",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:

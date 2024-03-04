@@ -108,7 +108,7 @@ class MyReviewAPI(APIView):
         operation_summary="내가 작성한 리뷰 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:
@@ -152,7 +152,7 @@ class MyReviewLikeAPI(APIView):
         operation_summary="내가 좋아요한 리뷰 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:
@@ -205,7 +205,7 @@ class MyPhotoBoothLikeAPI(APIView):
         operation_summary="내가 좋아요한 포토부스 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:
@@ -251,7 +251,7 @@ class MyEventLikeAPI(APIView):
         operation_summary="내가 좋아요한 이벤트 목록 조회",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:
