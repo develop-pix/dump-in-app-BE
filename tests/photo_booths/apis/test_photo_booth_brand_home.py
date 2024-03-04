@@ -15,7 +15,7 @@ class TestPhotoBoothBrandHome(IsAuthenticateTestCase):
         response = self.client.get(
             path=self.url,
             data={
-                "limit": 10,
+                "limit": 1,
                 "offset": 0,
             },
         )
