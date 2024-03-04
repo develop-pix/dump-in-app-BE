@@ -14,6 +14,9 @@ class EventSelector:
         except Event.DoesNotExist:
             return None
 
+    def get_event_queryset_order_by_created_at_desc(self) -> QuerySet[Event]:
+        return Event.objects.filter(is_public=True, photo_booth_brand__is_event=True).order_by("-created_at")
+
     def get_event_with_user_info_by_id(self, event_id: int, user_id) -> Optional[Event]:
         try:
             qs = Event.objects.filter(id=event_id, is_public=True, photo_booth_brand__is_event=True)

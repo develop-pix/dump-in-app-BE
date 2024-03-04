@@ -15,3 +15,6 @@ class PhotoBoothBrandSelector:
 
         except PhotoBoothBrand.DoesNotExist:
             return None
+
+    def get_photo_booth_brand_queryset_order_by_name_asc(self) -> QuerySet[PhotoBoothBrand]:
+        return PhotoBoothBrand.objects.all().order_by("name")

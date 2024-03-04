@@ -1,0 +1,116 @@
+import pytest
+from django.urls import reverse
+
+from tests.utils import IsAuthenticateTestCase
+
+pytestmark = pytest.mark.django_db
+
+
+class TestPhotoBoothBrandHome(IsAuthenticateTestCase):
+    url = reverse("api-photo-booths:photo-booth-brand-home")
+
+    def test_photo_booth_brand_home_get_success_single_photo_booth_brand(self, valid_user, photo_booth_brand):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "limit": 1,
+                "offset": 0,
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.data["data"]["results"][0]["id"] == photo_booth_brand.id
+        assert response.data["data"]["results"][0]["name"] == photo_booth_brand.name
+        assert response.data["data"]["results"][0]["main_thumbnail_image_url"] == photo_booth_brand.main_thumbnail_image_url
+
+    def test_photo_booth_brand_home_get_success_pagination(self, valid_user, photo_booth_brand_list):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "limit": 3,
+                "offset": 0,
+            },
+        )
+
+        assert response.status_code == 200
+        assert response.data["data"]["count"] == len(photo_booth_brand_list)
+        assert len(response.data["data"]["results"]) == 3
+
+    def test_photo_booth_brand_home_get_fail_limit_min_value(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "limit": 0,
+                "offset": 0,
+            },
+        )
+
+        assert response.status_code == 400
+        assert response.data["code"] == "invalid_parameter_format"
+        assert response.data["message"] == {"limit": ["Ensure this value is greater than or equal to 1."]}
+
+    def test_photo_booth_brand_home_get_fail_limit_max_value(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "limit": 51,
+                "offset": 0,
+            },
+        )
+
+        assert response.status_code == 400
+        assert response.data["code"] == "invalid_parameter_format"
+        assert response.data["message"] == {"limit": ["Ensure this value is less than or equal to 50."]}
+
+    def test_photo_booth_brand_home_get_fail_offset_min_value(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "limit": 1,
+                "offset": -1,
+            },
+        )
+
+        assert response.status_code == 400
+        assert response.data["code"] == "invalid_parameter_format"
+        assert response.data["message"] == {"offset": ["Ensure this value is greater than or equal to 0."]}
+
+    def test_photo_booth_brand_home_get_fail_limit_invalid_format(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "limit": "invalid",
+                "offset": 0,
+            },
+        )
+
+        assert response.status_code == 400
+        assert response.data["code"] == "invalid_parameter_format"
+        assert response.data["message"] == {"limit": ["A valid integer is required."]}
+
+    def test_photo_booth_brand_home_get_fail_offset_invalid_format(self, valid_user):
+        access_token = self.obtain_token(valid_user)
+        self.authenticate_with_token(access_token)
+        response = self.client.get(
+            path=self.url,
+            data={
+                "limit": 1,
+                "offset": "invalid",
+            },
+        )
+
+        assert response.status_code == 400
+        assert response.data["code"] == "invalid_parameter_format"
+        assert response.data["message"] == {"offset": ["A valid integer is required."]}

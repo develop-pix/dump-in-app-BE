@@ -47,8 +47,8 @@ class EventListAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        이벤트 목록을 조회합니다.
-        url: /app/api/events/
+        사용자가 이벤트 목록을 조회합니다.
+        url: /app/api/events
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
@@ -57,6 +57,49 @@ class EventListAPI(APIView):
             user_id=request.user.id,
             filters=filter_serializer.validated_data,
         )
+        pagination_events_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=events,
+            request=request,
+            view=self,
+        )
+        return create_response(data=pagination_events_data, status_code=status.HTTP_200_OK)
+
+
+class EventHomeAPI(APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
+    class InputSerializer(BaseSerializer):
+        limit = serializers.IntegerField(required=False, min_value=1, max_value=50, default=10)
+        offset = serializers.IntegerField(required=False, min_value=0)
+
+    class OutputSerializer(BaseSerializer):
+        id = serializers.IntegerField()
+        title = serializers.CharField()
+        main_thumbnail_image_url = serializers.URLField()
+
+    @swagger_auto_schema(
+        tags=["이벤트"],
+        operation_summary="이벤트 홈 목록 조회",
+        query_serializer=InputSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """
+        사용자가 홈에서 이벤트 목록을 조회합니다.
+        url: /app/api/events/home
+        """
+        filter_serializer = self.InputSerializer(data=request.query_params)
+        filter_serializer.is_valid(raise_exception=True)
+        event_selector = EventSelector()
+        events = event_selector.get_event_queryset_order_by_created_at_desc()
         pagination_events_data = get_paginated_data(
             pagination_class=self.Pagination,
             serializer_class=self.OutputSerializer,
@@ -97,14 +140,14 @@ class EventDetailAPI(APIView):
 
     @swagger_auto_schema(
         tags=["이벤트"],
-        operation_summary="이벤트 상세",
+        operation_summary="이벤트 상세 조회",
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
         },
     )
     def get(self, request: Request, event_id: int) -> Response:
         """
-        이벤트 상세를 조회합니다.
+        사용자가 이벤트 상세를 조회합니다.
         url: /app/api/events/<int:event_id>
         """
         event_selector = EventSelector()
