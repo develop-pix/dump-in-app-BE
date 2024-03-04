@@ -138,8 +138,10 @@ class PhotoBoothBrandDetailAPI(APIView):
             raise NotFoundException("Photo Booth Brand does not exist")
 
         photo_booth_brand_image_selector = PhotoBoothBrandImageSelector()
-        photo_booth_brand_image = photo_booth_brand_image_selector.get_recent_photo_booth_brand_image_queryset_by_photo_booth_brand_id(
-            photo_booth_brand_id=photo_booth_brand_id
+        photo_booth_brand_image = (
+            photo_booth_brand_image_selector.get_photo_booth_brand_image_queryset_by_photo_booth_brand_id_order_by_created_at_desc(
+                photo_booth_brand_id=photo_booth_brand_id
+            )[:4]
         )
 
         photo_booth_brand_data = self.OutputSerializer(
@@ -191,10 +193,10 @@ class PhotoBoothBrandEventListAPI(APIView):
             raise NotFoundException("Photo Booth Brand does not exist")
 
         event_selector = EventSelector()
-        events = event_selector.get_event_queryset_by_photo_booth_brand_id(
+        events = event_selector.get_event_queryset_by_photo_booth_brand_id_order_by_created_at_desc(
             photo_booth_brand_id=photo_booth_brand_id,
             user_id=request.user.id,
-        ).order_by("-created_at")[0:limit]
+        )[0:limit]
         events_data = self.OutputSerializer(events, many=True).data
         return create_response(data=events_data, status_code=status.HTTP_200_OK)
 
@@ -248,9 +250,9 @@ class PhotoBoothBrandReviewListAPI(APIView):
             raise NotFoundException("Photo Booth Brand does not exist")
 
         review_selector = ReviewSelector()
-        reviews = review_selector.get_review_with_concept_queryset_by_photo_booth_brand_id(
+        reviews = review_selector.get_review_with_concept_queryset_by_photo_booth_brand_id_order_by_created_at_desc(
             photo_booth_brand_id=photo_booth_brand_id,
-        ).order_by("-created_at")[0:limit]
+        )[0:limit]
         reviews_data = self.OutputSerializer(reviews, many=True).data
         return create_response(data=reviews_data, status_code=status.HTTP_200_OK)
 
@@ -470,8 +472,10 @@ class PhotoBoothDetailAPI(APIView):
 
         if photo_booth.photo_booth_brand_id is not None:
             photo_booth_brand_image_selector = PhotoBoothBrandImageSelector()
-            photo_booth_brand_image = photo_booth_brand_image_selector.get_recent_photo_booth_brand_image_queryset_by_photo_booth_brand_id(
-                photo_booth_brand_id=photo_booth.photo_booth_brand_id
+            photo_booth_brand_image = (
+                photo_booth_brand_image_selector.get_photo_booth_brand_image_queryset_by_photo_booth_brand_id_order_by_created_at_desc(
+                    photo_booth_brand_id=photo_booth.photo_booth_brand_id
+                )[:4]
             )
 
         photo_booth_data = self.OutputSerializer(
@@ -565,10 +569,8 @@ class PhotoBoothReviewListAPI(APIView):
         filter_serializer.is_valid(raise_exception=True)
         limit = filter_serializer.validated_data["limit"]
         review_selector = ReviewSelector()
-        reviews = review_selector.get_review_with_concept_queryset_by_photo_booth_id(
+        reviews = review_selector.get_review_with_concept_queryset_by_photo_booth_id_order_by_created_at_desc(
             photo_booth_id=photo_booth_id,
-        ).order_by(
-            "-created_at"
         )[0:limit]
         reviews_data = self.OutputSerializer(reviews, many=True).data
         return create_response(data=reviews_data, status_code=status.HTTP_200_OK)

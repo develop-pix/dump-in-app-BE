@@ -7,12 +7,20 @@ from dump_in.reviews.models import Review
 
 
 class ReviewSelector:
-    def get_review_with_concept_queryset_by_photo_booth_id(self, photo_booth_id: str) -> QuerySet[Review]:
-        return Review.objects.prefetch_related("concept").filter(photo_booth_id=photo_booth_id, is_deleted=False, is_public=True)
+    def get_review_with_concept_queryset_by_photo_booth_id_order_by_created_at_desc(self, photo_booth_id: str) -> QuerySet[Review]:
+        return (
+            Review.objects.prefetch_related("concept")
+            .filter(photo_booth_id=photo_booth_id, is_deleted=False, is_public=True)
+            .order_by("-created_at")
+        )
 
-    def get_review_with_concept_queryset_by_photo_booth_brand_id(self, photo_booth_brand_id: int) -> QuerySet[Review]:
-        return Review.objects.prefetch_related("concept").filter(
-            photo_booth__photo_booth_brand_id=photo_booth_brand_id, is_deleted=False, is_public=True
+    def get_review_with_concept_queryset_by_photo_booth_brand_id_order_by_created_at_desc(
+        self, photo_booth_brand_id: int
+    ) -> QuerySet[Review]:
+        return (
+            Review.objects.prefetch_related("concept")
+            .filter(photo_booth__photo_booth_brand_id=photo_booth_brand_id, is_deleted=False, is_public=True)
+            .order_by("-created_at")
         )
 
     def get_review_by_id(self, review_id: int) -> Optional[Review]:

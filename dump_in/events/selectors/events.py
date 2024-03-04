@@ -34,8 +34,10 @@ class EventSelector:
         except Event.DoesNotExist:
             return None
 
-    def get_event_queryset_by_photo_booth_brand_id(self, photo_booth_brand_id: int, user_id) -> QuerySet[Event]:
-        qs = Event.objects.filter(photo_booth_brand_id=photo_booth_brand_id, is_public=True, photo_booth_brand__is_event=True)
+    def get_event_queryset_by_photo_booth_brand_id_order_by_created_at_desc(self, photo_booth_brand_id: int, user_id) -> QuerySet[Event]:
+        qs = Event.objects.filter(photo_booth_brand_id=photo_booth_brand_id, is_public=True, photo_booth_brand__is_event=True).order_by(
+            "-created_at"
+        )
 
         if user_id:
             qs = qs.annotate(
