@@ -11,6 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.exception.exceptions import NotFoundException
+from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
 from dump_in.common.utils import inline_serializer
 from dump_in.events.selectors.events import EventSelector
@@ -41,13 +42,56 @@ class PhotoBoothBrandListAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 포토부스에 업체 목록을 조회합니다.
+        사용자가 포토부스의 업체 목록을 조회합니다.
         url: /app/api/photo-booths/brands
         """
         photo_booth_brand_selector = PhotoBoothBrandSelector()
         photo_booth_brands = photo_booth_brand_selector.get_photo_booth_brand_queryset()
         photo_booth_brands_data = self.OutputSerializer(photo_booth_brands, many=True).data
         return create_response(data=photo_booth_brands_data, status_code=status.HTTP_200_OK)
+
+
+class PhotoBoothBrandHomeAPI(APIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
+    class FilterSerializer(BaseSerializer):
+        limit = serializers.IntegerField(default=10, min_value=1, max_value=50)
+        offset = serializers.IntegerField(default=0, min_value=0)
+
+    class OutputSerializer(BaseSerializer):
+        id = serializers.IntegerField()
+        main_thumbnail_image_url = serializers.URLField()
+        name = serializers.CharField()
+
+    @swagger_auto_schema(
+        tags=["포토부스"],
+        operation_summary="포토부스 업체 홈 목록 조회",
+        query_serializer=FilterSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+        },
+    )
+    def get(self, request: Request) -> Response:
+        """
+        사용자가 홈에서 포토부스의 업체 목록을 조회합니다.
+        url: /app/api/photo-booths/brands/home
+        """
+        filter_serializer = self.FilterSerializer(data=request.query_params)
+        filter_serializer.is_valid(raise_exception=True)
+        photo_booth_brand_selector = PhotoBoothBrandSelector()
+        photo_booth_brands = photo_booth_brand_selector.get_photo_booth_brand_queryset_order_by_name_asc()
+        pagination_photo_booth_brands_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=photo_booth_brands,
+            request=request,
+            view=self,
+        )
+        return create_response(data=pagination_photo_booth_brands_data, status_code=status.HTTP_200_OK)
 
 
 class PhotoBoothBrandDetailAPI(APIView):
@@ -81,7 +125,7 @@ class PhotoBoothBrandDetailAPI(APIView):
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
         """
-        인증된 사용자가 포토부스에 업체를 상세 조회합니다.
+        사용자가 포토부스의 업체를 상세 조회합니다.
         url: /app/api/photo-booths/brands/<int:photo_booth_brand_id>
         """
         photo_booth_brand_selector = PhotoBoothBrandSelector()
@@ -130,7 +174,7 @@ class PhotoBoothBrandEventListAPI(APIView):
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
         """
-        인증된 사용자가 포토부스에 업체 이벤트 목록을 조회합니다.
+        사용자가 포토부스의 업체 이벤트 목록을 조회합니다.
         url: /app/api/photo-booths/brands/<int:photo_booth_brand_id>/events
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -187,7 +231,7 @@ class PhotoBoothBrandReviewListAPI(APIView):
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
         """
-        인증된 사용자가 포토부스에 업체 리뷰 목록을 조회합니다.
+        사용자가 포토부스의 업체 리뷰 목록을 조회합니다.
         url: /app/api/photo-booths/brands/<int:photo_booth_brand_id>/reviews
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -241,7 +285,7 @@ class PhotoBoothLocationSearchAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 자신의 위치를 기준으로 포토부스 지점 위치를 검색합니다. (반경 최대 1.5km)
+        사용자가 자신의 위치를 기준으로 포토부스 지점 위치를 검색합니다. (반경 최대 1.5km)
         url: /app/api/photo-booths/locations/search
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -313,7 +357,7 @@ class PhotoBoothLocationListAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        인증된 사용자가 자신의 위치를 기준으로 포토부스 지점 목록을 조회합니다. (반경 1.5km)
+        사용자가 자신의 위치를 기준으로 포토부스 지점 목록을 조회합니다. (반경 1.5km)
         url: /app/api/photo-booths/locations
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -395,7 +439,7 @@ class PhotoBoothDetailAPI(APIView):
     )
     def get(self, request: Request, photo_booth_id: str) -> Response:
         """
-        인증된 사용자가 포토부스 지점 상세 정보를 조회합니다.
+        사용자가 포토부스 지점 상세 정보를 조회합니다.
         url: /app/api/photo-booths/<str:photo_booth_id>
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
@@ -511,7 +555,7 @@ class PhotoBoothReviewListAPI(APIView):
     )
     def get(self, request: Request, photo_booth_id: str) -> Response:
         """
-        인증된 사용자가 포토부스 지점 리뷰 목록을 조회합니다.
+        사용자가 포토부스 지점 리뷰 목록을 조회합니다.
         url: /app/api/photo-booths/<str:photo_booth_id>/reviews
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)

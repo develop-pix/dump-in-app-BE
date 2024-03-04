@@ -59,7 +59,7 @@ class ReviewListAPI(APIView):
     def get(self, request: Request) -> Response:
         """
         포토부스에 대한 리뷰 목록을 조회합니다.
-        url: /app/api/reviews/
+        url: /app/api/reviews
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
@@ -99,7 +99,7 @@ class ReviewListAPI(APIView):
     def post(self, request: Request) -> Response:
         """
         인증된 사용자가 포토부스에 대한 리뷰를 생성합니다.
-        url: /app/api/reviews/
+        url: /app/api/reviews
         """
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
