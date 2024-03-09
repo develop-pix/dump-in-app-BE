@@ -22,6 +22,7 @@ class TestPhotoBoothBrandDetail(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert response.data["data"]["id"] == photo_booth_brand.id
         assert response.data["data"]["name"] == photo_booth_brand.name
+        assert response.data["data"]["main_thumbnail_image_url"] == photo_booth_brand.main_thumbnail_image_url
         assert response.data["data"]["hashtag"][0]["id"] == photo_booth_brand.hashtag.all()[0].id
         assert response.data["data"]["hashtag"][0]["name"] == photo_booth_brand.hashtag.all()[0].name
         assert response.data["data"]["image"][0]["id"] == photo_booth_brand.photo_booth_brand_image.all()[0].id
@@ -42,6 +43,7 @@ class TestPhotoBoothBrandDetail(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert response.data["data"]["id"] == photo_booth_brand.id
         assert response.data["data"]["name"] == photo_booth_brand.name
+        assert response.data["data"]["main_thumbnail_image_url"] == photo_booth_brand.main_thumbnail_image_url
         assert response.data["data"]["hashtag"][0]["id"] == photo_booth_brand.hashtag.all()[0].id
         assert response.data["data"]["hashtag"][0]["name"] == photo_booth_brand.hashtag.all()[0].name
         assert response.data["data"]["image"][0]["id"] == photo_booth_brand.photo_booth_brand_image.all()[0].id

@@ -39,7 +39,7 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_station_nearby_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert str(nearby_photo_booth_queryset.first().id) == photo_booth.id
@@ -50,7 +50,7 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_station_nearby_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert nearby_photo_booth_queryset.count() == len(photo_booth_list)
@@ -59,7 +59,7 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_millennium_hotel_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert str(nearby_photo_booth_queryset.first().id) == photo_booth.id
@@ -68,7 +68,7 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_chungjeongno_station_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert str(nearby_photo_booth_queryset.first().id) == photo_booth.id
@@ -77,7 +77,7 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_namyang_station_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert str(nearby_photo_booth_queryset.first().id) == photo_booth.id
@@ -88,7 +88,7 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_station_nearby_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert nearby_photo_booth_queryset.first().is_liked is True
@@ -97,16 +97,16 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_station_nearby_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert nearby_photo_booth_queryset.first().is_liked is False
 
-    def test_get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset_success_user_id_none(self, photo_booth):
+    def test_get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset_success_anonymous_user(self, photo_booth, inactive_user):
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_station_nearby_point,
             radius=1.5,
-            user_id=None,
+            user=inactive_user,
         )
 
         assert str(nearby_photo_booth_queryset.first().id) == photo_booth.id
@@ -115,7 +115,7 @@ class TestGetNearbyPhotoBoothtWithBrandAndHashtagAndUserInfoQueryset:
         nearby_photo_booth_queryset = self.photo_booth_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=self.seoul_seodaemun_gu_point,
             radius=1.5,
-            user_id=valid_user.id,
+            user=valid_user,
         )
 
         assert nearby_photo_booth_queryset.count() == 0

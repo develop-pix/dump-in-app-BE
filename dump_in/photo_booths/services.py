@@ -9,10 +9,12 @@ from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 
 
 class PhotoBoothService:
+    def __init__(self):
+        self.photo_booth_selector = PhotoBoothSelector()
+
     @transaction.atomic
     def like_photo_booth(self, photo_booth_id: str, user) -> Tuple[PhotoBooth, bool]:
-        photo_booth_selector = PhotoBoothSelector()
-        photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
+        photo_booth = self.photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
         if photo_booth is None:
             raise NotFoundException("Photo Booth does not exist")

@@ -58,13 +58,13 @@ class ReviewListAPI(APIView):
     )
     def get(self, request: Request) -> Response:
         """
-        포토부스에 대한 리뷰 목록을 조회합니다.
+        사용자가 포토부스에 대한 리뷰 목록을 조회합니다.
         url: /app/api/reviews
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
         review_selector = ReviewSelector()
-        reviews = review_selector.get_review_list(filters=filter_serializer.validated_data)
+        reviews = review_selector.get_review_list_order_by_created_at_desc(filters=filter_serializer.validated_data)
         pagination_reviews_data = get_paginated_data(
             pagination_class=self.Pagination,
             serializer_class=self.OutputSerializer,
@@ -201,11 +201,11 @@ class ReviewDetailAPI(APIView):
     )
     def get(self, request: Request, review_id: int) -> Response:
         """
-        포토부스에 대한 리뷰를 조회합니다.
+        사용자가 포토부스에 대한 리뷰를 조회합니다.
         url: /app/api/reviews/<int:review_id>
         """
         review_service = ReviewService()
-        review = review_service.view_count_up(review_id=review_id, user_id=request.user.id)
+        review = review_service.view_count_up(review_id=review_id, user=request.user)
         review_data = self.GetOutputSerializer(review).data
         return create_response(data=review_data, status_code=status.HTTP_200_OK)
 
@@ -292,6 +292,57 @@ class ReviewDetailAPI(APIView):
         review_service = ReviewService()
         review_service.soft_delete_review(review_id=review_id, user_id=request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# class ReviewDetailReelAPI(APIView):
+#     authentication_classes = (JWTAuthentication,)
+#     permission_classes = (AllowAny,)
+
+#     class FilterSerializer(BaseSerializer):
+#         prev_review_id = serializers.IntegerField(required=False, allow_null=True, default=None)
+#         review_type = serializers.ChoiceField(required=True, choices=[review_type.value for review_type in ReviewType])
+#         photo_booth_location = CustomMultipleChoiceField(
+#             required=False, choices=[photo_booth_location.value for photo_booth_location in PhotoBoothLocation]
+#         )
+#         frame_color = CustomMultipleChoiceField(required=False, choices=[frame_color.value for frame_color in FrameColor])
+#         participants = CustomMultipleChoiceField(required=False, choices=[participants.value for participants in Participants])
+#         camera_shot = CustomMultipleChoiceField(required=False, choices=[camera_shot.value for camera_shot in CameraShot])
+#         concept = CustomMultipleChoiceField(required=False, choices=[concept.value for concept in Concept])
+
+#     class OutputSerializer(BaseSerializer):
+#         next_review_id = serializers.IntegerField()
+#         current_review_id = serializers.IntegerField()
+#         prev_review_id = serializers.IntegerField()
+
+#     @swagger_auto_schema(
+#         tags=["리뷰"],
+#         operation_summary="리뷰 릴스(순서) 조회",
+#         query_serializer=FilterSerializer,
+#         responses={
+#             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+#         },
+#     )
+#     def get(self, request: Request, review_id: int) -> Response:
+#         """
+#         사용자가 포토부스에 대한 리뷰 릴스(순서)를 조회합니다.
+#         url: /app/api/reviews/<int:review_id>/reels
+#         """
+#         filter_serializer = self.FilterSerializer(data=request.query_params)
+#         filter_serializer.is_valid(raise_exception=True)
+#         review_service = ReviewService()
+#         review_next_id = review_service.review_reel(
+#             review_type=filter_serializer.validated_data["review_type"],
+#             review_id=review_id,
+#             filters=filter_serializer.validated_data,
+#         )
+#         review_reel_data = self.OutputSerializer(
+#             {
+#                 "next_review_id": review_next_id,
+#                 "current_review_id": review_id,
+#                 "prev_review_id": filter_serializer.validated_data.get("prev_review_id"),
+#             }
+#         ).data
+#         return create_response(data=review_reel_data, status_code=status.HTTP_200_OK)
 
 
 class ReviewLikeAPI(APIView):

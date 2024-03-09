@@ -9,10 +9,12 @@ from dump_in.events.selectors.events import EventSelector
 
 
 class EventService:
+    def __init__(self):
+        self.event_selector = EventSelector()
+
     @transaction.atomic
     def like_event(self, event_id: int, user) -> Tuple[Event, bool]:
-        event_selector = EventSelector()
-        event = event_selector.get_event_by_id(event_id=event_id)
+        event = self.event_selector.get_event_by_id(event_id=event_id)
 
         if event is None:
             raise NotFoundException("Event does not exist")

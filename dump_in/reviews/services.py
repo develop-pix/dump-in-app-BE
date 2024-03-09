@@ -1,5 +1,6 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
+from django.contrib.auth.models import AnonymousUser
 from django.db import transaction
 from django.db.models import F
 
@@ -11,9 +12,15 @@ from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
 from dump_in.reviews.models import Review, ReviewImage
 from dump_in.reviews.selectors.concepts import ConceptSelector
 from dump_in.reviews.selectors.reviews import ReviewSelector
+from dump_in.users.models import User
 
 
 class ReviewService:
+    def __init__(self):
+        self.photo_booth_selector = PhotoBoothSelector()
+        self.concept_selector = ConceptSelector()
+        self.review_selector = ReviewSelector()
+
     @transaction.atomic
     def create_review(
         self,
@@ -31,8 +38,7 @@ class ReviewService:
         is_public: bool,
         user_id,
     ) -> Review:
-        photo_booth_selector = PhotoBoothSelector()
-        photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
+        photo_booth = self.photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
         if photo_booth is None:
             raise NotFoundException("PhotoBooth does not exist")
@@ -62,8 +68,7 @@ class ReviewService:
                 ],
             )
 
-        concept_selector = ConceptSelector()
-        concepts = concept_selector.get_concept_queryset_by_names(concept=concept)
+        concepts = self.concept_selector.get_concept_queryset_by_names(concept=concept)
         review.concept.set(concepts)
 
         return review
@@ -86,14 +91,12 @@ class ReviewService:
         is_public: bool,
         user_id,
     ) -> Review:
-        photo_booth_selector = PhotoBoothSelector()
-        photo_booth = photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
+        photo_booth = self.photo_booth_selector.get_photo_booth_by_id(photo_booth_id=photo_booth_id)
 
         if photo_booth is None:
             raise NotFoundException("PhotoBooth does not exist")
 
-        review_selector = ReviewSelector()
-        review = review_selector.get_review_by_id(review_id=review_id)
+        review = self.review_selector.get_review_by_id(review_id=review_id)
 
         if review is None:
             raise NotFoundException("Review does not exist")
@@ -125,8 +128,7 @@ class ReviewService:
                 ],
             )
 
-        concept_selector = ConceptSelector()
-        concepts = concept_selector.get_concept_queryset_by_names(concept=concept)
+        concepts = self.concept_selector.get_concept_queryset_by_names(concept=concept)
 
         review.concept.clear()
         review.concept.set(concepts)
@@ -135,8 +137,7 @@ class ReviewService:
 
     @transaction.atomic
     def soft_delete_review(self, review_id: int, user_id):
-        review_selector = ReviewSelector()
-        review = review_selector.get_review_by_id(review_id=review_id)
+        review = self.review_selector.get_review_by_id(review_id=review_id)
 
         if review is None:
             raise NotFoundException("Review does not exist")
@@ -149,8 +150,7 @@ class ReviewService:
 
     @transaction.atomic
     def like_review(self, review_id: int, user) -> Tuple[Review, bool]:
-        review_selector = ReviewSelector()
-        review = review_selector.get_public_review_by_id(review_id=review_id)
+        review = self.review_selector.get_public_review_by_id(review_id=review_id)
 
         if review is None:
             raise NotFoundException("Review does not exist")
@@ -170,20 +170,50 @@ class ReviewService:
         return review, is_liked
 
     @transaction.atomic
-    def view_count_up(self, review_id: int, user_id) -> Review:
-        review_selector = ReviewSelector()
-        review = review_selector.get_review_with_user_info_by_id_and_user_id(
+    def view_count_up(self, review_id: int, user: Union[User, AnonymousUser]) -> Review:
+        review = self.review_selector.get_review_with_user_info_by_id_and_user_id(
             review_id=review_id,
-            user_id=user_id,
+            user=user,
         )
 
         if review is None:
             raise NotFoundException("Review does not exist")
 
-        if review.is_public is False and review.user_id != user_id:
+        if review.is_public is False and review.user != user:
             raise PermissionDeniedException()
 
         review.view_count += 1
         review.save(update_fields=["view_count"])
 
         return review
+
+    # def review_reel(self, review_type: str, review_id: int, filters: Optional[dict]) -> int:
+    #     review = self.review_selector.get_public_review_by_id(review_id=review_id)
+
+    #     if review is None:
+    #         raise NotFoundException("Review does not exist")
+
+    #     if review_type == ReviewType.PHOTO_BOOTH.value:
+    #         review = self.review_selector.get_review_queryset_by_photo_booth_id_and_created_at_order_by_created_at_desc(
+    #             photo_booth_id=str(review.photo_booth_id), created_at=review.created_at
+    #         )[:1].get()
+
+    #     elif review_type == ReviewType.PHOTO_BOOTH_BRAND.value:
+    #         review = self.review_selector.get_review_queryset_by_photo_booth_brand_id_and_created_at_order_by_created_at_desc(
+    #             photo_booth_brand_id=review.photo_booth.photo_booth_brand_id, created_at=review.created_at
+    #         )[:1].get()
+
+    #     elif review_type == ReviewType.FILTER.value:
+    #         print(filters)
+    #         review = self.review_selector.get_review_list_by_created_at_order_by_created_at_desc(
+    #             created_at=review.created_at, filters=filters
+    #         )[:1].get()
+    #         print(review)
+
+    #     return review.id
+
+    # if review_type == ReviewType.HOME.value:
+    #     pass
+
+    # if review_type == ReviewType.SEARCH.value:
+    #     pass

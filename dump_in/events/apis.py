@@ -54,7 +54,7 @@ class EventListAPI(APIView):
         filter_serializer.is_valid(raise_exception=True)
         event_selector = EventSelector()
         events = event_selector.get_event_list(
-            user_id=request.user.id,
+            user=request.user,
             filters=filter_serializer.validated_data,
         )
         pagination_events_data = get_paginated_data(
@@ -151,7 +151,7 @@ class EventDetailAPI(APIView):
         url: /app/api/events/<int:event_id>
         """
         event_selector = EventSelector()
-        event = event_selector.get_event_with_user_info_by_id(event_id=event_id, user_id=request.user.id)
+        event = event_selector.get_event_with_user_info_by_id(event_id=event_id, user=request.user)
 
         if event is None:
             raise NotFoundException("Event does not exist.")

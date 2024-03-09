@@ -45,3 +45,10 @@ class Concept(Enum):
     HALLOWEEN = "할로윈"
     CHRISTMAS = "크리스마스"
     ETC = "기타"
+
+
+class ReviewType(Enum):
+    PHOTO_BOOTH_BRAND = "photo_booth_brand"
+    PHOTO_BOOTH = "photo_booth"
+    FILTER = "filter"
+    SEARCH = "search"

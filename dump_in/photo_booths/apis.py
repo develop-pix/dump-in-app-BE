@@ -104,6 +104,7 @@ class PhotoBoothBrandDetailAPI(APIView):
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
         name = serializers.CharField()
+        main_thumbnail_image_url = serializers.URLField()
         hashtag = inline_serializer(
             many=True,
             fields={
@@ -148,6 +149,7 @@ class PhotoBoothBrandDetailAPI(APIView):
             {
                 "id": photo_booth_brand.id,
                 "name": photo_booth_brand.name,
+                "main_thumbnail_image_url": photo_booth_brand.main_thumbnail_image_url,
                 "hashtag": photo_booth_brand.hashtag,
                 "image": photo_booth_brand_image,
             },
@@ -194,8 +196,7 @@ class PhotoBoothBrandEventListAPI(APIView):
 
         event_selector = EventSelector()
         events = event_selector.get_event_queryset_by_photo_booth_brand_id_order_by_created_at_desc(
-            photo_booth_brand_id=photo_booth_brand_id,
-            user_id=request.user.id,
+            photo_booth_brand_id=photo_booth_brand_id, user=request.user
         )[0:limit]
         events_data = self.OutputSerializer(events, many=True).data
         return create_response(data=events_data, status_code=status.HTTP_200_OK)
@@ -230,6 +231,7 @@ class PhotoBoothBrandReviewListAPI(APIView):
     @swagger_auto_schema(
         tags=["포토부스"],
         operation_summary="포토부스 업체 리뷰 목록 조회",
+        query_serializer=FilterSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, data_serializer_many=True),
         },
@@ -376,7 +378,7 @@ class PhotoBoothLocationListAPI(APIView):
         photo_booths = photo_booths_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=center_point,
             radius=filter_serializer.validated_data["radius"],
-            user_id=request.user.id,
+            user=request.user,
         )
         photo_booths_data = self.OutputSerializer(
             photo_booths,
@@ -464,7 +466,7 @@ class PhotoBoothDetailAPI(APIView):
         photo_booth_selector = PhotoBoothSelector()
         photo_booth = photo_booth_selector.get_photo_booth_with_user_info_by_id(
             photo_booth_id=photo_booth_id,
-            user_id=request.user.id,
+            user=request.user,
         )
 
         if photo_booth is None:
