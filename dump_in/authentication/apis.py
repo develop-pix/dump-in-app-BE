@@ -6,8 +6,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from rest_framework_simplejwt.views import TokenRefreshView
 
 from dump_in.authentication.services.apple_oauth import AppleLoginFlowService
 from dump_in.authentication.services.auth import AuthService
@@ -19,13 +17,18 @@ from dump_in.users.enums import UserProvider
 from dump_in.users.services.users import UserService
 
 
-class UserJWTRefreshAPI(TokenRefreshView):
+class UserJWTRefreshAPI(APIView):
+    class InputSerializer(BaseSerializer):
+        refresh = serializers.CharField()
+
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()
+        refresh_token = serializers.CharField()
 
     @swagger_auto_schema(
         tags=["인증"],
         operation_summary="인증 토큰 재발급",
+        request_body=InputSerializer,
         responses={
             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
         },
@@ -35,14 +38,11 @@ class UserJWTRefreshAPI(TokenRefreshView):
         refresh token을 입력받아 access token을 발급합니다.
         url: /app/api/auth/jwt/refresh
         """
-        serializer = self.get_serializer(data=request.data)
-
-        try:
-            serializer.is_valid(raise_exception=True)
-        except TokenError as e:
-            raise InvalidToken(e.args[0])
-
-        token_data = self.OutputSerializer({"access_token": serializer.validated_data["access"]}).data
+        input_serializer = self.InputSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        auth_service = AuthService()
+        refresh_token, access_token = auth_service.validate_refresh_token(**input_serializer.validated_data)
+        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
         return create_response(token_data, status_code=status.HTTP_200_OK)
 
 
