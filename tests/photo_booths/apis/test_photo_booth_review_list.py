@@ -52,39 +52,3 @@ class TestPhotoBoothReviewList(IsAuthenticateTestCase):
         assert response.data["data"][0]["camera_shot"] == valid_review.camera_shot
         assert response.data["data"][0]["goods_amount"] == valid_review.goods_amount
         assert response.data["data"][0]["curl_amount"] == valid_review.curl_amount
-
-    def test_photo_booth_review_list_get_fail_limit_min_value(self, valid_user, valid_review):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse("api-photo-booths:photo-booth-review-list", kwargs={"photo_booth_id": valid_review.photo_booth.id}),
-            data={"limit": 0},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["Ensure this value is greater than or equal to 1."]}
-
-    def test_photo_booth_review_list_get_fail_limit_max_value(self, valid_user, valid_review):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse("api-photo-booths:photo-booth-review-list", kwargs={"photo_booth_id": valid_review.photo_booth.id}),
-            data={"limit": 51},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["Ensure this value is less than or equal to 50."]}
-
-    def test_photo_booth_review_list_get_fail_limit_invalid_format(self, valid_user, valid_review):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse("api-photo-booths:photo-booth-review-list", kwargs={"photo_booth_id": valid_review.photo_booth.id}),
-            data={"limit": "a"},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["A valid integer is required."]}

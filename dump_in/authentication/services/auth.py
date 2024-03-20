@@ -1,3 +1,6 @@
+from typing import Optional
+
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from dump_in.common.exception.exceptions import AuthenticationFailedException
@@ -26,3 +29,20 @@ class AuthService:
             user.save()
 
         return user
+
+    def validate_refresh_token(self, refresh: str) -> tuple[Optional[str], str]:
+        try:
+            refresh_token = RefreshToken(refresh)
+            access_token = str(refresh_token.access_token)
+
+        except TokenError:
+            raise AuthenticationFailedException("Token is invalid or expired")
+
+        if refresh_token.get("exp") - refresh_token.get("iat") <= 300:
+            refresh_token.set_jti()
+            refresh_token.set_exp()
+            refresh_token.set_iat()
+
+            refresh_token = str(refresh_token)
+            return refresh_token, access_token
+        return None, access_token

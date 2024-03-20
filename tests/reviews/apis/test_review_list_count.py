@@ -102,7 +102,7 @@ class TestReviewListCount(IsAuthenticateTestCase):
             "concept": [ErrorDetail(string="This list may not contain the same item twice.", code="duplicate_values")]
         }
 
-    def test_review_list_count_get_fail_photo_booth_location_choice(self, valid_user):
+    def test_review_list_count_get_fail_photo_booth_location_invalid_choice(self, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(
@@ -114,7 +114,7 @@ class TestReviewListCount(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"photo_booth_location": ['"test" is not a valid choice.']}
 
-    def test_review_list_count_get_fail_frame_color_choice(self, valid_user):
+    def test_review_list_count_get_fail_frame_color_invalid_choice(self, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(
@@ -126,7 +126,7 @@ class TestReviewListCount(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"frame_color": ['"test" is not a valid choice.']}
 
-    def test_review_list_count_get_fail_participants_choice(self, valid_user):
+    def test_review_list_count_get_fail_participants_invalid_choice(self, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(
@@ -138,7 +138,7 @@ class TestReviewListCount(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"participants": ['"test" is not a valid choice.']}
 
-    def test_review_list_count_get_fail_camera_shot_choice(self, valid_user):
+    def test_review_list_count_get_fail_camera_shot_invalid_choice(self, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(
@@ -150,7 +150,7 @@ class TestReviewListCount(IsAuthenticateTestCase):
         assert response.data["code"] == "invalid_parameter_format"
         assert response.data["message"] == {"camera_shot": ['"test" is not a valid choice.']}
 
-    def test_review_list_count_get_fail_concept_choice(self, valid_user):
+    def test_review_list_count_get_fail_concept_invalid_choice(self, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
         response = self.client.get(

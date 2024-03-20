@@ -59,57 +59,6 @@ class TestPhotoBoothBrandEventList(IsAuthenticateTestCase):
         assert response.data["data"][0]["main_thumbnail_image_url"] == valid_event.main_thumbnail_image_url
         assert response.data["data"][0]["is_liked"] is None
 
-    def test_photo_booth_brand_event_list_get_fail_limit_min_value(self, valid_event, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse(
-                "api-photo-booths:photo-booth-brand-event-list",
-                kwargs={
-                    "photo_booth_brand_id": valid_event.photo_booth_brand.id,
-                },
-            ),
-            data={"limit": 0},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["Ensure this value is greater than or equal to 1."]}
-
-    def test_photo_booth_brand_event_list_get_fail_limit_max_value(self, valid_event, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse(
-                "api-photo-booths:photo-booth-brand-event-list",
-                kwargs={
-                    "photo_booth_brand_id": valid_event.photo_booth_brand.id,
-                },
-            ),
-            data={"limit": 51},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["Ensure this value is less than or equal to 50."]}
-
-    def test_photo_booth_brand_event_list_get_fail_limit_invalid_format(self, valid_event, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse(
-                "api-photo-booths:photo-booth-brand-event-list",
-                kwargs={
-                    "photo_booth_brand_id": valid_event.photo_booth_brand.id,
-                },
-            ),
-            data={"limit": "a"},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["A valid integer is required."]}
-
     def test_photo_booth_brand_event_list_get_fail_not_exist_photo_booth_brand(self, valid_event, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)

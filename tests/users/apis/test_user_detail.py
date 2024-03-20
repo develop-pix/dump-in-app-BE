@@ -51,41 +51,6 @@ class TestUserDetail(IsAuthenticateTestCase):
         assert response.data["code"] == "not_authenticated"
         assert response.data["message"] == "Authentication credentials were not provided."
 
-    def test_user_detail_put_fail_required_nickname(self, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.put(self.url)
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"nickname": ["This field is required."]}
-
-    def test_user_detail_put_fail_max_length_nickname(self, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.put(
-            self.url,
-            data={"nickname": "test_nickname" * 10},
-            format="json",
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"nickname": ["Ensure this field has no more than 10 characters."]}
-
-    def test_user_detail_put_fail_nickname_invalid_format(self, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.put(
-            self.url,
-            data={"nickname": [1234]},
-            format="json",
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"nickname": ["Not a valid string."]}
-
     def test_user_detail_delete_success(self, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)

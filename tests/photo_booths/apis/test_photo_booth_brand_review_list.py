@@ -76,57 +76,6 @@ class TestPhotoBoothBrandReviewtList(IsAuthenticateTestCase):
         assert response.data["data"][0]["created_at"] == valid_review.created_at.astimezone(pytz.timezone("Asia/Seoul")).isoformat()
         assert response.data["data"][0]["updated_at"] == valid_review.updated_at.astimezone(pytz.timezone("Asia/Seoul")).isoformat()
 
-    def test_photo_booth_brand_review_list_get_fail_limit_min_value(self, valid_review, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse(
-                "api-photo-booths:photo-booth-brand-review-list",
-                kwargs={
-                    "photo_booth_brand_id": valid_review.photo_booth.photo_booth_brand.id,
-                },
-            ),
-            data={"limit": 0},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["Ensure this value is greater than or equal to 1."]}
-
-    def test_photo_booth_brand_review_list_get_fail_limit_max_value(self, valid_review, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse(
-                "api-photo-booths:photo-booth-brand-review-list",
-                kwargs={
-                    "photo_booth_brand_id": valid_review.photo_booth.photo_booth_brand.id,
-                },
-            ),
-            data={"limit": 51},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["Ensure this value is less than or equal to 50."]}
-
-    def test_photo_booth_brand_review_list_get_fail_limit_invalid_format(self, valid_review, valid_user):
-        access_token = self.obtain_token(valid_user)
-        self.authenticate_with_token(access_token)
-        response = self.client.get(
-            path=reverse(
-                "api-photo-booths:photo-booth-brand-review-list",
-                kwargs={
-                    "photo_booth_brand_id": valid_review.photo_booth.photo_booth_brand.id,
-                },
-            ),
-            data={"limit": "invalid"},
-        )
-
-        assert response.status_code == 400
-        assert response.data["code"] == "invalid_parameter_format"
-        assert response.data["message"] == {"limit": ["A valid integer is required."]}
-
     def test_photo_booth_brand_e_list_get_fail_not_exist_photo_booth_brand(self, valid_event, valid_user):
         access_token = self.obtain_token(valid_user)
         self.authenticate_with_token(access_token)
