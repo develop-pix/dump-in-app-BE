@@ -84,7 +84,6 @@ class Notification(BaseModel):
     title = models.CharField(max_length=64)
     content = models.CharField(max_length=128)
     is_read = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
     parameter_data = models.CharField(max_length=512, null=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey("NotificationCategory", on_delete=models.CASCADE)

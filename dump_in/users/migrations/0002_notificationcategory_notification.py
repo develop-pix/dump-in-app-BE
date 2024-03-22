@@ -32,7 +32,6 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=64)),
                 ('content', models.CharField(max_length=128)),
                 ('is_read', models.BooleanField(default=False)),
-                ('is_deleted', models.BooleanField(default=False)),
                 ('parameter_data', models.CharField(max_length=512, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),

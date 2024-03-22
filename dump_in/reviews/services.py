@@ -96,13 +96,10 @@ class ReviewService:
         if photo_booth is None:
             raise NotFoundException("PhotoBooth does not exist")
 
-        review = self.review_selector.get_review_by_id(review_id=review_id)
+        review = self.review_selector.get_review_by_id_and_user_id(review_id=review_id, user_id=user_id)
 
         if review is None:
             raise NotFoundException("Review does not exist")
-
-        if review.user_id != user_id:
-            raise PermissionDeniedException()
 
         review.content = content
         review.main_thumbnail_image_url = main_thumbnail_image_url
@@ -136,17 +133,13 @@ class ReviewService:
         return review
 
     @transaction.atomic
-    def soft_delete_review(self, review_id: int, user_id):
-        review = self.review_selector.get_review_by_id(review_id=review_id)
+    def delete_review(self, review_id: int, user_id):
+        review = self.review_selector.get_review_by_id_and_user_id(review_id=review_id, user_id=user_id)
 
         if review is None:
             raise NotFoundException("Review does not exist")
 
-        if review.user_id != user_id:
-            raise PermissionDeniedException()
-
-        review.is_deleted = True
-        review.save()
+        review.delete()
 
     @transaction.atomic
     def like_review(self, review_id: int, user) -> Tuple[Review, bool]:
