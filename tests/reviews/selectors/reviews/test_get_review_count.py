@@ -84,11 +84,6 @@ class TestGetReviewCount:
 
         assert review_count == 0
 
-    def test_get_review_count_fail_deleted_review(self, deleted_review):
-        review_count = self.review_selector.get_review_count({})
-
-        assert review_count == 0
-
     def test_get_review_count_fail_private_review(self, private_review):
         review_count = self.review_selector.get_review_count({})
 

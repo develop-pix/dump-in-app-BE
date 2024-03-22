@@ -1,6 +1,7 @@
 import pytest
 from django.urls import reverse
 
+from dump_in.users.models import Notification
 from tests.utils import IsAuthenticateTestCase
 
 pytestmark = pytest.mark.django_db
@@ -30,8 +31,7 @@ class TestNotificaitonList(IsAuthenticateTestCase):
         response = self.client.delete(self.url)
 
         assert response.status_code == 204
-        valid_notification_list[0].refresh_from_db()
-        assert valid_notification_list[0].is_deleted
+        assert Notification.objects.filter(user_id=valid_notification_list[0].user_id).count() == 0
 
     def test_notification_list_delete_fail_not_authenticated(self):
         response = self.client.delete(self.url)

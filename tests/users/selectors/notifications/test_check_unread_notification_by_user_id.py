@@ -19,11 +19,6 @@ class TestCheckUnreadNotifiactionByUserId:
 
         assert is_unread is False
 
-    def test_check_unread_notification_by_user_id_fail_is_deleted(self, deleted_notification):
-        is_unread = self.notification_selector.check_unread_notification_by_user_id(user_id=deleted_notification.user_id)
-
-        assert is_unread is False
-
     def test_check_unread_notification_by_user_id_fail_is_read(self, read_notification):
         is_unread = self.notification_selector.check_unread_notification_by_user_id(user_id=read_notification.user_id)
 

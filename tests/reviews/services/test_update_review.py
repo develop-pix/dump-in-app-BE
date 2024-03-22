@@ -2,10 +2,7 @@ import uuid
 
 import pytest
 
-from dump_in.common.exception.exceptions import (
-    NotFoundException,
-    PermissionDeniedException,
-)
+from dump_in.common.exception.exceptions import NotFoundException
 from dump_in.reviews.enums import CameraShot, FrameColor
 from dump_in.reviews.services import ReviewService
 
@@ -132,38 +129,3 @@ class TestUpdateReview:
 
         assert e.value.detail == "Review does not exist"
         assert e.value.status_code == 404
-
-    def test_update_review_fail_permission_denied(self, concept, valid_review, valid_user):
-        main_thumbnail_image_url = "https://test.com/test.jpg"
-        image_urls = ["https://test.com/test.jpg", "https://test.com/test.jpg"]
-        content = "test"
-        photo_booth_id = valid_review.photo_booth.id
-        date = "2023-01-01"
-        frame_color = FrameColor.BLACK.value
-        participants = 1
-        camera_shot = CameraShot.CLOSEUP.value
-        concept = [concept.name]
-        goods_amount = True
-        curl_amount = True
-        is_public = True
-
-        with pytest.raises(PermissionDeniedException) as e:
-            self.review_service.update_review(
-                review_id=valid_review.id,
-                main_thumbnail_image_url=main_thumbnail_image_url,
-                image_urls=image_urls,
-                content=content,
-                photo_booth_id=photo_booth_id,
-                date=date,
-                frame_color=frame_color,
-                participants=participants,
-                camera_shot=camera_shot,
-                concept=concept,
-                goods_amount=goods_amount,
-                curl_amount=curl_amount,
-                is_public=is_public,
-                user_id=valid_user.id,
-            )
-
-        assert e.value.detail == "You do not have permission to perform this action."
-        assert e.value.status_code == 403

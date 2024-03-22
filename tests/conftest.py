@@ -89,11 +89,6 @@ def valid_notification_list(db):
 
 
 @pytest.fixture
-def deleted_notification(db):
-    return NotificationFactory(is_deleted=True)
-
-
-@pytest.fixture
 def read_notification(db):
     return NotificationFactory(is_read=True)
 
@@ -210,11 +205,6 @@ def valid_review_list_concept(db):
 @pytest.fixture
 def valid_review_list_by_valid_user(db, valid_user):
     return ReviewFactory.create_batch(10, user=valid_user)
-
-
-@pytest.fixture
-def deleted_review(db):
-    return ReviewFactory(is_deleted=True)
 
 
 @pytest.fixture

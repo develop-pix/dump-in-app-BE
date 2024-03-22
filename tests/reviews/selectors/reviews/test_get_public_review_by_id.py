@@ -19,11 +19,6 @@ class TestGetPublicReviewById:
 
         assert public_review is None
 
-    def test_get_public_review_by_id_fail_deleted_review(self, deleted_review):
-        public_review = self.review_selector.get_public_review_by_id(deleted_review.id)
-
-        assert public_review is None
-
     def test_get_public_review_by_id_fail_private_review(self, private_review):
         public_review = self.review_selector.get_public_review_by_id(private_review.id)
 
