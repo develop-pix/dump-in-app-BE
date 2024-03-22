@@ -84,11 +84,6 @@ class TestGetReviewList:
 
         assert review_list.count() == 0
 
-    def test_get_review_list_order_by_created_at_desc_fail_deleted_review(self, deleted_review):
-        review_list = self.review_selector.get_review_list_order_by_created_at_desc({})
-
-        assert review_list.count() == 0
-
     def test_get_review_list_order_by_created_at_desc_fail_private_review(self, private_review):
         review_list = self.review_selector.get_review_list_order_by_created_at_desc({})
 

@@ -45,8 +45,3 @@ class TestGetReviewWithUserInfoById:
         review_with_user_info = self.review_selector.get_review_with_user_info_by_id_and_user_id(999, valid_user)
 
         assert review_with_user_info is None
-
-    def test_get_review_with_user_info_by_id_and_user_id_fail_deleted_review(self, deleted_review, valid_user):
-        review_with_user_info = self.review_selector.get_review_with_user_info_by_id_and_user_id(deleted_review.id, valid_user)
-
-        assert review_with_user_info is None

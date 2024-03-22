@@ -18,8 +18,3 @@ class TestGetNotificationById:
         notification = self.notification_selector.get_notification_by_id(notification_id=999)
 
         assert notification is None
-
-    def test_get_notification_by_id_fail_is_deleted(self, deleted_notification):
-        notification = self.notification_selector.get_notification_by_id(notification_id=deleted_notification.id)
-
-        assert notification is None

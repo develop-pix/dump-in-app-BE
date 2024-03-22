@@ -18,7 +18,6 @@ class Concept(SimpleModel):
 class Review(BaseModel):
     content = models.TextField()
     main_thumbnail_image_url = models.URLField(max_length=512)
-    is_deleted = models.BooleanField(default=False)
     date = models.DateField()
     frame_color = models.CharField(max_length=8)
     participants = models.IntegerField()

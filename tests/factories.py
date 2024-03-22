@@ -130,13 +130,6 @@ class NotificationFactory(factory.django.DjangoModelFactory):
         else:
             self.is_read = False
 
-    @factory.post_generation
-    def is_deleted(self, create, extracted, **kwargs):
-        if isinstance(extracted, bool):
-            self.is_deleted = extracted
-        else:
-            self.is_deleted = False
-
 
 class HashtagFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda n: n)
@@ -236,13 +229,6 @@ class ReviewFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Review
-
-    @factory.post_generation
-    def is_deleted(self, create, extracted, **kwargs):
-        if isinstance(extracted, bool):
-            self.is_deleted = extracted
-        else:
-            self.is_deleted = False
 
     @factory.post_generation
     def is_public(self, create, extracted, **kwargs):

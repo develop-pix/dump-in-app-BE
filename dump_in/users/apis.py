@@ -317,7 +317,7 @@ class NotificationListAPI(APIView):
         url: /app/api/users/notifications
         """
         notification_service = NotificationService()
-        notification_service.soft_delete_notifications(user_id=request.user.id)
+        notification_service.delete_notifications(user_id=request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
 
 

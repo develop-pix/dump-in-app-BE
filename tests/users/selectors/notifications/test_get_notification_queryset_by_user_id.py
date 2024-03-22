@@ -23,8 +23,3 @@ class TestGetNotificationQuerysetByUserId:
         notification_list = self.notification_selector.get_notification_queryset_by_user_id(user_id=999)
 
         assert notification_list.count() == 0
-
-    def test_get_notification_queryset_by_user_id_fail_is_deleted(self, deleted_notification):
-        notification_list = self.notification_selector.get_notification_queryset_by_user_id(user_id=deleted_notification.user_id)
-
-        assert notification_list.count() == 0

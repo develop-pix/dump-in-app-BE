@@ -27,6 +27,6 @@ class NotificationService:
         return notification
 
     @transaction.atomic
-    def soft_delete_notifications(self, user_id):
+    def delete_notifications(self, user_id):
         notifications = self.notification_selector.get_notification_queryset_by_user_id(user_id=user_id)
-        notifications.update(is_deleted=True)
+        notifications.delete()

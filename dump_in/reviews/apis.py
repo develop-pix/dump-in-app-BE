@@ -290,7 +290,7 @@ class ReviewDetailAPI(APIView):
         url: /app/api/reviews/<int:review_id>
         """
         review_service = ReviewService()
-        review_service.soft_delete_review(review_id=review_id, user_id=request.user.id)
+        review_service.delete_review(review_id=review_id, user_id=request.user.id)
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
 
 

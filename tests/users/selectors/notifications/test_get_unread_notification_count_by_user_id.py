@@ -24,11 +24,6 @@ class TestGetUnreadNotificationCountByUserId:
 
         assert count == 0
 
-    def test_get_unread_notification_count_by_user_id_fail_is_deleted(self, deleted_notification):
-        count = self.notification_selector.get_unread_notification_count_by_user_id(user_id=deleted_notification.user_id)
-
-        assert count == 0
-
     def test_get_unread_notification_count_by_user_id_fail_is_read(self, read_notification):
         count = self.notification_selector.get_unread_notification_count_by_user_id(user_id=read_notification.user_id)
 

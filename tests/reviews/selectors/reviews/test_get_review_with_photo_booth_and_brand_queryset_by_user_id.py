@@ -31,10 +31,3 @@ class TestGetReviewWithPhotoBoothAndBrandQuerysetByUserId:
         )
 
         assert review_queryset_with_photo_booth_and_brand.count() == 0
-
-    def test_get_review_with_photo_booth_and_brand_queryset_by_user_id_fail_deleted_review(self, deleted_review):
-        review_queryset_with_photo_booth_and_brand = self.review_selector.get_review_with_photo_booth_and_brand_queryset_by_user_id(
-            deleted_review.user.id
-        )
-
-        assert review_queryset_with_photo_booth_and_brand.count() == 0

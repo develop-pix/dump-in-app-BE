@@ -37,13 +37,6 @@ class TestGetReviewWithConceptQuerysetByPhotoBoothIdOrderByCreatedAtDesc:
 
         assert review_with_concept_queryset.count() == 0
 
-    def test_get_review_with_concept_queryset_by_photo_booth_id_order_by_created_at_desc_fail_deleted_review(self, deleted_review):
-        review_with_concept_queryset = self.review_selector.get_review_with_concept_queryset_by_photo_booth_id_order_by_created_at_desc(
-            deleted_review.photo_booth_id
-        )
-
-        assert review_with_concept_queryset.count() == 0
-
     def test_get_review_with_concept_queryset_by_photo_booth_id_order_by_created_at_desc_fail_private_review(self, private_review):
         review_with_concept_queryset = self.review_selector.get_review_with_concept_queryset_by_photo_booth_id_order_by_created_at_desc(
             private_review.photo_booth_id
