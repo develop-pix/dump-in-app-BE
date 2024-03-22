@@ -12,9 +12,9 @@ assignees:
 >
 - API 명세서
 
-|기능|Method|URL|Request|Response|
-|------|---|---|---|---|
-||||||
+|기능|Method|URL|
+|------|---|---|
+||||
 
 <br>
 
