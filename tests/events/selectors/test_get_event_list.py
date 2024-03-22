@@ -34,9 +34,9 @@ class TestGetEventList:
         assert event_list.first().is_liked is False
 
     def test_get_event_list_success_with_hashtag(self, valid_event, valid_user):
-        hashtag = valid_event.hashtag.first()
+        hashtag_name = [valid_event.hashtag.first().name]
 
-        event_list = self.event_selector.get_event_list({"hashtag": str(hashtag.name)}, valid_user)
+        event_list = self.event_selector.get_event_list({"hashtag": hashtag_name}, valid_user)
 
         assert event_list.first() == valid_event
 
