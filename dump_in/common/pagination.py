@@ -4,7 +4,7 @@ from rest_framework.pagination import LimitOffsetPagination as _LimitOffsetPagin
 from rest_framework.response import Response
 
 
-def get_paginated_data(*, pagination_class, serializer_class, queryset, request, view):
+def get_paginated_data(*, pagination_class, serializer_class, queryset, request, view, context=None):
     """
     이 함수는 API 응답에 필요한 페이징된 데이터를 생성합니다.
 
@@ -14,6 +14,7 @@ def get_paginated_data(*, pagination_class, serializer_class, queryset, request,
         queryset (QuerySet): 쿼리셋입니다.
         request (Request): Request 객체입니다.
         view (View): View 객체입니다.
+        context (dict): 시리얼라이저에 전달할 컨텍스트입니다.
 
     Returns:
         serializer.data: 페이징된 데이터를 담는 시리얼라이저 객체입니다.
@@ -24,10 +25,10 @@ def get_paginated_data(*, pagination_class, serializer_class, queryset, request,
     page = paginator.paginate_queryset(queryset, request, view=view)
 
     if page is not None:
-        serializer = serializer_class(page, many=True)
+        serializer = serializer_class(page, many=True, context=context)
         return paginator.get_paginated_data(serializer.data)
 
-    serializer = serializer_class(queryset, many=True)
+    serializer = serializer_class(queryset, many=True, context=context)
 
     return serializer.data
 

@@ -273,57 +273,83 @@ class PhotoBoothLocationSearchAPI(APIView):
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
     class FilterSerializer(BaseSerializer):
-        photo_booth_brand_name = serializers.CharField(required=True, max_length=64)
-        latitude = serializers.FloatField(required=True, min_value=-90, max_value=90)
-        longitude = serializers.FloatField(required=True, min_value=-180, max_value=180)
-        radius = serializers.FloatField(required=True, min_value=0, max_value=1.5)
+        photo_booth_name = serializers.CharField(required=True, max_length=64)
+        latitude = serializers.FloatField(required=False, min_value=-90, max_value=90)
+        longitude = serializers.FloatField(required=False, min_value=-180, max_value=180)
+        radius = serializers.FloatField(required=False, min_value=0, max_value=1.5)
+        limit = serializers.IntegerField(required=False, min_value=1, max_value=50, default=10)
+        offset = serializers.IntegerField(required=False, min_value=0)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
         name = serializers.CharField()
         distance = serializers.SerializerMethodField()
 
-        def get_distance(self, obj) -> str:
+        def get_distance(self, obj) -> Optional[str]:
             center_point = self.context["center_point"]
-            destination_point = obj.point
-            distance = center_point.distance(destination_point)
-            if distance > 0.01:
-                return f"{distance * 100:.2f} km"
-            return f"{distance * 100000:.2f} m"
+            if center_point is not None:
+                destination_point = obj.point
+                distance = center_point.distance(destination_point)
+                if distance > 0.01:
+                    return f"{distance * 100:.2f} km"
+                return f"{distance * 100000:.2f} m"
+            return None
 
     @swagger_auto_schema(
         tags=["포토부스"],
         operation_summary="포토부스 지점 위치 검색",
         query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request) -> Response:
         """
-        사용자가 자신의 위치를 기준으로 포토부스 지점 위치를 검색합니다. (반경 최대 1.5km)
+        사용자가 이름으로 포토부스 지점 위치를 검색합니다. 위치 정보가 있는 경우, 자신의 위치를 기준으로 검색합니다. (반경 1.5km)
         url: /app/api/photo-booths/locations/search
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
-        center_point = Point(
-            x=filter_serializer.validated_data["longitude"],
-            y=filter_serializer.validated_data["latitude"],
-            srid=4326,
-        )
+
+        validated_data = filter_serializer.validated_data
+
+        center_point = None
+        longitude = validated_data.get("longitude")
+        latitude = validated_data.get("latitude")
+        radius = validated_data.get("radius")
+        photo_booth_name = validated_data.get("photo_booth_name")
+
         photo_booths_selector = PhotoBoothSelector()
-        photo_booths = photo_booths_selector.get_nearby_photo_booth_queryset_by_brand_name(
-            center_point=center_point,
-            radius=filter_serializer.validated_data["radius"],
-            photo_booth_brand_name=filter_serializer.validated_data["photo_booth_brand_name"],
-        )
-        photo_booths_data = self.OutputSerializer(
-            photo_booths,
-            many=True,
+
+        if longitude is not None and latitude is not None:
+            center_point = Point(
+                x=longitude,
+                y=latitude,
+                srid=4326,
+            )
+            photo_booths = photo_booths_selector.get_nearby_photo_booth_queryset_by_name(
+                center_point=center_point,
+                radius=radius,
+                name=photo_booth_name,
+            )
+
+        else:
+            photo_booths_selector = PhotoBoothSelector()
+            photo_booths = photo_booths_selector.get_photo_booth_queryset_by_name(name=photo_booth_name)
+
+        pagination_photo_booths_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=photo_booths,
+            request=request,
+            view=self,
             context={"center_point": center_point},
-        ).data
-        return create_response(data=photo_booths_data, status_code=status.HTTP_200_OK)
+        )
+        return create_response(data=pagination_photo_booths_data, status_code=status.HTTP_200_OK)
 
 
 class PhotoBoothLocationListAPI(APIView):
@@ -337,7 +363,7 @@ class PhotoBoothLocationListAPI(APIView):
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
-        name = serializers.CharField()
+        location = serializers.CharField()
         latitude = serializers.FloatField()
         longitude = serializers.FloatField()
         is_liked = serializers.BooleanField(default=None)
@@ -379,15 +405,22 @@ class PhotoBoothLocationListAPI(APIView):
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
+
+        validated_data = filter_serializer.validated_data
+
+        longitude = validated_data.get("longitude")
+        latitude = validated_data.get("latitude")
+        radius = validated_data.get("radius")
+
         center_point = Point(
-            x=filter_serializer.validated_data["longitude"],
-            y=filter_serializer.validated_data["latitude"],
+            x=longitude,
+            y=latitude,
             srid=4326,
         )
         photo_booths_selector = PhotoBoothSelector()
         photo_booths = photo_booths_selector.get_nearby_photo_booth_with_brand_and_hashtag_and_user_info_queryset(
             center_point=center_point,
-            radius=filter_serializer.validated_data["radius"],
+            radius=radius,
             user=request.user,
         )
         photo_booths_data = self.OutputSerializer(
@@ -462,9 +495,11 @@ class PhotoBoothDetailAPI(APIView):
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
 
-        longitude = filter_serializer.validated_data.get("longitude")
-        latitude = filter_serializer.validated_data.get("latitude")
+        validated_data = filter_serializer.validated_data
+
         center_point = None
+        longitude = validated_data.get("longitude")
+        latitude = validated_data.get("latitude")
 
         if longitude is not None and latitude is not None:
             center_point = Point(

@@ -57,12 +57,10 @@ class PhotoBoothSelector:
             )
         return qs
 
-    def get_nearby_photo_booth_queryset_by_brand_name(
-        self, center_point: Point, radius: int, photo_booth_brand_name: str
-    ) -> QuerySet[PhotoBooth]:
+    def get_nearby_photo_booth_queryset_by_name(self, center_point: Point, radius: int, name: str) -> QuerySet[PhotoBooth]:
         return PhotoBooth.objects.filter(
             point__distance_lte=(center_point, Distance(km=radius)),
-            photo_booth_brand__name__icontains=photo_booth_brand_name,
+            name__icontains=name,
         )
 
     def get_photo_booth_with_brand_and_hashtag_queryset_by_user_like(self, user_id) -> QuerySet[PhotoBooth]:

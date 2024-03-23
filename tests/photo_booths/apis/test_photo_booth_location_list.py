@@ -39,7 +39,7 @@ class TestPhotoBoothLocationList(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert len(response.data["data"]) == 1
         assert response.data["data"][0]["id"] == str(photo_booth.id)
-        assert response.data["data"][0]["name"] == photo_booth.name
+        assert response.data["data"][0]["location"] == photo_booth.location
         assert response.data["data"][0]["latitude"] == float(photo_booth.latitude)
         assert response.data["data"][0]["longitude"] == float(photo_booth.longitude)
         assert not response.data["data"][0]["is_liked"]
