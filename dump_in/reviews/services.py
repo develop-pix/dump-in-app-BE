@@ -9,6 +9,7 @@ from dump_in.common.exception.exceptions import (
     PermissionDeniedException,
 )
 from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
+from dump_in.reviews.enums import ReviewType
 from dump_in.reviews.models import Review, ReviewImage
 from dump_in.reviews.selectors.concepts import ConceptSelector
 from dump_in.reviews.selectors.reviews import ReviewSelector
@@ -180,33 +181,31 @@ class ReviewService:
 
         return review
 
-    # def review_reel(self, review_type: str, review_id: int, filters: Optional[dict]) -> int:
-    #     review = self.review_selector.get_public_review_by_id(review_id=review_id)
+    def review_reel(self, review_type: str, review_id: int, filters: Optional[dict]) -> int:
+        review = self.review_selector.get_public_review_by_id(review_id=review_id)
 
-    #     if review is None:
-    #         raise NotFoundException("Review does not exist")
+        if review is None:
+            raise NotFoundException("Review does not exist")
 
-    #     if review_type == ReviewType.PHOTO_BOOTH.value:
-    #         review = self.review_selector.get_review_queryset_by_photo_booth_id_and_created_at_order_by_created_at_desc(
-    #             photo_booth_id=str(review.photo_booth_id), created_at=review.created_at
-    #         )[:1].get()
+        if review_type == ReviewType.PHOTO_BOOTH.value:
+            review = self.review_selector.get_review_queryset_by_photo_booth_id_and_created_at_before_order_by_created_at_desc(
+                photo_booth_id=str(review.photo_booth_id), created_at=review.created_at
+            )[:1].get()
 
-    #     elif review_type == ReviewType.PHOTO_BOOTH_BRAND.value:
-    #         review = self.review_selector.get_review_queryset_by_photo_booth_brand_id_and_created_at_order_by_created_at_desc(
-    #             photo_booth_brand_id=review.photo_booth.photo_booth_brand_id, created_at=review.created_at
-    #         )[:1].get()
+        elif review_type == ReviewType.PHOTO_BOOTH_BRAND.value:
+            review = self.review_selector.get_review_queryset_by_photo_booth_brand_id_and_created_at_before_order_by_created_at_desc(
+                photo_booth_brand_id=review.photo_booth.photo_booth_brand_id, created_at=review.created_at
+            )[:1].get()
 
-    #     elif review_type == ReviewType.FILTER.value:
-    #         print(filters)
-    #         review = self.review_selector.get_review_list_by_created_at_order_by_created_at_desc(
-    #             created_at=review.created_at, filters=filters
-    #         )[:1].get()
-    #         print(review)
+        elif review_type == ReviewType.FILTER.value:
+            review = self.review_selector.get_review_list_by_created_at_before_order_by_created_at_desc(
+                created_at=review.created_at, filters=filters
+            )[:1].get()
 
-    #     return review.id
+        elif review_type == ReviewType.HOME.value:
+            review = self.review_selector.get_review_queryset_by_created_at_before_order_by_created_at_desc(
+                created_at=review.created_at,
+            )[:1].get()
 
-    # if review_type == ReviewType.HOME.value:
-    #     pass
-
-    # if review_type == ReviewType.SEARCH.value:
-    #     pass
+        # @TODO: 검색 타입 추가
+        return review.id
