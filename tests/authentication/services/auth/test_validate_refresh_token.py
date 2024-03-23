@@ -13,20 +13,20 @@ class TestValidateRefreshToken:
 
     def test_validate_refresh_token_success_access_token(self, valid_user):
         refresh = RefreshToken.for_user(user=valid_user)
-        refresh_token, access_token = self.auth_service.validate_refresh_token(
+        token_data = self.auth_service.validate_refresh_token(
             refresh=str(refresh),
             is_refresh_generated=False,
         )
 
-        assert refresh_token is None
-        assert access_token is not None
+        assert token_data["access_token"] is not None
+        assert token_data["refresh_token"] is None
 
     def test_validate_refresh_token_success_refresh_token(self, valid_user):
         refresh = RefreshToken.for_user(user=valid_user)
-        refresh_token, access_token = self.auth_service.validate_refresh_token(
+        token_data = self.auth_service.validate_refresh_token(
             refresh=str(refresh),
             is_refresh_generated=True,
         )
 
-        assert refresh_token is not None
-        assert access_token is not None
+        assert token_data["access_token"] is not None
+        assert token_data["refresh_token"] is not None

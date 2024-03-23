@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from rest_framework_simplejwt.exceptions import TokenError
@@ -12,9 +13,21 @@ from dump_in.users.selectors.users import UserSelector
 
 
 class AuthService:
-    def generate_token(self, user: User) -> tuple[str, str]:
+    def _get_expired_at_by_token(self, token: RefreshToken) -> str:
+        return datetime.fromtimestamp(token.get("exp")).strftime("%Y-%m-%d %H:%M:%S")
+
+    def generate_token(self, user: User) -> dict[str, dict[str, str]]:
         refresh_token = RefreshToken.for_user(user=user)
-        return str(refresh_token), str(refresh_token.access_token)
+        return {
+            "access_token": {
+                "token": str(refresh_token.access_token),
+                "expired_at": self._get_expired_at_by_token(refresh_token.access_token),
+            },
+            "refresh_token": {
+                "token": str(refresh_token),
+                "expired_at": self._get_expired_at_by_token(refresh_token),
+            },
+        }
 
     def authenticate_user(self, username: str) -> User:
         user_selector = UserSelector()
@@ -33,10 +46,16 @@ class AuthService:
 
         return user
 
-    def validate_refresh_token(self, refresh: str, is_refresh_generated: bool) -> tuple[Optional[str], str]:
+    def validate_refresh_token(self, refresh: RefreshToken, is_refresh_generated: bool) -> dict[str, Optional[dict[str, str]]]:
         try:
             refresh_token = RefreshToken(refresh)
-            access_token = str(refresh_token.access_token)
+            data = {
+                "access_token": {
+                    "token": str(refresh_token.access_token),
+                    "expired_at": self._get_expired_at_by_token(refresh_token.access_token),
+                },
+                "refresh_token": None,
+            }
 
         except TokenError:
             raise InvalidTokenException("Token is invalid or expired")
@@ -51,6 +70,8 @@ class AuthService:
             refresh_token.set_exp()
             refresh_token.set_iat()
 
-            refresh_token = str(refresh_token)
-            return refresh_token, access_token
-        return None, access_token
+            data["refresh_token"] = {
+                "token": str(refresh_token),
+                "expired_at": self._get_expired_at_by_token(refresh_token),
+            }
+        return data

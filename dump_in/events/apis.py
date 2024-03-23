@@ -4,8 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from dump_in.common.authentication import CustomJWTAuthentication
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.exception.exceptions import NotFoundException
 from dump_in.common.fields import CustomMultipleChoiceField
@@ -18,7 +18,7 @@ from dump_in.events.services import EventService
 
 
 class EventListAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (AllowAny,)
 
     class Pagination(LimitOffsetPagination):
@@ -112,7 +112,7 @@ class EventHomeAPI(APIView):
 
 
 class EventDetailAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (AllowAny,)
 
     class OutputSerializer(BaseSerializer):
@@ -162,7 +162,7 @@ class EventDetailAPI(APIView):
 
 
 class EventLikeAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(BaseSerializer):

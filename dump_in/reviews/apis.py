@@ -6,8 +6,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from dump_in.common.authentication import CustomJWTAuthentication
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.fields import CustomMultipleChoiceField
 from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
@@ -21,7 +21,7 @@ from dump_in.reviews.services import ReviewService
 
 
 class ReviewListAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (AllowAny,)
 
     def get_permissions(self):
@@ -110,7 +110,7 @@ class ReviewListAPI(APIView):
 
 
 class ReviewListCountAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (AllowAny,)
 
     class FilterSerializer(BaseSerializer):
@@ -147,7 +147,7 @@ class ReviewListCountAPI(APIView):
 
 
 class ReviewDetailAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get_permissions(self):
@@ -295,7 +295,7 @@ class ReviewDetailAPI(APIView):
 
 
 # class ReviewDetailReelAPI(APIView):
-#     authentication_classes = (JWTAuthentication,)
+#     authentication_classes = (CustomJWTAuthentication,)
 #     permission_classes = (AllowAny,)
 
 #     class FilterSerializer(BaseSerializer):
@@ -346,7 +346,7 @@ class ReviewDetailAPI(APIView):
 
 
 class ReviewLikeAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(BaseSerializer):
@@ -372,7 +372,7 @@ class ReviewLikeAPI(APIView):
 
 
 class ReviewPhotoBoothLocationSearchAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class Pagination(LimitOffsetPagination):

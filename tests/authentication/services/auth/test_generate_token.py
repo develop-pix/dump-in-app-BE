@@ -10,7 +10,7 @@ class TestGenerateToken:
         self.auth_service = AuthService()
 
     def test_generate_token_success(self, valid_user):
-        refresh_token, access_token = self.auth_service.generate_token(user=valid_user)
+        token_data = self.auth_service.generate_token(user=valid_user)
 
-        assert refresh_token is not None
-        assert access_token is not None
+        assert token_data["access_token"] is not None
+        assert token_data["refresh_token"] is not None

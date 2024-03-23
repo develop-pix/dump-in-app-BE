@@ -13,6 +13,7 @@ from dump_in.authentication.services.kakao_oauth import KakaoLoginFlowService
 from dump_in.authentication.services.naver_oauth import NaverLoginFlowService
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.response import create_response
+from dump_in.common.utils import inline_serializer
 from dump_in.users.enums import UserProvider
 from dump_in.users.services.users import UserService
 
@@ -20,11 +21,21 @@ from dump_in.users.services.users import UserService
 class UserJWTRefreshAPI(APIView):
     class InputSerializer(BaseSerializer):
         refresh = serializers.CharField()
-        is_refresh_generated = serializers.BooleanField()
+        is_refresh_generated = serializers.BooleanField(required=False)
 
     class OutputSerializer(BaseSerializer):
-        access_token = serializers.CharField()
-        refresh_token = serializers.CharField()
+        access_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
+        refresh_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
 
     @swagger_auto_schema(
         tags=["인증"],
@@ -36,14 +47,14 @@ class UserJWTRefreshAPI(APIView):
     )
     def post(self, request: Request) -> Response:
         """
-        refresh token을 입력받아 access token을 발급합니다.
+        refrsh 토큰을 통해 is_refresh_generated의 여부에 따라 토큰들을 재발급합니다.
         url: /app/api/auth/jwt/refresh
         """
         input_serializer = self.InputSerializer(data=request.data)
         input_serializer.is_valid(raise_exception=True)
         auth_service = AuthService()
-        refresh_token, access_token = auth_service.validate_refresh_token(**input_serializer.validated_data)
-        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
+        token = auth_service.validate_refresh_token(**input_serializer.validated_data)
+        token_data = self.OutputSerializer(token).data
         return create_response(token_data, status_code=status.HTTP_200_OK)
 
 
@@ -56,8 +67,18 @@ class KakaoLoginAPI(APIView):
         mobile_token = serializers.CharField(required=False, allow_null=True, default=None)
 
     class OutputSerializer(BaseSerializer):
-        access_token = serializers.CharField()
-        refresh_token = serializers.CharField()
+        access_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
+        refresh_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
 
     @swagger_auto_schema(
         tags=["인증"],
@@ -109,8 +130,8 @@ class KakaoLoginAPI(APIView):
         # User Authenticate & Generate Token
         auth_service = AuthService()
         auth_service.authenticate_user(username=str(user.username))
-        refresh_token, access_token = auth_service.generate_token(user=user)
-        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
+        token = auth_service.generate_token(user=user)
+        token_data = self.OutputSerializer(token).data
         return create_response(data=token_data, status_code=status.HTTP_200_OK)
 
 
@@ -123,15 +144,25 @@ class NaverLoginAPI(APIView):
         mobile_token = serializers.CharField(required=False, allow_null=True, default=None)
 
     class OutputSerializer(BaseSerializer):
-        access_token = serializers.CharField()
-        refresh_token = serializers.CharField()
+        access_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
+        refresh_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
 
     @swagger_auto_schema(
         tags=["인증"],
         operation_summary="네이버 로그인",
         request_body=InputSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
         },
     )
     def post(self, request: Request) -> Response:
@@ -176,8 +207,8 @@ class NaverLoginAPI(APIView):
         # User Authenticate & Generate Token
         auth_service = AuthService()
         auth_service.authenticate_user(username=str(user.username))
-        refresh_token, access_token = auth_service.generate_token(user=user)
-        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
+        token = auth_service.generate_token(user=user)
+        token_data = self.OutputSerializer(token).data
         return create_response(data=token_data, status_code=status.HTTP_200_OK)
 
 
@@ -190,15 +221,25 @@ class AppleLoginAPI(APIView):
         mobile_token = serializers.CharField(required=False, allow_null=True, default=None)
 
     class OutputSerializer(BaseSerializer):
-        access_token = serializers.CharField()
-        refresh_token = serializers.CharField()
+        access_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
+        refresh_token = inline_serializer(
+            fields={
+                "token": serializers.CharField(),
+                "expired_at": serializers.DateTimeField(),
+            }
+        )
 
     @swagger_auto_schema(
         tags=["인증"],
         operation_summary="애플 로그인",
         request_body=InputSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
         },
     )
     def post(self, request: Request) -> Response:
@@ -235,6 +276,6 @@ class AppleLoginAPI(APIView):
         # User Authenticate & Generate Token
         auth_service = AuthService()
         auth_service.authenticate_user(username=str(user.username))
-        refresh_token, access_token = auth_service.generate_token(user=user)
-        token_data = self.OutputSerializer({"access_token": access_token, "refresh_token": refresh_token}).data
+        token = auth_service.generate_token(user=user)
+        token_data = self.OutputSerializer(token).data
         return create_response(data=token_data, status_code=status.HTTP_200_OK)

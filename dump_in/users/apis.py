@@ -4,8 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from dump_in.common.authentication import CustomJWTAuthentication
 from dump_in.common.base.serializers import BaseResponseSerializer, BaseSerializer
 from dump_in.common.pagination import LimitOffsetPagination, get_paginated_data
 from dump_in.common.response import create_response
@@ -21,7 +21,7 @@ from dump_in.users.services.users import UserService
 
 
 class UserDetailAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class InputSerializer(BaseSerializer):
@@ -87,7 +87,7 @@ class UserDetailAPI(APIView):
 
 
 class MyReviewAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class Pagination(LimitOffsetPagination):
@@ -131,7 +131,7 @@ class MyReviewAPI(APIView):
 
 
 class MyReviewLikeAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class Pagination(LimitOffsetPagination):
@@ -175,7 +175,7 @@ class MyReviewLikeAPI(APIView):
 
 
 class MyPhotoBoothLikeAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class Pagination(LimitOffsetPagination):
@@ -228,7 +228,7 @@ class MyPhotoBoothLikeAPI(APIView):
 
 
 class MyEventLikeAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class Pagination(LimitOffsetPagination):
@@ -274,7 +274,7 @@ class MyEventLikeAPI(APIView):
 
 
 class NotificationListAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(BaseSerializer):
@@ -322,7 +322,7 @@ class NotificationListAPI(APIView):
 
 
 class NotificationCheckAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(BaseSerializer):
@@ -354,7 +354,7 @@ class NotificationCheckAPI(APIView):
 
 
 class NotificationDetailAPI(APIView):
-    authentication_classes = (JWTAuthentication,)
+    authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     class OutputSerializer(BaseSerializer):
