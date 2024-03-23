@@ -15,7 +15,13 @@ from dump_in.common.response import create_response
 from dump_in.common.utils import inline_serializer
 from dump_in.photo_booths.enums import PhotoBoothLocation
 from dump_in.photo_booths.selectors.photo_booths import PhotoBoothSelector
-from dump_in.reviews.enums import CameraShot, Concept, FrameColor, Participants
+from dump_in.reviews.enums import (
+    CameraShot,
+    Concept,
+    FrameColor,
+    Participants,
+    ReviewType,
+)
 from dump_in.reviews.selectors.reviews import ReviewSelector
 from dump_in.reviews.services import ReviewService
 
@@ -294,55 +300,55 @@ class ReviewDetailAPI(APIView):
         return create_response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-# class ReviewDetailReelAPI(APIView):
-#     authentication_classes = (CustomJWTAuthentication,)
-#     permission_classes = (AllowAny,)
+class ReviewDetailReelAPI(APIView):
+    authentication_classes = (CustomJWTAuthentication,)
+    permission_classes = (AllowAny,)
 
-#     class FilterSerializer(BaseSerializer):
-#         prev_review_id = serializers.IntegerField(required=False, allow_null=True, default=None)
-#         review_type = serializers.ChoiceField(required=True, choices=[review_type.value for review_type in ReviewType])
-#         photo_booth_location = CustomMultipleChoiceField(
-#             required=False, choices=[photo_booth_location.value for photo_booth_location in PhotoBoothLocation]
-#         )
-#         frame_color = CustomMultipleChoiceField(required=False, choices=[frame_color.value for frame_color in FrameColor])
-#         participants = CustomMultipleChoiceField(required=False, choices=[participants.value for participants in Participants])
-#         camera_shot = CustomMultipleChoiceField(required=False, choices=[camera_shot.value for camera_shot in CameraShot])
-#         concept = CustomMultipleChoiceField(required=False, choices=[concept.value for concept in Concept])
+    class FilterSerializer(BaseSerializer):
+        prev_review_id = serializers.IntegerField(required=False, allow_null=True, default=None)
+        review_type = serializers.ChoiceField(required=True, choices=[review_type.value for review_type in ReviewType])
+        photo_booth_location = CustomMultipleChoiceField(
+            required=False, choices=[photo_booth_location.value for photo_booth_location in PhotoBoothLocation]
+        )
+        frame_color = CustomMultipleChoiceField(required=False, choices=[frame_color.value for frame_color in FrameColor])
+        participants = CustomMultipleChoiceField(required=False, choices=[participants.value for participants in Participants])
+        camera_shot = CustomMultipleChoiceField(required=False, choices=[camera_shot.value for camera_shot in CameraShot])
+        concept = CustomMultipleChoiceField(required=False, choices=[concept.value for concept in Concept])
 
-#     class OutputSerializer(BaseSerializer):
-#         next_review_id = serializers.IntegerField()
-#         current_review_id = serializers.IntegerField()
-#         prev_review_id = serializers.IntegerField()
+    class OutputSerializer(BaseSerializer):
+        next_review_id = serializers.IntegerField()
+        current_review_id = serializers.IntegerField()
+        prev_review_id = serializers.IntegerField()
 
-#     @swagger_auto_schema(
-#         tags=["리뷰"],
-#         operation_summary="리뷰 릴스(순서) 조회",
-#         query_serializer=FilterSerializer,
-#         responses={
-#             status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
-#         },
-#     )
-#     def get(self, request: Request, review_id: int) -> Response:
-#         """
-#         사용자가 포토부스에 대한 리뷰 릴스(순서)를 조회합니다.
-#         url: /app/api/reviews/<int:review_id>/reels
-#         """
-#         filter_serializer = self.FilterSerializer(data=request.query_params)
-#         filter_serializer.is_valid(raise_exception=True)
-#         review_service = ReviewService()
-#         review_next_id = review_service.review_reel(
-#             review_type=filter_serializer.validated_data["review_type"],
-#             review_id=review_id,
-#             filters=filter_serializer.validated_data,
-#         )
-#         review_reel_data = self.OutputSerializer(
-#             {
-#                 "next_review_id": review_next_id,
-#                 "current_review_id": review_id,
-#                 "prev_review_id": filter_serializer.validated_data.get("prev_review_id"),
-#             }
-#         ).data
-#         return create_response(data=review_reel_data, status_code=status.HTTP_200_OK)
+    @swagger_auto_schema(
+        tags=["리뷰"],
+        operation_summary="리뷰 릴스(순서) 조회",
+        query_serializer=FilterSerializer,
+        responses={
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+        },
+    )
+    def get(self, request: Request, review_id: int) -> Response:
+        """
+        사용자가 포토부스에 대한 리뷰 릴스(순서)를 조회합니다.
+        url: /app/api/reviews/<int:review_id>/reels
+        """
+        filter_serializer = self.FilterSerializer(data=request.query_params)
+        filter_serializer.is_valid(raise_exception=True)
+        review_service = ReviewService()
+        review_next_id = review_service.review_reel(
+            review_type=filter_serializer.validated_data["review_type"],
+            review_id=review_id,
+            filters=filter_serializer.validated_data,
+        )
+        review_reel_data = self.OutputSerializer(
+            {
+                "next_review_id": review_next_id,
+                "current_review_id": review_id,
+                "prev_review_id": filter_serializer.validated_data.get("prev_review_id"),
+            }
+        ).data
+        return create_response(data=review_reel_data, status_code=status.HTTP_200_OK)
 
 
 class ReviewLikeAPI(APIView):

@@ -50,5 +50,5 @@ class Concept(Enum):
 class ReviewType(Enum):
     PHOTO_BOOTH_BRAND = "photo_booth_brand"
     PHOTO_BOOTH = "photo_booth"
+    HOME = "home"
     FILTER = "filter"
-    SEARCH = "search"
