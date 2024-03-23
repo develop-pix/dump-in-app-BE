@@ -161,8 +161,12 @@ class PhotoBoothBrandEventListAPI(APIView):
     authentication_classes = (CustomJWTAuthentication,)
     permission_classes = (AllowAny,)
 
+    class Pagination(LimitOffsetPagination):
+        default_limit = 10
+
     class FilterSerializer(BaseSerializer):
-        limit = serializers.IntegerField(default=15, min_value=1, max_value=50)
+        limit = serializers.IntegerField(default=10, min_value=1, max_value=50)
+        offset = serializers.IntegerField(default=0, min_value=0)
 
     class OutputSerializer(BaseSerializer):
         id = serializers.IntegerField()
@@ -175,8 +179,9 @@ class PhotoBoothBrandEventListAPI(APIView):
     @swagger_auto_schema(
         tags=["포토부스"],
         operation_summary="포토부스 업체 이벤트 목록 조회",
+        query_serializer=FilterSerializer,
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, data_serializer_many=True),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer, pagination_serializer=True),
         },
     )
     def get(self, request: Request, photo_booth_brand_id: int) -> Response:
@@ -186,7 +191,6 @@ class PhotoBoothBrandEventListAPI(APIView):
         """
         filter_serializer = self.FilterSerializer(data=request.query_params)
         filter_serializer.is_valid(raise_exception=True)
-        limit = filter_serializer.validated_data["limit"]
 
         photo_booth_brand_selector = PhotoBoothBrandSelector()
         photo_booth_brand = photo_booth_brand_selector.get_photo_booth_brand_by_id(photo_booth_brand_id=photo_booth_brand_id)
@@ -197,9 +201,15 @@ class PhotoBoothBrandEventListAPI(APIView):
         event_selector = EventSelector()
         events = event_selector.get_event_queryset_by_photo_booth_brand_id_order_by_created_at_desc(
             photo_booth_brand_id=photo_booth_brand_id, user=request.user
-        )[0:limit]
-        events_data = self.OutputSerializer(events, many=True).data
-        return create_response(data=events_data, status_code=status.HTTP_200_OK)
+        )
+        pagination_events_data = get_paginated_data(
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=events,
+            request=request,
+            view=self,
+        )
+        return create_response(data=pagination_events_data, status_code=status.HTTP_200_OK)
 
 
 class PhotoBoothBrandReviewListAPI(APIView):
