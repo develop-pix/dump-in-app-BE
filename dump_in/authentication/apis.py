@@ -20,6 +20,7 @@ from dump_in.users.services.users import UserService
 class UserJWTRefreshAPI(APIView):
     class InputSerializer(BaseSerializer):
         refresh = serializers.CharField()
+        is_refresh_generated = serializers.BooleanField()
 
     class OutputSerializer(BaseSerializer):
         access_token = serializers.CharField()

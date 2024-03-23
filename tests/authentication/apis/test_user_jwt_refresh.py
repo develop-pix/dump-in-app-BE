@@ -10,7 +10,7 @@ class TestUserJWTRefresh:
 
         response = api_client.post(
             path=self.url,
-            data={"refresh": str(refresh)},
+            data={"refresh": str(refresh), "is_refresh_generated": False},
             format="json",
         )
 

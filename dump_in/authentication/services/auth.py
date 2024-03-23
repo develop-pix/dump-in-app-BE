@@ -3,7 +3,10 @@ from typing import Optional
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from dump_in.common.exception.exceptions import AuthenticationFailedException
+from dump_in.common.exception.exceptions import (
+    AuthenticationFailedException,
+    InvalidTokenException,
+)
 from dump_in.users.models import User
 from dump_in.users.selectors.users import UserSelector
 
@@ -30,15 +33,20 @@ class AuthService:
 
         return user
 
-    def validate_refresh_token(self, refresh: str) -> tuple[Optional[str], str]:
+    def validate_refresh_token(self, refresh: str, is_refresh_generated: bool) -> tuple[Optional[str], str]:
         try:
             refresh_token = RefreshToken(refresh)
             access_token = str(refresh_token.access_token)
 
         except TokenError:
-            raise AuthenticationFailedException("Token is invalid or expired")
+            raise InvalidTokenException("Token is invalid or expired")
 
-        if refresh_token.get("exp") - refresh_token.get("iat") <= 300:
+        if is_refresh_generated is True:
+            try:
+                refresh.blacklist()
+            except AttributeError:
+                pass
+
             refresh_token.set_jti()
             refresh_token.set_exp()
             refresh_token.set_iat()
