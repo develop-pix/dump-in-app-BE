@@ -68,12 +68,13 @@ class UserService:
         return user
 
     @transaction.atomic
-    def soft_delete_user(self, user_id):
+    def soft_delete_user(self, user_id) -> User:
         user = self.user_selector.get_user_by_id(user_id=user_id)
 
         user.deleted_at = timezone.now()
         user.is_deleted = True
         user.save()
+        return user
 
     @transaction.atomic()
     def hard_bulk_delete_users(self, days: int):

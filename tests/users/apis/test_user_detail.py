@@ -56,7 +56,10 @@ class TestUserDetail(IsAuthenticateTestCase):
         self.authenticate_with_token(access_token)
         response = self.client.delete(self.url)
 
-        assert response.status_code == 204
+        valid_user.refresh_from_db()
+
+        assert response.status_code == 200
+        assert response.data["data"]["is_deleted"] is valid_user.is_deleted
 
     def test_user_detail_delete_fail_not_authenticated(self):
         response = self.client.delete(self.url)

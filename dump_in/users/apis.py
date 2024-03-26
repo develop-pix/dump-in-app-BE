@@ -69,11 +69,14 @@ class UserDetailAPI(APIView):
         user_data = self.OutputSerializer(user).data
         return create_response(data=user_data, status_code=status.HTTP_200_OK)
 
+    class DeleteOutputSerializer(BaseSerializer):
+        is_deleted = serializers.BooleanField()
+
     @swagger_auto_schema(
         tags=["유저"],
         operation_summary="유저 정보 탈퇴",
         responses={
-            status.HTTP_204_NO_CONTENT: "",
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
         },
     )
     def delete(self, request: Request) -> Response:
@@ -82,8 +85,9 @@ class UserDetailAPI(APIView):
         url: /app/api/auth/users/detail
         """
         user_service = UserService()
-        user_service.soft_delete_user(user_id=request.user.id)
-        return create_response(status_code=status.HTTP_204_NO_CONTENT)
+        user = user_service.soft_delete_user(user_id=request.user.id)
+        user_data = self.DeleteOutputSerializer(user).data
+        return create_response(data=user_data, status_code=status.HTTP_200_OK)
 
 
 class MyReviewAPI(APIView):
@@ -187,7 +191,7 @@ class MyPhotoBoothLikeAPI(APIView):
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
-        photo_booth_name = serializers.CharField(source="name")
+        location = serializers.CharField()
         photo_booth_brand_name = serializers.CharField(source="photo_booth_brand.name")
         photo_booth_brand_logo_image_url = serializers.URLField(source="photo_booth_brand.logo_image_url")
         hashtag = inline_serializer(
