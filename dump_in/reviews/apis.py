@@ -308,12 +308,30 @@ class ReviewDetailReelAPI(APIView):
         prev_review_id = serializers.IntegerField(required=False, allow_null=True, default=None)
         review_type = serializers.ChoiceField(required=True, choices=[review_type.value for review_type in ReviewType])
         photo_booth_location = CustomMultipleChoiceField(
-            required=False, choices=[photo_booth_location.value for photo_booth_location in PhotoBoothLocation]
+            required=False,
+            choices=[photo_booth_location.value for photo_booth_location in PhotoBoothLocation],
+            allow_blank=True,
         )
-        frame_color = CustomMultipleChoiceField(required=False, choices=[frame_color.value for frame_color in FrameColor])
-        participants = CustomMultipleChoiceField(required=False, choices=[participants.value for participants in Participants])
-        camera_shot = CustomMultipleChoiceField(required=False, choices=[camera_shot.value for camera_shot in CameraShot])
-        concept = CustomMultipleChoiceField(required=False, choices=[concept.value for concept in Concept])
+        frame_color = CustomMultipleChoiceField(
+            required=False,
+            choices=[frame_color.value for frame_color in FrameColor],
+            allow_blank=True,
+        )
+        participants = CustomMultipleChoiceField(
+            required=False,
+            choices=[str(participants.value) for participants in Participants],
+            allow_blank=True,
+        )
+        camera_shot = CustomMultipleChoiceField(
+            required=False,
+            choices=[camera_shot.value for camera_shot in CameraShot],
+            allow_blank=True,
+        )
+        concept = CustomMultipleChoiceField(
+            required=False,
+            choices=[concept.value for concept in Concept],
+            allow_blank=True,
+        )
 
     class OutputSerializer(BaseSerializer):
         next_review_id = serializers.IntegerField()

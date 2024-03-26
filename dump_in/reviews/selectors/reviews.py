@@ -74,24 +74,28 @@ class ReviewSelector:
         qs = Review.objects.select_related("photo_booth").filter(is_public=True).order_by("-created_at")
         return ReviewFilter(filters, qs).qs
 
-    def get_review_list_by_created_at_before_order_by_created_at_desc(
+    def get_filter_review_by_created_at_before_order_by_created_at_desc(
         self, created_at: datetime, filters: Optional[dict]
-    ) -> QuerySet[Review]:
+    ) -> Optional[Review]:
         filters = filters or {}
         qs = Review.objects.filter(is_public=True, created_at__lt=created_at).order_by("-created_at")
-        return ReviewFilter(filters, qs).qs
+        return ReviewFilter(filters, qs).qs.first()
 
-    def get_review_queryset_by_photo_booth_id_and_created_at_before_order_by_created_at_desc(
+    def get_review_by_photo_booth_id_and_created_at_before_order_by_created_at_desc(
         self, photo_booth_id: str, created_at: datetime
-    ) -> QuerySet[Review]:
-        return Review.objects.filter(photo_booth__id=photo_booth_id, is_public=True, created_at__lt=created_at).order_by("-created_at")
+    ) -> Optional[Review]:
+        return (
+            Review.objects.filter(photo_booth__id=photo_booth_id, is_public=True, created_at__lt=created_at).order_by("-created_at").first()
+        )
 
-    def get_review_queryset_by_photo_booth_brand_id_and_created_at_before_order_by_created_at_desc(
+    def get_review_by_photo_booth_brand_id_and_created_at_before_order_by_created_at_desc(
         self, photo_booth_brand_id: int, created_at: datetime
-    ) -> QuerySet[Review]:
-        return Review.objects.filter(
-            photo_booth__photo_booth_brand_id=photo_booth_brand_id, is_public=True, created_at__lt=created_at
-        ).order_by("-created_at")
+    ) -> Optional[Review]:
+        return (
+            Review.objects.filter(photo_booth__photo_booth_brand_id=photo_booth_brand_id, is_public=True, created_at__lt=created_at)
+            .order_by("-created_at")
+            .first()
+        )
 
-    def get_review_queryset_by_created_at_before_order_by_created_at_desc(self, created_at: datetime) -> QuerySet[Review]:
-        return Review.objects.filter(is_public=True, created_at__lt=created_at).order_by("-created_at")
+    def get_review_by_created_at_before_order_by_created_at_desc(self, created_at: datetime) -> Optional[Review]:
+        return Review.objects.filter(is_public=True, created_at__lt=created_at).order_by("-created_at").first()

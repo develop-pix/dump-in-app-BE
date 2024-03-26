@@ -76,7 +76,7 @@ class UserDetailAPI(APIView):
         tags=["유저"],
         operation_summary="유저 정보 탈퇴",
         responses={
-            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=OutputSerializer),
+            status.HTTP_200_OK: BaseResponseSerializer(data_serializer=DeleteOutputSerializer),
         },
     )
     def delete(self, request: Request) -> Response:
