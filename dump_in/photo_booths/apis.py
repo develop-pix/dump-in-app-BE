@@ -441,7 +441,7 @@ class PhotoBoothDetailAPI(APIView):
 
     class OutputSerializer(BaseSerializer):
         id = serializers.UUIDField()
-        name = serializers.CharField()
+        location = serializers.CharField()
         latitude = serializers.FloatField()
         longitude = serializers.FloatField()
         street_address = serializers.CharField()
@@ -528,7 +528,7 @@ class PhotoBoothDetailAPI(APIView):
         photo_booth_data = self.OutputSerializer(
             {
                 "id": photo_booth.id,
-                "name": photo_booth.name,
+                "location": photo_booth.location,
                 "latitude": photo_booth.latitude,
                 "longitude": photo_booth.longitude,
                 "street_address": photo_booth.street_address,

@@ -24,7 +24,7 @@ class TestPhotoBoothDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == photo_booth.id
-        assert response.data["data"]["name"] == photo_booth.name
+        assert response.data["data"]["location"] == photo_booth.location
         assert response.data["data"]["latitude"] == float(photo_booth.latitude)
         assert response.data["data"]["longitude"] == float(photo_booth.longitude)
         assert response.data["data"]["street_address"] == photo_booth.street_address
@@ -59,7 +59,7 @@ class TestPhotoBoothDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == photo_booth.id
-        assert response.data["data"]["name"] == photo_booth.name
+        assert response.data["data"]["location"] == photo_booth.location
         assert response.data["data"]["latitude"] == float(photo_booth.latitude)
         assert response.data["data"]["longitude"] == float(photo_booth.longitude)
         assert response.data["data"]["street_address"] == photo_booth.street_address
@@ -92,7 +92,7 @@ class TestPhotoBoothDetail(IsAuthenticateTestCase):
 
         assert response.status_code == 200
         assert response.data["data"]["id"] == photo_booth.id
-        assert response.data["data"]["name"] == photo_booth.name
+        assert response.data["data"]["location"] == photo_booth.location
         assert response.data["data"]["latitude"] == float(photo_booth.latitude)
         assert response.data["data"]["longitude"] == float(photo_booth.longitude)
         assert response.data["data"]["street_address"] == photo_booth.street_address

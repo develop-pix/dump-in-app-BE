@@ -25,7 +25,7 @@ class TestMyPhotoBoothLike(IsAuthenticateTestCase):
         assert response.status_code == 200
         assert response.data["data"]["count"] == 1
         assert response.data["data"]["results"][0]["id"] == photo_booth.id
-        assert response.data["data"]["results"][0]["photo_booth_name"] == photo_booth.name
+        assert response.data["data"]["results"][0]["location"] == photo_booth.location
         assert response.data["data"]["results"][0]["photo_booth_brand_name"] == photo_booth.photo_booth_brand.name
         assert response.data["data"]["results"][0]["photo_booth_brand_logo_image_url"] == photo_booth.photo_booth_brand.logo_image_url
         assert response.data["data"]["results"][0]["hashtag"][0]["id"] == photo_booth.photo_booth_brand.hashtag.all()[0].id
